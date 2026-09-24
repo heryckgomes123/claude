@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Star, Link2, Film, Scissors, Plus, ArrowRight, CalendarPlus } from "lucide-react";
 import { Sheet, Select, Toggle, Button, Checkbox, Badge, Input } from "@/components/ui";
@@ -672,6 +673,7 @@ function CampaignSheet({ id, open, onClose }: SheetProps) {
   const create = useAiva((s) => s.create);
   const remove = useAiva((s) => s.remove);
   const setUI = useAiva((s) => s.setUI);
+  const [newBrand, setNewBrand] = useState<string | null>(null);
   if (!camp) return <Missing open={open} onClose={onClose} />;
   const save = (patch: Record<string, unknown>) => update("campaigns", camp.id, patch);
   const linked = contents.filter((c) => c.campaignId === camp.id);
@@ -702,26 +704,32 @@ function CampaignSheet({ id, open, onClose }: SheetProps) {
         </Row>
         <div className="grid gap-4 sm:grid-cols-3">
           <Row label="Marca">
-            <Select
-              value={camp.brandId ?? ""}
-              onChange={async (e) => {
-                if (e.target.value === "__new") {
-                  const name = window.prompt("Nome da marca");
-                  if (name?.trim()) {
-                    const b = await create("brands", { name: name.trim() }, { silent: true });
-                    if (b) save({ brandId: b.id });
-                  }
-                } else save({ brandId: e.target.value || null });
-              }}
-            >
-              <option value="">—</option>
-              {brands.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-              <option value="__new">+ Nova marca</option>
-            </Select>
+            {newBrand === null ? (
+              <Select value={camp.brandId ?? ""} onChange={(e) => (e.target.value === "__new" ? setNewBrand("") : save({ brandId: e.target.value || null }))}>
+                <option value="">—</option>
+                {brands.map((b) => (
+                  <option key={b.id} value={b.id}>
+                    {b.name}
+                  </option>
+                ))}
+                <option value="__new">+ Nova marca</option>
+              </Select>
+            ) : (
+              <Input
+                autoFocus
+                value={newBrand}
+                placeholder="Nome da marca · Enter"
+                onChange={(e) => setNewBrand(e.target.value)}
+                onBlur={() => !newBrand.trim() && setNewBrand(null)}
+                onKeyDown={async (e) => {
+                  if (e.key === "Escape") setNewBrand(null);
+                  if (e.key !== "Enter" || !newBrand.trim()) return;
+                  const b = await create("brands", { name: newBrand.trim() }, { silent: true });
+                  if (b) save({ brandId: b.id });
+                  setNewBrand(null);
+                }}
+              />
+            )}
           </Row>
           <Row label="Valor (R$)">
             <Input type="number" inputMode="decimal" min={0} defaultValue={camp.value ?? ""} key={camp.value ?? "v"} onBlur={(e) => save({ value: e.target.value === "" ? null : Number(e.target.value) })} />

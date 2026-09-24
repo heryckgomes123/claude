@@ -1,5 +1,7 @@
 "use client";
 
+import { newId } from "@/lib/id";
+import { currentSearch, isEmbedded, replaceUrl } from "@/lib/nav";
 import { useEffect, useRef, useState } from "react";
 import { Mic, Send, Plus, History, Trash2, CalendarCheck, Clapperboard, Briefcase } from "lucide-react";
 import { AivaOrb } from "@/components/brand";
@@ -50,8 +52,8 @@ export function AivaChat() {
     if (!value || busy) return;
     setInput("");
     setBusy(true);
-    const uid = crypto.randomUUID();
-    const aid = crypto.randomUUID();
+    const uid = newId();
+    const aid = newId();
     setMessages((m) => [...m, { id: uid, role: "user", text: value }, { id: aid, role: "assistant", text: "", pending: true }]);
     try {
       const reply = await api<AiReply>("/api/ai/chat", { body: { message: value, conversationId: conv, tzOffset: tzOffset() } });
@@ -90,11 +92,11 @@ export function AivaChat() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    const params = new URLSearchParams(window.location.search);
+    const params = currentSearch();
     const q = params.get("q");
     const c = params.get("c");
     if (params.get("voice") === "1") setUI({ voiceOpen: true });
-    window.history.replaceState(null, "", "/aiva");
+    replaceUrl("/aiva");
     if (c) load(c);
     else if (q) send(q, null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -122,7 +124,7 @@ export function AivaChat() {
               <>Conectada ao Claude · conhece seu workspace</>
             ) : (
               <>
-                Modo local · <span className="text-faint">conecte a API da Anthropic para respostas avançadas</span>
+                Motor local · <span className="text-faint">{isEmbedded() ? "entende e age nos seus dados" : "conecte a API da Anthropic para respostas avançadas"}</span>
               </>
             )}
           </p>

@@ -1,5 +1,6 @@
 "use client";
 
+import { currentSearch, isEmbedded } from "@/lib/nav";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AivaContext, createAivaStore, useAiva } from "@/store/aiva";
 import type { Me, Snapshot } from "@/lib/types";
@@ -44,10 +45,10 @@ function Shell({ children }: { children: ReactNode }) {
 
   // Service worker (production only — avoids stale caches during development).
   useEffect(() => {
-    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator && !isEmbedded()) {
       navigator.serviceWorker.register("/sw.js").catch(() => null);
     }
-    const params = new URLSearchParams(window.location.search);
+    const params = currentSearch();
     if (params.get("capture") === "1") setUI({ captureOpen: true, captureMode: "text" });
     if (params.get("voice") === "1") setUI({ voiceOpen: true });
   }, [setUI]);

@@ -20,6 +20,7 @@ type SpeechRecognitionLike = {
 function getRecognition(): (new () => SpeechRecognitionLike) | null {
   if (typeof window === "undefined") return null;
   const w = window as unknown as Record<string, unknown>;
+  if (w.__AIVA_NO_MIC) return null; // embedded builds where the microphone is blocked
   return (w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null) as (new () => SpeechRecognitionLike) | null;
 }
 

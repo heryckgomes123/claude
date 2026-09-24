@@ -104,3 +104,7 @@ A IA só altera dados por ações (`create` / `update` / `delete`, com códigos 
 - Transcrição de voz no servidor para navegadores sem Web Speech API (hoje há fallback para texto).
 - Integrações oficiais com Instagram/TikTok/YouTube para importar métricas automaticamente.
 - Comentários e histórico detalhado por tarefa (o `activity_log` já registra as mudanças).
+
+## Versão HTML única (sem servidor)
+
+`npm run build:html` gera `artifact/dist/aiva.html`: o mesmo app (mesmas telas, motor de IA local e regras) num único arquivo, com a "API" respondida no próprio navegador (`artifact/backend/`). Publicado como Artifact no claude.ai, ele guarda os dados num banco privado do usuário e sincroniza entre desktop e celular; fora do viewer, usa o armazenamento do dispositivo. Nessa versão o microfone não está disponível (o viewer bloqueia), então a voz vira digitação.

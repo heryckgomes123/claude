@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useClientValue } from "@/hooks/use-client-value";
+import { isEmbedded } from "@/lib/nav";
 import { useRouter } from "next/navigation";
 import { Bell, Download, LogOut, Smartphone, Sparkles, SlidersHorizontal, Clapperboard, User, Cpu, RotateCcw, Share } from "lucide-react";
 import { Page, PageHeader } from "@/components/shell/PageHeader";
@@ -41,6 +42,7 @@ export function SettingsView() {
     return () => window.removeEventListener("beforeinstallprompt", onPrompt);
   }, []);
 
+  const embedded = useClientValue(isEmbedded, false);
   if (!me) return null;
   const name = settings.displayName ?? me.user.name;
 
@@ -122,6 +124,7 @@ export function SettingsView() {
           </Link>
         </Section>
 
+        {!embedded && (
         <Section icon={<Smartphone className="h-4 w-4" />} title="Aplicativo">
           <Row label="Instalar na tela inicial" hint={standalone ? "Você já está usando o app instalado." : ios ? "No Safari: toque em Compartilhar → “Adicionar à Tela de Início”." : "Abre em tela cheia, como um app nativo."}>
             {standalone ? (
@@ -140,6 +143,7 @@ export function SettingsView() {
             {perm === "granted" ? <Badge tone="green">Ativas</Badge> : perm === "denied" ? <Badge tone="red">Bloqueadas no navegador</Badge> : perm === "unsupported" ? <Badge>Indisponível</Badge> : <Button size="sm" onClick={askNotifications}><Bell className="h-4 w-4" /> Ativar</Button>}
           </Row>
         </Section>
+        )}
 
         <Section icon={<Cpu className="h-4 w-4" />} title="AIVA AI">
           <Row label="Motor de IA" hint={me.ai.provider === "claude" ? "Claude (Anthropic) com acesso às ações do seu workspace." : "Local: entende linguagem natural e age nos seus dados, sem enviar nada para fora. Defina ANTHROPIC_API_KEY no servidor para respostas avançadas."}>
@@ -153,9 +157,9 @@ export function SettingsView() {
           <a href="/api/export" className="flex items-center gap-3 px-4 py-3.5 text-sm hover:bg-surface-2">
             <Download className="h-4 w-4 text-muted" /> Exportar meus dados (JSON)
           </a>
-          <button onClick={logout} className="flex w-full items-center gap-3 border-t border-line px-4 py-3.5 text-left text-sm text-red hover:bg-red/5">
+          {!embedded && <button onClick={logout} className="flex w-full items-center gap-3 border-t border-line px-4 py-3.5 text-left text-sm text-red hover:bg-red/5">
             <LogOut className="h-4 w-4" /> Sair
-          </button>
+          </button>}
         </Section>
 
         <div className="flex flex-col items-center gap-2 py-6 text-center">

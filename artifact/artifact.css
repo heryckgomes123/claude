@@ -1,0 +1,10 @@
+@import "../src/app/globals.css";
+@source "../src";
+@source "../artifact";
+
+/* Standalone build: fonts come from Google Fonts; the viewer already pads :root by the safe areas. */
+:root {
+  --font-geist-sans: "Geist";
+  --font-geist-mono: "Geist Mono";
+  --safe-top: 0px;
+}

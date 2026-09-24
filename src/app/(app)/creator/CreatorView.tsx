@@ -1,5 +1,6 @@
 "use client";
 
+import { currentSearch, replaceUrl } from "@/lib/nav";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Clapperboard, Lightbulb, CalendarDays, Radio, Megaphone, Wand2, BarChart3, Plus, Star, FileText, Send, Sparkles, Link2 } from "lucide-react";
@@ -51,14 +52,14 @@ export function CreatorView() {
   });
 
   useEffect(() => {
-    const p = new URLSearchParams(window.location.search);
+    const p = currentSearch();
     const t = p.get("tab");
     const open = p.get("open");
     if (open) {
       const entity: EntityName = t === "ideas" ? "ideas" : t === "lives" ? "lives" : t === "brands" ? "campaigns" : "contents";
       setUI({ detail: { entity, id: open } });
       p.delete("open");
-      window.history.replaceState(null, "", `/creator${p.toString() ? `?${p}` : ""}`);
+      replaceUrl(`/creator${p.toString() ? `?${p}` : ""}`);
     }
   }, [setUI]);
 
@@ -86,7 +87,7 @@ export function CreatorView() {
             active={tab === t.value}
             onClick={() => {
               setTab(t.value);
-              window.history.replaceState(null, "", `/creator?tab=${t.value}`);
+              replaceUrl(`/creator?tab=${t.value}`);
             }}
           >
             <t.icon className="h-3.5 w-3.5" /> {t.label}

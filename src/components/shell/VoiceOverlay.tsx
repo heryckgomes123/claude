@@ -25,7 +25,7 @@ type Phase =
 
 function speechSupported() {
   const w = window as unknown as Record<string, unknown>;
-  return Boolean(w.SpeechRecognition ?? w.webkitSpeechRecognition);
+  return !w.__AIVA_NO_MIC && Boolean(w.SpeechRecognition ?? w.webkitSpeechRecognition);
 }
 
 function speak(text: string) {
