@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Marca provisória LIFT: três barras ascendentes = Estrutura • Consistência • Evolução.
+       Substitua pelo logo oficial em /public/brand e ajuste LIFT_CONFIG.logo. -->
+  <rect width="512" height="512" rx="112" fill="#07090d"/>
+  <rect x="120" y="262" width="64" height="130" rx="14" fill="#2a3242"/>
+  <rect x="224" y="196" width="64" height="196" rx="14" fill="#5b7fff" opacity=".55"/>
+  <rect x="328" y="120" width="64" height="272" rx="14" fill="#2f6bff"/>
+</svg>

@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/archivo/wdth.css';
+@import '@fontsource-variable/inter';
+
+/* ────────────────────────────────────────────────────────────
+   LIFT Design Tokens
+   Azul LIFT como identidade; base preto/grafite; contraste alto.
+   ──────────────────────────────────────────────────────────── */
+@theme {
+  --color-bg: #07090d;
+  --color-surface: #0d1118;
+  --color-surface-2: #131923;
+  --color-surface-3: #1a212d;
+  --color-line: rgb(255 255 255 / 0.07);
+  --color-line-strong: rgb(255 255 255 / 0.12);
+  --color-ink: #f3f6fb;
+  --color-ink-2: #b7c0cf;
+  --color-muted: #7d879a;
+  --color-lift: #2f6bff;
+  --color-lift-2: #5b8cff;
+  --color-lift-3: #9db8ff;
+  --color-lift-deep: #0f2a6b;
+  --color-ok: #2fd47a;
+  --color-warn: #ffb020;
+  --color-danger: #ff5a5f;
+  --color-gold: #e8c46a;
+
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius-card: 22px;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --nav-h: 72px;
+  }
+  html,
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior-y: none;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100dvh;
+    overflow-x: clip;
+  }
+  button {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-lift-2);
+    outline-offset: 2px;
+    border-radius: 10px;
+  }
+  ::selection {
+    background: var(--color-lift);
+    color: white;
+  }
+}
+
+@utility font-display-wide {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125;
+}
+@utility font-display-cond {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 88;
+}
+/* Títulos grandes que precisam caber em telas estreitas */
+@utility title-fit {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 100;
+  overflow-wrap: break-word;
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+@utility hud-label {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 112;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+@utility pt-safe {
+  padding-top: max(var(--safe-top), 12px);
+}
+@utility pb-nav {
+  padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 28px);
+}
+
+/* Superfície dos cards: grafite com borda fina e leve brilho superior */
+@utility card-surface {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.035), transparent 40%),
+    var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+}
+
+/* Grade técnica sutil (HUD) usada no fundo de heros */
+@utility hud-grid {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--color-surface-2) 0%, var(--color-surface-3) 50%, var(--color-surface-2) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 14px;
+}
+/* Evita "flash" de loading quando os dados chegam rápido */
+.delayed-reveal {
+  opacity: 0;
+  animation: reveal 0.2s ease 0.18s forwards;
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes reveal {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
