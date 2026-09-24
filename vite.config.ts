@@ -3,11 +3,15 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const isPreview = process.env.VITE_TARGET === 'preview'
+
 export default defineConfig({
+  base: isPreview ? './' : '/',
   plugins: [
     react(),
     tailwindcss(),
     VitePWA({
+      disable: isPreview,
       registerType: 'autoUpdate',
       includeAssets: ['icons/icon.svg', 'icons/apple-touch-icon.png'],
       manifest: {

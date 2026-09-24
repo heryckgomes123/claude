@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useState } from 'react'
-import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
+import { BrowserRouter, MemoryRouter, Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { AnimatePresence, MotionConfig } from 'motion/react'
 import { useAppStore } from '@/store/useAppStore'
 import { AppShell, PlainShell } from '@/components/layout/AppShell'
@@ -28,6 +28,9 @@ const Notificacoes = lazy(() => import('@/pages/Notificacoes'))
 const Comunidade = lazy(() => import('@/pages/Comunidade'))
 const Admin = lazy(() => import('@/pages/admin/Admin'))
 
+// Na pré-visualização hospedada a URL não pode mudar: o roteamento fica em memória.
+const Router = import.meta.env.VITE_TARGET === 'preview' ? MemoryRouter : BrowserRouter
+
 /** Exige sessão (demo por enquanto). Sem sessão: onboarding (1º acesso) ou login. */
 function RequireSession() {
   const session = useAppStore((s) => s.session)
@@ -54,7 +57,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <BrowserRouter>
+      <Router>
         <AnimatePresence>{splash && <Splash key="splash" onDone={done} />}</AnimatePresence>
         {!splash && (
           <Suspense fallback={<PageFallback />}>
@@ -94,7 +97,7 @@ export default function App() {
           </Suspense>
         )}
         <CelebrationLayer />
-      </BrowserRouter>
+      </Router>
     </MotionConfig>
   )
 }

@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "typecheck": "tsc -b",
     "server": "node --env-file-if-exists=.env --watch --import tsx server/index.ts",
-    "server:start": "node --env-file-if-exists=.env --import tsx server/index.ts"
+    "server:start": "node --env-file-if-exists=.env --import tsx server/index.ts",
+    "build:preview": "node scripts/build-preview.mjs"
   },
   "repository": {
     "type": "git",
