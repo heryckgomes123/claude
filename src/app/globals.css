@@ -1,0 +1,301 @@
+@import "tailwindcss";
+
+/* ================================================================== */
+/* AIVA design system                                                  */
+/* Dark, premium, gradient-driven. Gradients mark what matters —       */
+/* primary actions, the AI, active states — never everything.          */
+/* ================================================================== */
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --color-bg: #07070c;
+  --color-bg-2: #0c0b14;
+  --color-ink: #f4f3fa;
+  --color-muted: #a3a1b8;
+  --color-faint: #6f6d86;
+  --color-line: rgb(255 255 255 / 0.08);
+  --color-line-2: rgb(255 255 255 / 0.14);
+  --color-surface: rgb(255 255 255 / 0.035);
+  --color-surface-2: rgb(255 255 255 / 0.06);
+  --color-surface-3: rgb(255 255 255 / 0.09);
+
+  --color-blue: #3d8bff;
+  --color-violet: #8b5cff;
+  --color-pink: #ff4fb0;
+  --color-red: #ff5c7a;
+  --color-orange: #ffa24c;
+  --color-yellow: #ffd55c;
+  --color-green: #3ddc97;
+  --color-cyan: #38d6f5;
+
+  --radius-xl2: 1.25rem;
+  --radius-xl3: 1.75rem;
+
+  --animate-fade-in: fade-in 0.22s ease-out both;
+  --animate-rise: rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.22s cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+  --animate-sheet: sheet 0.32s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-orb: orb 6s ease-in-out infinite;
+  --animate-spin-slow: spin 8s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes sheet {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  @keyframes shimmer {
+    from { background-position: -200% 0; }
+    to { background-position: 200% 0; }
+  }
+  @keyframes orb {
+    0%, 100% { transform: scale(1) rotate(0deg); border-radius: 46% 54% 52% 48% / 50% 46% 54% 50%; }
+    33% { transform: scale(1.04) rotate(60deg); border-radius: 54% 46% 48% 52% / 46% 54% 50% 50%; }
+    66% { transform: scale(0.98) rotate(120deg); border-radius: 50% 50% 54% 46% / 54% 48% 52% 46%; }
+  }
+}
+
+:root {
+  color-scheme: dark;
+  --grad: linear-gradient(135deg, #3d8bff 0%, #8b5cff 50%, #ff4fb0 100%);
+  --grad-soft: linear-gradient(135deg, rgb(61 139 255 / 0.18), rgb(139 92 255 / 0.16) 50%, rgb(255 79 176 / 0.16));
+  --grad-warm: linear-gradient(135deg, #ff4fb0, #ffa24c);
+  --grad-cool: linear-gradient(135deg, #38d6f5, #3d8bff);
+  --grad-green: linear-gradient(135deg, #3ddc97, #38d6f5);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --nav-h: 64px;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  overflow-x: clip;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-sans);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient background glow */
+.aiva-ambient::before {
+  content: "";
+  position: fixed;
+  inset: -20% -10% auto -10%;
+  height: 70vh;
+  background:
+    radial-gradient(40% 50% at 20% 20%, rgb(139 92 255 / 0.16), transparent 70%),
+    radial-gradient(35% 45% at 85% 10%, rgb(255 79 176 / 0.09), transparent 70%),
+    radial-gradient(40% 40% at 60% 40%, rgb(61 139 255 / 0.07), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* iOS: avoid zoom on focus — inputs must be ≥16px */
+input,
+select,
+textarea {
+  font-size: 16px;
+}
+@media (min-width: 1024px) {
+  input,
+  select,
+  textarea {
+    font-size: 14px;
+  }
+}
+
+::selection {
+  background: rgb(139 92 255 / 0.45);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.12) transparent;
+}
+
+:focus-visible {
+  outline: 2px solid #8b5cff;
+  outline-offset: 2px;
+  border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Implicit grid tracks are "auto" and grow with long unbreakable content, which pushes
+   mobile layouts off-screen. Default every grid to one shrinkable column; explicit
+   grid-cols-* utilities (utilities layer) still override this. */
+@layer base {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------- Components ---------------- */
+@layer components {
+  .grad {
+    background-image: var(--grad);
+  }
+  .grad-soft {
+    background-image: var(--grad-soft);
+  }
+  .grad-text {
+    background-image: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-line);
+    border-radius: var(--radius-xl2);
+  }
+  .glass {
+    background: rgb(14 13 24 / 0.72);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid var(--color-line);
+  }
+  .grad-border {
+    position: relative;
+    border: 1px solid transparent;
+    background:
+      linear-gradient(var(--color-bg-2), var(--color-bg-2)) padding-box,
+      var(--grad) border-box;
+  }
+  .pressable {
+    transition:
+      transform 0.12s ease,
+      background-color 0.15s ease,
+      border-color 0.15s ease,
+      opacity 0.15s ease;
+  }
+  .pressable:active {
+    transform: scale(0.97);
+  }
+  .skeleton {
+    background: linear-gradient(90deg, rgb(255 255 255 / 0.04) 25%, rgb(255 255 255 / 0.09) 37%, rgb(255 255 255 / 0.04) 63%);
+    background-size: 400% 100%;
+    animation: var(--animate-shimmer);
+    border-radius: 12px;
+  }
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .pt-safe {
+    padding-top: var(--safe-top);
+  }
+  .pb-safe {
+    padding-bottom: var(--safe-bottom);
+  }
+  .px-safe {
+    padding-left: max(16px, var(--safe-left));
+    padding-right: max(16px, var(--safe-right));
+  }
+}
+
+/* AI orb */
+.aiva-orb {
+  background:
+    radial-gradient(circle at 30% 30%, rgb(255 255 255 / 0.85), transparent 28%),
+    conic-gradient(from 180deg, #3d8bff, #8b5cff, #ff4fb0, #ffa24c, #3d8bff);
+  animation: var(--animate-orb);
+  box-shadow:
+    0 0 40px rgb(139 92 255 / 0.55),
+    0 0 90px rgb(255 79 176 / 0.25);
+}
+
+/* Listening waveform */
+.wave span {
+  display: inline-block;
+  width: 5px;
+  margin: 0 3px;
+  border-radius: 99px;
+  background-image: var(--grad);
+  animation: wave 1s ease-in-out infinite;
+}
+.wave span:nth-child(2) { animation-delay: 0.1s; }
+.wave span:nth-child(3) { animation-delay: 0.2s; }
+.wave span:nth-child(4) { animation-delay: 0.3s; }
+.wave span:nth-child(5) { animation-delay: 0.4s; }
+@keyframes wave {
+  0%, 100% { height: 10px; opacity: 0.6; }
+  50% { height: 34px; opacity: 1; }
+}
+
+.dot-pulse::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+  opacity: 0;
+  animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes ping {
+  0% { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* Rich text in AI replies */
+.aiva-md p + p,
+.aiva-md p + ul,
+.aiva-md ul + p {
+  margin-top: 0.5rem;
+}
+.aiva-md ul {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+.aiva-md ol {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 1.2rem;
+  list-style: decimal;
+}
+.aiva-md strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.aiva-md em {
+  color: var(--color-muted);
+}
+.aiva-md pre {
+  white-space: pre-wrap;
+  font-family: var(--font-sans);
+}
