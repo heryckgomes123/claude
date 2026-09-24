@@ -137,7 +137,9 @@ export function Board<T extends { id: string }>({
                     key={item.id}
                     onPointerDown={(e) => {
                       if (e.button !== 0) return;
-                      if ((e.target as HTMLElement).closest("button, input, a, [role=checkbox]")) return;
+                      // Inner controls keep their own behavior; the card itself (often a <button>) is draggable.
+                      const control = (e.target as HTMLElement).closest("input, textarea, select, a, [role=checkbox], [data-no-drag]");
+                      if (control && e.currentTarget.contains(control)) return;
                       const el = e.currentTarget;
                       pending.current = { id: item.id, from: col.id, startX: e.clientX, startY: e.clientY, el, pointer: e.pointerType };
                       if (e.pointerType !== "mouse") {
