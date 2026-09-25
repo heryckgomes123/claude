@@ -92,6 +92,17 @@ export function defaultTitle(level: number): string {
   return t[t.length - 1] ?? 'Forasteiro';
 }
 
+/** Status VIP derivado do nível (reconhecimento visual na Toca). */
+export const VIP_TIERS = [
+  { id: 'bronze', label: 'VIP Bronze', minLevel: 1, color: '#c07a3a' },
+  { id: 'prata', label: 'VIP Prata', minLevel: 5, color: '#c9c4b8' },
+  { id: 'ouro', label: 'VIP Ouro', minLevel: 10, color: '#e8b04a' },
+  { id: 'diamante', label: 'VIP Diamante', minLevel: 16, color: '#7fd4f2' },
+] as const;
+export function vipTier(level: number) {
+  return [...VIP_TIERS].reverse().find((t) => level >= t.minLevel) ?? VIP_TIERS[0];
+}
+
 /* ------------------------------ Vidas ------------------------------ */
 
 export const MAX_LIVES = 3;

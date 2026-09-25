@@ -29,11 +29,11 @@ await page.getByText('Bem-vindo à Toca do Javali').waitFor({ timeout: 10000 });
 step('convidado criado → tutorial de primeiro acesso');
 for (let i = 0; i < 8; i++) await page.getByRole('button', { name: /Próximo/ }).click();
 await page.getByRole('button', { name: /^Entrar na Toca$/ }).click();
-await page.locator('.hero-name', { hasText: 'Testador E2E' }).waitFor();
+await page.locator('.h2-name', { hasText: 'Testador E2E' }).waitFor();
 step('tutorial concluído → Home');
 
 // Bot
-await page.getByRole('button', { name: /Jogar contra Bot/ }).first().click();
+await page.getByRole('button', { name: /Jogar\s*com bot/i }).first().click();
 await page.getByRole('button', { name: 'Fácil' }).click();
 await page.getByRole('button', { name: '3', exact: true }).first().click();
 await page.getByRole('button', { name: /Começar partida/ }).click();

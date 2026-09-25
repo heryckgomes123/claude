@@ -251,6 +251,19 @@ Senha de todos: **`toca123`**. Também é possível criar conta ou entrar como *
 
 **Reset:** Super Admin → Configurações → *Resetar dados* (confirmação digitando `RESETAR`), ou `npm run db:reset`.
 
+## Artes (ilustrações e retratos)
+
+O visual segue a página de referência do produto (Home com retrato pintado, cartões ilustrados de clube e cartões de jogo em jade, safira e ametista). As ilustrações ficam em `web/public/art/`:
+
+| Arquivo | Onde aparece |
+|---|---|
+| `art/club-join.webp` | Cartão "Entrar em um clube" |
+| `art/club-create.webp` | Cartão "Criar meu clube" |
+| `art/bot.webp` · `art/private-room.webp` · `art/code.webp` | Cartões Jogar com bot / Sala privada / Entrar com código |
+| `art/characters/<id>.webp` | Retrato oficial do personagem (ex.: `borg.webp`) |
+
+As versões atuais foram recortadas da imagem de referência (baixa resolução). **Para a qualidade final, substitua pelos arquivos originais em alta resolução com os mesmos nomes** (sugestão: 2× o tamanho exibido, WebP). Para dar arte pintada a outro personagem, salve `art/characters/<id>.webp` e registre-o em `OFFICIAL_ART` em `web/src/components/Portrait.tsx`; enquanto não houver arte, o app usa a silhueta em SVG.
+
 ## Economia
 
 - **Miúdas** (referência `1 R$ = 1 Miúda`), **Diamantes** (premium/progressão), **Pontos** (reputação/nível), **Vidas** (3).

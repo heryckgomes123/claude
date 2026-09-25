@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Bell, CheckCheck, Coins, Crown, DoorOpen, Medal, Megaphone, Shield, Swords, Trash2, UserPlus, Sparkles, X } from 'lucide-react';
 import { del, get, post } from '../lib/api';
@@ -45,7 +45,8 @@ export default function Notifications() {
   const { refresh } = useSession();
   const toast = useToast();
   const onError = useErrorToast();
-  const [filter, setFilter] = useState('todas');
+  const [params] = useSearchParams();
+  const [filter, setFilter] = useState(() => (params.get('filtro') && FILTERS[params.get('filtro')!] ? params.get('filtro')! : 'todas'));
   const q = useQuery({ queryKey: ['notifications'], queryFn: () => get<{ items: N[] }>('/notifications'), refetchInterval: 15000 });
   const items = (q.data?.items ?? []).filter((n) => !FILTERS[filter].length || FILTERS[filter].includes(n.kind));
   const reload = () => {

@@ -240,13 +240,17 @@ export async function userClubs(q: Queryable, userId: string) {
 
 export async function meDto(q: Queryable, userId: string, settings: GlobalSettings) {
   const row = await getUserRow(q, userId);
-  const [miudas, diamonds, roles, clubs, unread, achCount] = await Promise.all([
+  const [miudas, diamonds, roles, clubs, unread, achCount, invites] = await Promise.all([
     getBalance(q, { type: 'user', id: userId }, 'MIUDA'),
     getBalance(q, { type: 'user', id: userId }, 'DIAMOND'),
     userRoles(q, row),
     userClubs(q, userId),
     q.one<{ n: number }>('SELECT count(*)::int AS n FROM notifications WHERE user_id = $1 AND read_at IS NULL', [userId]),
     q.one<{ n: number }>('SELECT count(*)::int AS n FROM achievements_unlocked WHERE user_id = $1', [userId]),
+    q.one<{ n: number }>(
+      `SELECT count(*)::int AS n FROM notifications WHERE user_id = $1 AND read_at IS NULL AND kind IN ('invite_room','invite_club','club_request')`,
+      [userId],
+    ),
   ]);
   const lp = levelProgress(row.points);
   const lives = effectiveLives(row, settings);
@@ -274,6 +278,7 @@ export async function meDto(q: Queryable, userId: string, settings: GlobalSettin
     stats: row.stats,
     clubs,
     unreadNotifications: Number(unread?.n ?? 0),
+    unreadInvites: Number(invites?.n ?? 0),
     achievementsUnlocked: Number(achCount?.n ?? 0),
     announcement: settings.announcement || null,
     createdAt: new Date(row.created_at).toISOString(),

@@ -81,22 +81,67 @@ export function DiamondGem({ size = 18 }: { size?: number }) {
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
       <defs>
         <linearGradient id="dgem" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#e9fbff" />
-          <stop offset=".45" stopColor="#7fd4f2" />
-          <stop offset="1" stopColor="#1f6f9a" />
+          <stop offset="0" stopColor="#d9ffe9" />
+          <stop offset=".4" stopColor="#3fd982" />
+          <stop offset="1" stopColor="#0d6b3a" />
         </linearGradient>
       </defs>
-      <path d="M6 3h12l4 6-10 12L2 9Z" fill="url(#dgem)" stroke="#0f4a6b" strokeWidth=".8" />
+      <path d="M6 3h12l4 6-10 12L2 9Z" fill="url(#dgem)" stroke="#0a4d2a" strokeWidth=".8" />
       <path d="M2 9h20M8.5 3 6.8 9 12 21 17.2 9 15.5 3M6.8 9 12 3l5.2 6" fill="none" stroke="rgba(255,255,255,.55)" strokeWidth=".7" />
     </svg>
   );
 }
 
-export function PointsSeal({ size = 18 }: { size?: number }) {
+/** Brasão dourado do javali — pontos e reputação. */
+export function PointsCrest({ size = 18 }: { size?: number }) {
   return (
     <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true">
-      <path d="M12 1.8 14.6 4l3.4-.4.9 3.3 3 1.7-1.2 3.2 1.2 3.2-3 1.7-.9 3.3-3.4-.4L12 22.2 9.4 20l-3.4.4-.9-3.3-3-1.7 1.2-3.2-1.2-3.2 3-1.7.9-3.3 3.4.4Z" fill="#9e2b25" stroke="#e0582a" strokeWidth=".8" />
-      <path d="m12 7 1.5 3.1 3.4.5-2.5 2.4.6 3.4L12 14.8l-3 1.6.6-3.4-2.5-2.4 3.4-.5Z" fill="#f0cf83" />
+      <defs>
+        <linearGradient id="pcrest" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fbe3a0" />
+          <stop offset=".45" stopColor="#d9a441" />
+          <stop offset="1" stopColor="#7d4f22" />
+        </linearGradient>
+      </defs>
+      <path d="M12 1.5 21 4.5v6.8c0 5.3-3.8 9.6-9 11.2-5.2-1.6-9-5.9-9-11.2V4.5Z" fill="url(#pcrest)" stroke="#5e3b12" strokeWidth=".8" />
+      <path d="M12 3.4 19.2 5.8v5.5c0 4.3-3 7.8-7.2 9.2-4.2-1.4-7.2-4.9-7.2-9.2V5.8Z" fill="#3a220f" opacity=".85" />
+      <path
+        d="M8.2 8.8 7.2 6.9l1.9 1.1M15.8 8.8l1-1.9-1.9 1.1M8.1 9.5c1-1.3 2.4-1.9 3.9-1.9s2.9.6 3.9 1.9l.4 2.2c.1 1.1-.4 2.1-1.2 2.8l-.6 1.3c-.5.8-1.3 1.2-2.5 1.2s-2-.4-2.5-1.2l-.6-1.3c-.8-.7-1.3-1.7-1.2-2.8Z"
+        fill="url(#pcrest)"
+      />
+      <path d="M10.1 10.6h.01M13.9 10.6h.01" stroke="#3a220f" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+/** Compatibilidade: o selo de pontos agora é o brasão. */
+export const PointsSeal = PointsCrest;
+
+/** Escudo verde com o número do nível. */
+export function LevelShield({ level, size = 26 }: { level: number; size?: number }) {
+  return (
+    <svg viewBox="0 0 26 28" width={size} height={(size * 28) / 26} aria-hidden="true">
+      <defs>
+        <linearGradient id="lshield" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#1f7a4a" />
+          <stop offset="1" stopColor="#0b3a22" />
+        </linearGradient>
+      </defs>
+      <path d="M13 1.5 24 5v8c0 6.4-4.6 11.2-11 13.5C6.6 24.2 2 19.4 2 13V5Z" fill="url(#lshield)" stroke="#4fd98b" strokeWidth="1.2" />
+      <text x="13" y="17.6" textAnchor="middle" fontFamily="Oswald, sans-serif" fontWeight="600" fontSize={level > 99 ? 8 : 11} fill="#d9ffe9">
+        {level}
+      </text>
+    </svg>
+  );
+}
+
+/** Carta com selo de cera — convites. */
+export function LetterSeal({ size = 28 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 28 28" width={size} height={size} fill="none" aria-hidden="true">
+      <path d="M4 6.5h20v15H4Z" stroke="#d9a441" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="m4 6.5 10 8 10-8" stroke="#d9a441" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="14" cy="16.5" r="4" fill="#9e2b25" stroke="#e0582a" strokeWidth=".8" />
+      <path d="M12.3 15.6h.01M15.7 15.6h.01M12.6 18c.9.6 1.9.6 2.8 0" stroke="#f0cf83" strokeWidth="1" strokeLinecap="round" />
     </svg>
   );
 }

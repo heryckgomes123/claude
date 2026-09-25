@@ -5,7 +5,7 @@
  */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Bell, BookOpen, Crown, Dice5, Handshake, Home, LayoutDashboard, Settings, Shield, Trophy, Users, Medal, Maximize, Minimize } from 'lucide-react';
+import { Bell, BookOpen, Crown, Dice5, Handshake, Home, LayoutDashboard, Settings, Shield, Trophy, User, Users, Medal, Maximize, Minimize } from 'lucide-react';
 import { useMe } from '../lib/session';
 import { Portrait } from '../components/Portrait';
 import { DiamondGem, MiudaCoin, PointsSeal } from '../components/Icon';
@@ -126,14 +126,31 @@ export function Rail() {
   );
 }
 
-export function BottomNav() {
+/** Escudo com javali — ícone da aba Clubes (como no visual de referência). */
+function ClubCrest({ size = 30 }: { size?: number }) {
   return (
-    <nav className="bottomnav" aria-label="Navegação principal">
-      <NavItem to="/" end icon={<Home size={22} />} label="Toca" />
-      <NavItem to="/clubes" icon={<Shield size={22} />} label="Clubes" />
-      <NavItem to="/jogar" icon={<Dice5 size={28} />} label="Jogar" play />
-      <NavItem to="/ranking" icon={<Trophy size={22} />} label="Ranking" />
-      <NavItem to="/perfil" icon={<Users size={22} />} label="Perfil" />
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 2 20 5v6c0 5-3.4 8.9-8 10.5C7.4 19.9 4 16 4 11V5Z" />
+      <path d="M8.8 9.2 8.1 7.8l1.5.8M15.2 9.2l.7-1.4-1.5.8M8.7 9.8c.9-1 2-1.5 3.3-1.5s2.4.5 3.3 1.5l.3 1.8c.1.9-.3 1.7-1 2.3l-.5 1c-.4.7-1.1 1-2.1 1s-1.7-.3-2.1-1l-.5-1c-.7-.6-1.1-1.4-1-2.3Z" />
+    </svg>
+  );
+}
+
+export function BottomNav() {
+  const items = [
+    { to: '/', end: true, label: 'Home', icon: <Home size={30} strokeWidth={1.5} /> },
+    { to: '/tutorial', label: 'Tutorial', icon: <BookOpen size={30} strokeWidth={1.5} /> },
+    { to: '/clubes', label: 'Clubes', icon: <ClubCrest size={32} /> },
+    { to: '/perfil', label: 'Perfil', icon: <User size={30} strokeWidth={1.5} /> },
+  ];
+  return (
+    <nav className="bottomnav bottomnav--plank" aria-label="Navegação principal">
+      {items.map((i) => (
+        <NavLink key={i.to} to={i.to} end={i.end} className={({ isActive }) => `plank-tab ${isActive ? 'active' : ''}`} onClick={() => sfx.click()}>
+          {i.icon}
+          <span>{i.label}</span>
+        </NavLink>
+      ))}
     </nav>
   );
 }
@@ -141,6 +158,7 @@ export function BottomNav() {
 export function AppShell({ children }: { children: ReactNode }) {
   const loc = useLocation();
   const immersive = loc.pathname.startsWith('/partida/');
+  const isHome = loc.pathname === '/';
   const mood: SceneMood = loc.pathname === '/' ? 'home' : immersive ? 'dark' : 'dim';
   const mainRef = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -149,8 +167,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       <TavernScene mood={mood} />
-      <div className="app" data-immersive={immersive || undefined}>
-        <TopBar />
+      <div className="app" data-immersive={immersive || undefined} data-notop={isHome || undefined}>
+        {!isHome && <TopBar />}
         {!immersive && <Rail />}
         <main className="main" ref={mainRef} id="main">
           {children}

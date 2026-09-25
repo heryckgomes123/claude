@@ -1,0 +1,24 @@
+/** Screenshot da Home (página inteira) para comparar com o visual de referência. */
+import { chromium } from 'playwright';
+const BASE = process.env.BASE_URL || 'http://localhost:5173';
+const width = Number(process.argv[2] || 414);
+const role = process.argv[3] || 'PLAYER';
+const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
+const page = await (await browser.newContext({ viewport: { width, height: width < 700 ? 896 : 900 }, deviceScaleFactor: 2, isMobile: width < 700, hasTouch: width < 700 })).newPage();
+const errors = [];
+page.on('pageerror', (e) => errors.push(e.message));
+const r = await (await fetch(BASE.replace('5173', '8787') + '/api/auth/demo', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ role }) })).json();
+await page.goto(BASE + '/?skipIntro');
+await page.evaluate((t) => { localStorage.setItem('miuda.token', t); localStorage.setItem('miuda.prefs', JSON.stringify({ sound: false, embers: false })); }, r.token);
+await page.evaluate(async (t) => fetch('/api/me', { method: 'PATCH', headers: { 'content-type': 'application/json', authorization: 'Bearer ' + t }, body: '{"tutorialDone":true}' }), r.token);
+await page.goto(BASE + '/?skipIntro');
+await page.waitForTimeout(2500);
+await page.screenshot({ path: `screenshots/home-${width}.png` });
+await page.evaluate(() => document.querySelector('.main')?.scrollTo(0, 99999));
+await page.waitForTimeout(400);
+await page.screenshot({ path: `screenshots/home-${width}-b.png` });
+await page.evaluate(() => document.querySelector('.main')?.scrollTo(0, 650));
+await page.waitForTimeout(400);
+await page.screenshot({ path: `screenshots/home-${width}-c.png` });
+console.log(errors.length ? errors : 'sem erros');
+await browser.close();

@@ -106,9 +106,21 @@ const ACC: Record<string, Accessory> = {
   ),
 };
 
+/**
+ * Artes oficiais (pintadas) dos personagens. Quando existir um arquivo em
+ * web/public/art/characters/<id>.webp, registre-o aqui e ele substitui a
+ * silhueta em SVG em todo o app.
+ */
+export const OFFICIAL_ART: Record<string, string> = {
+  borg: '/art/characters/borg.webp',
+};
+
 export function CharacterArt({ id, className, withEmblem = true }: { id: string; className?: string; withEmblem?: boolean }) {
   const uid = useId().replace(/:/g, '');
   const c = CHARACTER_MAP[id] ?? CHARACTER_MAP.borg;
+  if (OFFICIAL_ART[c.id]) {
+    return <img src={OFFICIAL_ART[c.id]} className={`char-img ${className ?? ''}`} alt={`${c.name}, ${c.role}`} draggable={false} />;
+  }
   const [base, accent] = c.colors;
   const dark = '#140c08';
   const acc = ACC[c.id] ?? ACC.borg;

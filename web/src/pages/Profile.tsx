@@ -93,7 +93,7 @@ export default function Profile() {
             { id: 'personagens', label: 'Personagens' },
             { id: 'relicario', label: 'Relicário' },
             { id: 'historico', label: 'Histórico' },
-            { id: 'extrato', label: 'Extrato' },
+            { id: 'extrato', label: 'Carteira' },
           ]}
         />
       </div>
