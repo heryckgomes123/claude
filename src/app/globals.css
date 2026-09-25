@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ────────────────────────────────────────────────────────────
+ * R BEAUTY — Design tokens
+ * Premium Beauty + Technology: terracota, bronze, creme, carvão.
+ * ──────────────────────────────────────────────────────────── */
+@theme {
+  --font-sans: var(--font-sans-family), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-display-family), ui-serif, Georgia, serif;
+
+  --color-background: #faf7f3;
+  --color-foreground: #2a2421;
+  --color-card: #ffffff;
+  --color-card-foreground: #2a2421;
+  --color-muted: #f3ede6;
+  --color-muted-foreground: #7c706a;
+  --color-border: #e8dfd5;
+  --color-input: #e1d6ca;
+  --color-ring: #cd7b5f;
+  --color-primary: #b4583f;
+  --color-primary-foreground: #fffaf6;
+  --color-secondary: #f4ede4;
+  --color-secondary-foreground: #3b312c;
+  --color-accent: #f5e2d9;
+  --color-accent-foreground: #7e3a29;
+  --color-destructive: #b0433a;
+  --color-destructive-foreground: #fff8f6;
+
+  --color-charcoal: #1e1a18;
+  --color-charcoal-soft: #2a2522;
+  --color-cream: #f4ede4;
+  --color-sand: #eae0d4;
+
+  --color-terracotta-50: #fbf3ef;
+  --color-terracotta-100: #f5e2d9;
+  --color-terracotta-200: #ebc4b3;
+  --color-terracotta-300: #dea189;
+  --color-terracotta-400: #cd7b5f;
+  --color-terracotta-500: #b4583f;
+  --color-terracotta-600: #9a4731;
+  --color-terracotta-700: #7e3a29;
+  --color-terracotta-800: #642f23;
+  --color-terracotta-900: #4a241c;
+
+  --color-bronze-50: #f8f3ec;
+  --color-bronze-100: #efe3d1;
+  --color-bronze-200: #dfc6a3;
+  --color-bronze-300: #cca679;
+  --color-bronze-400: #b58a58;
+  --color-bronze-500: #9c7248;
+  --color-bronze-600: #7f5c3a;
+  --color-bronze-700: #64482f;
+
+  --color-sage-50: #f1f4ec;
+  --color-sage-100: #e3eadb;
+  --color-sage-500: #6f7f5e;
+  --color-sage-700: #4b5a3e;
+
+  --color-teal-soft-100: #e1ecec;
+  --color-teal-soft-700: #3d676a;
+
+  --color-plum-100: #efe4ee;
+  --color-plum-700: #6a4a68;
+
+  --color-success: #5e7a55;
+  --color-warning: #b7832f;
+  --color-danger: #b0433a;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.5rem;
+
+  --shadow-soft: 0 1px 2px rgb(42 36 33 / 0.04), 0 4px 16px -6px rgb(42 36 33 / 0.08);
+  --shadow-lifted: 0 2px 4px rgb(42 36 33 / 0.04), 0 16px 32px -12px rgb(42 36 33 / 0.16);
+  --shadow-glow: 0 10px 30px -10px rgb(180 88 63 / 0.45);
+
+  --animate-fade-in: fade-in 180ms ease-out;
+  --animate-slide-up: slide-up 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-scale-in: scale-in 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes scale-in {
+    from {
+      opacity: 0;
+      transform: scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes slide-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -400px 0;
+    }
+    to {
+      background-position: 400px 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-terracotta-200);
+    color: var(--color-terracotta-900);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility surface-grain {
+  background-image:
+    radial-gradient(circle at 12% 0%, rgb(235 196 179 / 0.35), transparent 42%),
+    radial-gradient(circle at 100% 0%, rgb(223 198 163 / 0.28), transparent 38%);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-sand) transparent;
+}
+
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility skeleton {
+  background: linear-gradient(90deg, var(--color-muted) 0%, #ece3d9 40%, var(--color-muted) 80%);
+  background-size: 800px 100%;
+  animation: var(--animate-shimmer);
+}
+
+@utility hatched {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgb(124 112 106 / 0.1) 0,
+    rgb(124 112 106 / 0.1) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
