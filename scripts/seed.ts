@@ -260,6 +260,11 @@ type Planned = {
 };
 
 async function main() {
+  // Modo de deploy (Netlify): só cria o DEMO quando ALLOW_DEMO_SEED=true.
+  if (process.argv.includes("--if-enabled") && process.env.ALLOW_DEMO_SEED !== "true") {
+    console.log("• Seed DEMO desativado (ALLOW_DEMO_SEED != true).");
+    return;
+  }
   if (process.env.NODE_ENV === "production" && process.env.ALLOW_DEMO_SEED !== "true") {
     throw new Error("Seed de demonstração bloqueado em produção (defina ALLOW_DEMO_SEED=true para forçar).");
   }

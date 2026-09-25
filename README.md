@@ -123,22 +123,29 @@ npm run build         # build de produção
 npm start             # servir o build localmente
 ```
 
-1. Crie um PostgreSQL gerenciado (ex.: **Neon** ou **Supabase**). As extensões `pg_trgm` e `btree_gist`
-   são criadas pela primeira migration (ambos os provedores suportam).
-2. No Netlify: **Add new site → Import from Git** e selecione este repositório.
-   O `netlify.toml` já define:
-   - build: `npm run netlify:build` (aplica migrations e depois `next build`)
-   - Node 22; o runtime Next.js da Netlify é detectado automaticamente.
-3. Em **Site configuration → Environment variables** defina `DATABASE_URL`
-   (e opcionalmente `NEXT_PUBLIC_APP_TIMEZONE`).
-4. Faça o deploy. Depois, com a mesma `DATABASE_URL` no seu terminal, rode uma única vez:
+### Demonstração/testes em 10 minutos (só navegador, sem terminal)
+
+1. **Banco** — em [neon.tech](https://neon.tech) crie um projeto (região São Paulo, se disponível) e copie a
+   _connection string_ **pooled** (`postgresql://…-pooler…/neondb?sslmode=require`).
+2. **Site** — em [app.netlify.com](https://app.netlify.com): **Add new site → Import an existing project → GitHub**,
+   escolha este repositório e, em **Branch to deploy**, a branch com o código.
+3. **Variáveis** (na mesma tela, _Add environment variables_):
+   - `DATABASE_URL` = connection string do Neon
+   - `ALLOW_DEMO_SEED` = `true` (cria os dados DEMO no primeiro build, apenas se o banco estiver vazio)
+4. **Deploy site**. O build roda `npm run netlify:build` (migrations → seed DEMO opcional → `next build`).
+5. Abra a URL `https://<seu-site>.netlify.app` no computador e no celular e entre com os usuários de teste acima.
+
+### Produção real
+
+1. Mesmo processo, mas **sem** `ALLOW_DEMO_SEED` (ou `false`).
+2. Após o primeiro deploy, com a mesma `DATABASE_URL` no terminal, rode uma única vez:
    ```bash
    BOOTSTRAP_OWNER_EMAIL=voce@rbeauty.com.br BOOTSTRAP_OWNER_PASSWORD='senha-forte' npm run db:bootstrap
    ```
-5. Acesse `/login`, entre como proprietária e cadastre profissionais, serviços e equipe.
+3. Acesse `/login`, entre como proprietária e cadastre profissionais, serviços e equipe.
 
-Para uma instância de demonstração pública, rode `npm run db:seed` no banco dessa instância
-(com `ALLOW_DEMO_SEED=true` se `NODE_ENV=production`).
+Observações: as extensões `pg_trgm` e `btree_gist` são criadas pela primeira migration (Neon e Supabase suportam);
+o `netlify.toml` fixa Node 22 e o runtime Next.js da Netlify é aplicado automaticamente.
 
 ---
 
