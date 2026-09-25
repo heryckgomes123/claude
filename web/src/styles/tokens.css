@@ -1,0 +1,128 @@
+/* ==========================================================================
+   MIÚDA — Design System · Tokens
+   Dark fantasy tavern: madeira escura, bronze, ouro envelhecido, âmbar, brasa.
+   ========================================================================== */
+:root {
+  /* --- Sombras e madeira --- */
+  --c-void: #0b0705;
+  --c-night: #110a06;
+  --c-soot: #180f09;
+  --c-bark: #21150c;
+  --c-wood-900: #2a1a0e;
+  --c-wood-800: #342012;
+  --c-wood-700: #412816;
+  --c-wood-500: #5e3b1f;
+  --c-wood-300: #8b603a;
+  --c-leather: #4b2b17;
+  --c-leather-dark: #2e1a0d;
+  --c-stone-800: #221d19;
+  --c-stone-600: #3a332c;
+  --c-stone-400: #5f564b;
+
+  /* --- Metais --- */
+  --c-bronze-900: #3f2812;
+  --c-bronze-700: #7a4f24;
+  --c-bronze-500: #b07a3c;
+  --c-bronze-300: #d6a766;
+  --c-gold-600: #b8862c;
+  --c-gold-500: #d9a441;
+  --c-gold-300: #f0cf83;
+  --c-gold-100: #fbecc4;
+
+  /* --- Fogo --- */
+  --c-amber: #f2a93b;
+  --c-ember: #e0582a;
+  --c-ember-deep: #a3321a;
+  --c-blood: #9e2b25;
+
+  /* --- Pergaminho e tinta --- */
+  --c-parchment: #e9dcc0;
+  --c-parchment-2: #d8c59f;
+  --c-ink-dark: #2a1a0e;
+
+  /* --- Texto (sobre escuro) --- */
+  --c-text: #f3e7cf;
+  --c-text-2: #cdb892;
+  --c-text-3: #95815f;
+  --c-text-dim: #6e5e45;
+
+  /* --- Semânticas --- */
+  --c-success: #8cc56e;
+  --c-danger: #ef6a47;
+  --c-warning: #f2b544;
+  --c-info: #79b8dc;
+  --c-diamond: #7fd4f2;
+  --c-heart: #e2443a;
+
+  /* --- Tipografia --- */
+  --font-display: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+  --font-title: 'Cinzel', Georgia, serif;
+  --font-ui: 'Alegreya Sans', 'Segoe UI', system-ui, sans-serif;
+
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.375rem;
+  --fs-2xl: 1.75rem;
+  --fs-3xl: 2.25rem;
+  --fs-4xl: 3rem;
+
+  /* --- Espaço e forma --- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --r-xl: 22px;
+  --r-pill: 999px;
+
+  /* --- Profundidade --- */
+  --sh-1: 0 1px 0 rgba(255, 220, 160, 0.06) inset, 0 2px 6px rgba(0, 0, 0, 0.45);
+  --sh-2: 0 1px 0 rgba(255, 220, 160, 0.08) inset, 0 10px 30px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.5);
+  --sh-3: 0 30px 80px rgba(0, 0, 0, 0.7), 0 8px 20px rgba(0, 0, 0, 0.55);
+  --glow-fire: 0 0 24px rgba(242, 140, 50, 0.35), 0 0 60px rgba(224, 88, 42, 0.18);
+  --glow-gold: 0 0 18px rgba(240, 190, 90, 0.45);
+
+  /* --- Materiais --- */
+  --tex-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --tex-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='4' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .05 0 0 0 0 .02 0 0 0 .75 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+
+  --mat-wood: var(--tex-grain), linear-gradient(180deg, #4a2d17 0%, #3a2211 55%, #2c190c 100%);
+  --mat-wood-light: var(--tex-grain), linear-gradient(180deg, #6a4424 0%, #54341b 100%);
+  --mat-leather: var(--tex-noise), radial-gradient(120% 90% at 30% 0%, #55311a 0%, #3a2112 55%, #26150a 100%);
+  --mat-panel: var(--tex-noise), linear-gradient(180deg, rgba(52, 31, 17, 0.94) 0%, rgba(30, 18, 10, 0.96) 100%);
+  --mat-bronze: linear-gradient(180deg, #e6b86a 0%, #b9823f 38%, #7d4f22 62%, #a9763a 100%);
+  --mat-gold: linear-gradient(180deg, #fbe3a0 0%, #e7b958 35%, #a8741f 60%, #d9a441 100%);
+  --mat-iron: linear-gradient(180deg, #5d544a 0%, #37302a 50%, #231e1a 100%);
+  --mat-parchment: var(--tex-noise), radial-gradient(120% 100% at 50% 0%, #f1e5c9 0%, #e1cfa6 60%, #c9b184 100%);
+  --mat-stone: var(--tex-noise), linear-gradient(180deg, #2c2621 0%, #1c1814 100%);
+
+  --border-bronze: 1px solid rgba(214, 167, 102, 0.38);
+  --border-soft: 1px solid rgba(214, 167, 102, 0.16);
+
+  /* --- Layout --- */
+  --topbar-h: 60px;
+  --bottomnav-h: 68px;
+  --rail-w: 92px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --content-max: 1240px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@media (min-width: 1100px) {
+  :root {
+    --rail-w: 232px;
+  }
+}

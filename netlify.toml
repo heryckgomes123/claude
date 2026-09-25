@@ -1,0 +1,37 @@
+# MIÚDA — Da Toca do Javali · configuração de deploy na Netlify
+[build]
+  command = "npm run build:netlify"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  # PGlite (banco embutido de fallback) precisa dos arquivos .wasm/.data originais
+  external_node_modules = ["@electric-sql/pglite", "pg"]
+  included_files = ["node_modules/@electric-sql/pglite/dist/**"]
+
+# SPA: todas as rotas do app caem no index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
