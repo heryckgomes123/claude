@@ -156,6 +156,7 @@
 }
 .dice-empty {
   grid-column: 1 / -1;
+  text-align: center;
   font-family: var(--font-title);
   letter-spacing: 0.1em;
 }
@@ -652,6 +653,7 @@
   overflow-y: auto;
 }
 .results-card {
+  background: var(--tex-noise), linear-gradient(180deg, #2c1a0e, #140b06) !important;
   width: min(100%, 480px);
   display: flex;
   flex-direction: column;

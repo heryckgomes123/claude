@@ -103,7 +103,7 @@ export function effectiveLives(row: Pick<UserRow, 'lives' | 'lives_updated_at'>,
   const regenMs = settings.lifeRegenMinutes * 60_000;
   const updated = new Date(row.lives_updated_at).getTime();
   if (row.lives >= MAX_LIVES) return { lives: MAX_LIVES, nextLifeAt: null as number | null, anchor: now };
-  const gained = Math.floor((now - updated) / regenMs);
+  const gained = Math.max(0, Math.floor((now - updated) / regenMs));
   const lives = Math.min(MAX_LIVES, row.lives + gained);
   if (lives >= MAX_LIVES) return { lives, nextLifeAt: null, anchor: now };
   const anchor = updated + gained * regenMs;

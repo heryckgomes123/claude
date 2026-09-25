@@ -57,11 +57,12 @@
   align-items: flex-start;
   margin-top: var(--sp-5);
   font-size: clamp(3.2rem, 15vw, 7rem);
-  line-height: 1;
+  line-height: 1.3;
   letter-spacing: 0.06em;
 }
 .splash-word span {
   display: inline-block;
+  padding-top: 0.22em;
   opacity: 0;
   transform: translateY(24px) scale(1.4);
   filter: blur(8px);
@@ -74,7 +75,7 @@
 .splash-word sup {
   font-family: var(--font-title);
   font-size: 0.25em;
-  margin-top: 0.4em;
+  margin-top: 0.9em;
   color: var(--c-gold-500);
   opacity: 0;
   transition: opacity 0.6s 0.6s;
@@ -184,13 +185,16 @@
 .wordmark {
   display: flex;
   align-items: flex-start;
-  line-height: 1;
+  line-height: 1.3;
   letter-spacing: 0.05em;
+}
+.wordmark-text {
+  padding-top: 0.2em;
 }
 .wordmark-r {
   font-family: var(--font-title);
   font-size: 0.26em;
-  margin-top: 0.35em;
+  margin-top: 0.8em;
   color: var(--c-gold-500);
 }
 .lockup {

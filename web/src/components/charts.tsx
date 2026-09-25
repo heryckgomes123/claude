@@ -14,7 +14,7 @@ function niceMax(v: number) {
   if (v <= 0) return 1;
   const p = Math.pow(10, Math.floor(Math.log10(v)));
   const n = v / p;
-  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 4 ? 4 : n <= 6 ? 6 : n <= 8 ? 8 : 10) * p;
 }
 
 interface Point {
@@ -102,7 +102,7 @@ export function BarChart({ data, unit, color = SERIES[0], height = 180, days = t
       </div>
       <div className="chart-xaxis">
         {data.map((d, i) => (
-          <span key={d.label} style={{ visibility: i % Math.ceil(data.length / 7) === 0 || i === data.length - 1 ? 'visible' : 'hidden' }}>
+          <span key={d.label} style={{ visibility: (data.length - 1 - i) % Math.ceil(data.length / 7) === 0 ? 'visible' : 'hidden' }}>
             {days ? shortDay(d.label) : d.label}
           </span>
         ))}
@@ -162,7 +162,7 @@ export function AreaChart({ data, unit, color = SERIES[0], height = 180 }: { dat
       </div>
       <div className="chart-xaxis">
         {data.map((d, i) => (
-          <span key={d.label} style={{ visibility: i % Math.ceil(data.length / 7) === 0 || i === data.length - 1 ? 'visible' : 'hidden' }}>
+          <span key={d.label} style={{ visibility: (data.length - 1 - i) % Math.ceil(data.length / 7) === 0 ? 'visible' : 'hidden' }}>
             {shortDay(d.label)}
           </span>
         ))}

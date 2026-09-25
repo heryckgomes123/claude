@@ -314,7 +314,7 @@ export async function seed(q: Queryable, opts: { now?: Date } = {}) {
     });
     if (kind === 'table') {
       const w = state.winners.map((i) => state.players[i].name).join(' e ');
-      activities.push(['game_win', state.players[state.winners[0]].userId, table?.club?.id ?? null, s.prize > 0 ? `${w} venceu na ${roomName} e levou ${s.prize} Miúdas.` : `${w} venceu na ${roomName}.`, J({ gameId, prize: s.prize }), realFinish]);
+      activities.push(['game_win', state.players[state.winners[0]].userId, table?.club?.id ?? null, s.prize > 0 ? `${w} venceu na mesa ${roomName} e levou ${s.prize} Miúdas.` : `${w} venceu na mesa ${roomName}.`, J({ gameId, prize: s.prize }), realFinish]);
     }
     };
   };

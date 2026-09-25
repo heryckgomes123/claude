@@ -47,6 +47,8 @@ export function TableCard({ t, compact }: { t: TableDto; compact?: boolean }) {
           <Badge tone="ember" live>
             Rodada {t.round}/{t.rounds}
           </Badge>
+        ) : t.startsAt && new Date(t.startsAt).getTime() <= Date.now() ? (
+          <Badge tone="ember">Começando…</Badge>
         ) : t.startsAt ? (
           <Badge tone="green">
             <Hourglass size={11} /> <Countdown to={t.startsAt} format="s" />s

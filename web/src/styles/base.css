@@ -135,6 +135,7 @@ p {
   font-family: var(--font-title);
 }
 .t-gold {
+  padding-top: 0.1em;
   background: linear-gradient(180deg, #fff3cf 0%, #f0cf83 30%, #d9a441 55%, #9a6a22 100%);
   -webkit-background-clip: text;
   background-clip: text;
@@ -219,7 +220,7 @@ p {
   gap: var(--sp-4);
 }
 .grid-2 {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
 }
 .grid-3 {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));

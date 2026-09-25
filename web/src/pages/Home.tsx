@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Bot, DoorOpen, Hash, Medal, Shield, Trophy, Flame, Eye, ChevronRight, Megaphone, Sparkles } from 'lucide-react';
+import { Bot, DoorOpen, Hash, Medal, Shield, Trophy, Flame, Eye, ChevronRight, Megaphone, Sparkles, Crown, Handshake, LayoutDashboard, BookOpen } from 'lucide-react';
 import { get, post } from '../lib/api';
 import { useMe, useSession } from '../lib/session';
 import { Portrait } from '../components/Portrait';
@@ -41,6 +41,7 @@ export default function Home() {
   const [modal, setModal] = useState<'bot' | 'room' | 'code' | null>(null);
   const q = useQuery({ queryKey: ['home'], queryFn: () => get<HomeData>('/home'), refetchInterval: 8000 });
   const d = q.data;
+  const adminClubs = me.clubs.filter((c) => c.role === 'owner' || c.role === 'admin');
 
   const refill = async () => {
     try {
@@ -59,6 +60,7 @@ export default function Home() {
     { key: 'clubs', label: 'Clubes', sub: 'Irmandades da Toca', icon: <Shield size={28} />, onClick: () => nav('/clubes') },
     { key: 'rank', label: 'Ranking', sub: 'Os nomes na parede', icon: <Trophy size={28} />, onClick: () => nav('/ranking') },
     { key: 'ach', label: 'Conquistas', sub: `${me.achievementsUnlocked} desbloqueadas`, icon: <Medal size={28} />, onClick: () => nav('/conquistas') },
+    { key: 'tut', label: 'Tutorial', sub: 'Aprenda com Aldren', icon: <BookOpen size={28} />, onClick: () => nav('/tutorial') },
   ];
 
   return (
@@ -181,6 +183,27 @@ export default function Home() {
               </button>
             ))}
           </div>
+
+          {(adminClubs.length > 0 || me.roles.includes('AGENT') || me.roles.includes('SUPER_ADMIN')) && (
+            <div className="manage-strip">
+              <span className="t-xs t-up t-dim">Gestão</span>
+              {adminClubs.map((c) => (
+                <Link key={c.id} to={`/clubes/${c.id}/admin`} className="manage-link">
+                  <Crown size={16} /> {c.name}
+                </Link>
+              ))}
+              {me.roles.includes('AGENT') && (
+                <Link to="/agente" className="manage-link">
+                  <Handshake size={16} /> Painel do Agente
+                </Link>
+              )}
+              {me.roles.includes('SUPER_ADMIN') && (
+                <Link to="/admin" className="manage-link manage-link--gold">
+                  <LayoutDashboard size={16} /> Central de Comando
+                </Link>
+              )}
+            </div>
+          )}
 
           <SectionTitle>Mesas acesas</SectionTitle>
           <div className="tables-scroller">

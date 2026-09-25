@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { ArrowDownLeft, ArrowUpRight, Check, Crown, Lock, Send, Swords, Trophy, Skull, Flame, Target, Bot } from 'lucide-react';
+import { ArrowDownLeft, ArrowUpRight, Check, Crown, Lock, Send, Swords, Trophy, Skull, Flame, Target, Bot, Medal, BookOpen, Bell, Settings, Handshake, LayoutDashboard } from 'lucide-react';
 import { get, patch, post } from '../lib/api';
 import { useMe, useSession } from '../lib/session';
 import { CharacterArt, Portrait } from '../components/Portrait';
@@ -71,6 +71,18 @@ export default function Profile() {
           <Diamonds value={me.diamonds} size={24} />
         </div>
       </Panel>
+
+      <div className="profile-links">
+        <Link to="/conquistas" className="manage-link"><Medal size={16} /> Conquistas</Link>
+        <Link to="/tutorial" className="manage-link"><BookOpen size={16} /> Tutorial</Link>
+        <Link to="/notificacoes" className="manage-link"><Bell size={16} /> Notificações</Link>
+        <Link to="/configuracoes" className="manage-link"><Settings size={16} /> Configurações</Link>
+        {me.clubs.filter((c) => c.role === 'owner' || c.role === 'admin').map((c) => (
+          <Link key={c.id} to={`/clubes/${c.id}/admin`} className="manage-link"><Crown size={16} /> Admin · {c.name}</Link>
+        ))}
+        {me.roles.includes('AGENT') && <Link to="/agente" className="manage-link"><Handshake size={16} /> Agente</Link>}
+        {me.roles.includes('SUPER_ADMIN') && <Link to="/admin" className="manage-link manage-link--gold"><LayoutDashboard size={16} /> Central de Comando</Link>}
+      </div>
 
       <div className="mt-4">
         <Tabs

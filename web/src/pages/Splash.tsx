@@ -27,6 +27,12 @@ export function Splash({ onEnter }: { onEnter: () => void }) {
     if (getPrefs().autoFullscreen) enterFullscreen();
     if (getPrefs().ambience) setAmbience(true);
     setLeaving(true);
+    try {
+      // a introdução toca uma vez por abertura do app (recarregar a página não repete)
+      sessionStorage.setItem('miuda.skipIntro', '1');
+    } catch {
+      /* ignore */
+    }
     setTimeout(onEnter, 900);
   };
 

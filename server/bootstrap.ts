@@ -6,6 +6,7 @@ import { getDb, truncateAll, type Db } from './db';
 import { seed } from './seed';
 import { getMeta, setMeta, clearSettingsCache } from './services/settings';
 import { randomSecret } from './lib/crypto';
+import { createHash } from 'node:crypto';
 
 let ready: Promise<Db> | null = null;
 
@@ -39,6 +40,13 @@ let secretCache: string | null = null;
 export async function sessionSecret(db: Db): Promise<string> {
   if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
   if (secretCache) return secretCache;
+  if (!db.persistent) {
+    // Banco efêmero (sem DATABASE_URL): cada instância serverless teria seu próprio segredo.
+    // Derivamos um segredo estável do site para as sessões sobreviverem entre instâncias.
+    const seed = process.env.SITE_ID || process.env.URL || process.env.DEPLOY_URL || 'miuda-local-dev';
+    secretCache = createHash('sha256').update(`miuda:${seed}`).digest('base64url');
+    return secretCache;
+  }
   const s = await db.tx(async (q) => {
     const existing = await getMeta<string>(q, 'session_secret');
     if (existing) return existing;

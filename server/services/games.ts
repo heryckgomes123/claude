@@ -259,7 +259,7 @@ export async function settleGame(q: Queryable, row: any, state: GameState, setti
       kind: 'game_win',
       actorId: state.players[w0]?.userId ?? null,
       clubId: row.club_id,
-      message: s.prize > 0 ? `${winnerNames} venceu na ${roomName} e levou ${s.prize} Miúdas.` : `${winnerNames} venceu na ${roomName}.`,
+      message: s.prize > 0 ? `${winnerNames} venceu na mesa ${roomName} e levou ${s.prize} Miúdas.` : `${winnerNames} venceu na mesa ${roomName}.`,
       meta: { gameId: row.id, prize: s.prize },
       at,
     });
