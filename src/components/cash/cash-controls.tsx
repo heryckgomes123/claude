@@ -165,7 +165,6 @@ export function CloseCashButton({ expectedCents }: { expectedCents: number }) {
   const [open, setOpen] = useState(false);
   const [counted, setCounted] = useState<number | null>(null);
   const [notes, setNotes] = useState("");
-  const [result, setResult] = useState<{ expectedCents: number; countedCents: number; differenceCents: number } | null>(null);
   const { pending, run, fieldError } = useServerAction();
   if (!can("cash.manage")) return null;
   const difference = counted == null ? null : counted - expectedCents;
@@ -177,7 +176,6 @@ export function CloseCashButton({ expectedCents }: { expectedCents: number }) {
         onClick={() => {
           setCounted(null);
           setNotes("");
-          setResult(null);
           setOpen(true);
         }}
       >
@@ -186,83 +184,52 @@ export function CloseCashButton({ expectedCents }: { expectedCents: number }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent size="sm">
           <DialogHeader>
-            <DialogTitle>{result ? "Caixa fechado" : "Fechar caixa"}</DialogTitle>
-            <DialogDescription>{result ? "Conferência registrada." : "Conte o dinheiro da gaveta e informe o valor."}</DialogDescription>
+            <DialogTitle>Fechar caixa</DialogTitle>
+            <DialogDescription>Conte o dinheiro da gaveta e informe o valor.</DialogDescription>
           </DialogHeader>
           <DialogBody className="space-y-4 pb-5">
             <div className="flex justify-between rounded-2xl bg-muted p-4">
               <span className="text-sm text-muted-foreground">Saldo esperado (dinheiro)</span>
-              <span className="tabular font-bold">{formatMoney(result?.expectedCents ?? expectedCents)}</span>
+              <span className="tabular font-bold">{formatMoney(expectedCents)}</span>
             </div>
-            {result ? (
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Saldo contado</span>
-                  <span className="tabular font-bold">{formatMoney(result.countedCents)}</span>
-                </div>
-                <div
-                  className={cn(
-                    "flex justify-between rounded-xl p-3 font-bold",
-                    result.differenceCents === 0 ? "bg-sage-100 text-sage-700" : "bg-[#f6e1de] text-[#9e3b32]",
-                  )}
-                >
-                  <span>Diferença</span>
-                  <span className="tabular">{formatMoney(result.differenceCents)}</span>
-                </div>
-              </div>
-            ) : (
-              <>
-                <FormField id="counted" label="Saldo contado" required error={fieldError("countedBalanceCents")}>
-                  <MoneyInput id="counted" value={counted} onChange={setCounted} autoFocus />
-                </FormField>
-                {difference !== null && (
-                  <p
-                    className={cn(
-                      "rounded-xl p-3 text-sm font-semibold",
-                      difference === 0 ? "bg-sage-100 text-sage-700" : "bg-bronze-50 text-bronze-700",
-                    )}
-                    aria-live="polite"
-                  >
-                    {difference === 0
-                      ? "Caixa conferido — sem diferença."
-                      : `Diferença de ${formatMoney(difference)} (${difference > 0 ? "sobra" : "falta"}).`}
-                  </p>
+            <FormField id="counted" label="Saldo contado" required error={fieldError("countedBalanceCents")}>
+              <MoneyInput id="counted" value={counted} onChange={setCounted} autoFocus />
+            </FormField>
+            {difference !== null && (
+              <p
+                className={cn(
+                  "rounded-xl p-3 text-sm font-semibold",
+                  difference === 0 ? "bg-sage-100 text-sage-700" : "bg-bronze-50 text-bronze-700",
                 )}
-                <FormField id="close-notes" label="Observações">
-                  <Textarea
-                    id="close-notes"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    maxLength={500}
-                    className="min-h-16"
-                  />
-                </FormField>
-              </>
+                aria-live="polite"
+              >
+                {difference === 0
+                  ? "Caixa conferido — sem diferença."
+                  : `Diferença de ${formatMoney(difference)} (${difference > 0 ? "sobra" : "falta"}).`}
+              </p>
             )}
+            <FormField id="close-notes" label="Observações">
+              <Textarea id="close-notes" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} className="min-h-16" />
+            </FormField>
           </DialogBody>
           <DialogFooter>
-            {result ? (
-              <Button onClick={() => setOpen(false)}>Concluir</Button>
-            ) : (
-              <>
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  Cancelar
-                </Button>
-                <Button
-                  variant="dark"
-                  loading={pending}
-                  disabled={counted == null}
-                  onClick={() =>
-                    run(() => closeCashAction({ countedBalanceCents: counted ?? 0, notes }), {
-                      success: "Caixa fechado.",
-                      onSuccess: setResult,
-                    })
-                  }
-                >
-                  <Lock /> Confirmar fechamento
-                </Button>
-              </>
-            )}
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="dark"
+              loading={pending}
+              disabled={counted == null}
+              onClick={() =>
+                run(() => closeCashAction({ countedBalanceCents: counted ?? 0, notes }), {
+                  success: (r) =>
+                    `Caixa fechado. Esperado ${formatMoney(r.expectedCents)} · contado ${formatMoney(r.countedCents)} · diferença ${formatMoney(r.differenceCents)}.`,
+                  onSuccess: () => setOpen(false),
+                })
+              }
+            >
+              <Lock /> Confirmar fechamento
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

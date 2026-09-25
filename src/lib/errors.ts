@@ -4,7 +4,7 @@ export class AppError extends Error {
   readonly fieldErrors?: Record<string, string[]>;
   constructor(message: string, code = "APP_ERROR", fieldErrors?: Record<string, string[]>) {
     super(message);
-    this.name = "AppError";
+    this.name = new.target.name;
     this.code = code;
     this.fieldErrors = fieldErrors;
   }

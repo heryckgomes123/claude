@@ -76,27 +76,31 @@ export function AttendanceWorkspace(props: Props) {
                     {props.showCommission && ` · comissão ${formatPercent(item.commissionRate)}`}
                   </p>
                 </div>
-                <div className="flex items-center gap-1.5" aria-label={`Quantidade de ${item.serviceName}`}>
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    aria-label="Diminuir quantidade"
-                    disabled={!editable || item.quantity <= 1 || action.pending}
-                    onClick={() => action.run(() => updateItemAction({ itemId: item.id, quantity: item.quantity - 1 }))}
-                  >
-                    <Minus />
-                  </Button>
-                  <span className="tabular w-6 text-center font-bold">{item.quantity}</span>
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    aria-label="Aumentar quantidade"
-                    disabled={!editable || item.quantity >= 20 || action.pending}
-                    onClick={() => action.run(() => updateItemAction({ itemId: item.id, quantity: item.quantity + 1 }))}
-                  >
-                    <Plus />
-                  </Button>
-                </div>
+                {!editable ? (
+                  <span className="tabular text-sm text-muted-foreground">{item.quantity}×</span>
+                ) : (
+                  <div className="flex items-center gap-1.5" aria-label={`Quantidade de ${item.serviceName}`}>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label="Diminuir quantidade"
+                      disabled={!editable || item.quantity <= 1 || action.pending}
+                      onClick={() => action.run(() => updateItemAction({ itemId: item.id, quantity: item.quantity - 1 }))}
+                    >
+                      <Minus />
+                    </Button>
+                    <span className="tabular w-6 text-center font-bold">{item.quantity}</span>
+                    <Button
+                      variant="outline"
+                      size="icon-sm"
+                      aria-label="Aumentar quantidade"
+                      disabled={!editable || item.quantity >= 20 || action.pending}
+                      onClick={() => action.run(() => updateItemAction({ itemId: item.id, quantity: item.quantity + 1 }))}
+                    >
+                      <Plus />
+                    </Button>
+                  </div>
+                )}
                 <span className="tabular w-24 text-right font-bold">{formatMoney(item.totalCents)}</span>
                 {editable && (
                   <Button
@@ -204,32 +208,34 @@ export function AttendanceWorkspace(props: Props) {
               <span className="tabular text-3xl font-extrabold text-foreground">{formatMoney(props.totalCents)}</span>
             </div>
           </CardContent>
-          <div className="space-y-2 border-t border-border bg-muted/40 p-4">
-            {props.status === "IN_PROGRESS" && can("attendance.finish") && (
-              <Button size="lg" className="w-full" onClick={() => setConfirmFinish(true)} loading={action.pending}>
-                <CheckCircle2 /> Finalizar atendimento
-              </Button>
-            )}
-            {props.status === "AWAITING_PAYMENT" && can("payments.create") && (
-              <Button size="lg" className="w-full" onClick={() => setPaying(true)}>
-                <Wallet /> Registrar pagamento
-              </Button>
-            )}
-            {props.status === "AWAITING_PAYMENT" && !can("payments.create") && (
-              <p className="text-center text-sm text-muted-foreground">Aguardando pagamento na recepção.</p>
-            )}
-            {props.status === "AWAITING_PAYMENT" && can("attendance.view_all") && (
-              <Button
-                variant="ghost"
-                className="w-full"
-                onClick={() =>
-                  action.run(() => reopenAttendanceAction({ attendanceId: props.attendanceId }), { success: "Atendimento reaberto." })
-                }
-              >
-                <RotateCcw /> Reabrir para editar
-              </Button>
-            )}
-          </div>
+          {props.status !== "PAID" && (
+            <div className="space-y-2 border-t border-border bg-muted/40 p-4">
+              {props.status === "IN_PROGRESS" && can("attendance.finish") && (
+                <Button size="lg" className="w-full" onClick={() => setConfirmFinish(true)} loading={action.pending}>
+                  <CheckCircle2 /> Finalizar atendimento
+                </Button>
+              )}
+              {props.status === "AWAITING_PAYMENT" && can("payments.create") && (
+                <Button size="lg" className="w-full" onClick={() => setPaying(true)}>
+                  <Wallet /> Registrar pagamento
+                </Button>
+              )}
+              {props.status === "AWAITING_PAYMENT" && !can("payments.create") && (
+                <p className="text-center text-sm text-muted-foreground">Aguardando pagamento na recepção.</p>
+              )}
+              {props.status === "AWAITING_PAYMENT" && can("attendance.view_all") && (
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() =>
+                    action.run(() => reopenAttendanceAction({ attendanceId: props.attendanceId }), { success: "Atendimento reaberto." })
+                  }
+                >
+                  <RotateCcw /> Reabrir para editar
+                </Button>
+              )}
+            </div>
+          )}
         </Card>
       </div>
 

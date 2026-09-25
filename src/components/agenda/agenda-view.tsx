@@ -85,14 +85,14 @@ export function AgendaView({ data, focusAppointmentId }: { data: AgendaPayload; 
             aria-label="Ir para data"
             value={data.date}
             onChange={(e) => e.target.value && navigate({ date: e.target.value })}
-            className="w-auto"
+            className="w-[calc(50%-0.25rem)] sm:w-auto"
           />
           {data.allProfessionals.length > 1 && (
             <NativeSelect
               aria-label="Filtrar por profissional"
               value={data.professionalId ?? ""}
               onChange={(e) => navigate({ professional: e.target.value || null })}
-              className="w-auto min-w-44"
+              className="w-[calc(50%-0.25rem)] sm:w-auto sm:min-w-44"
             >
               <option value="">Todas as profissionais</option>
               {data.allProfessionals.map((p) => (

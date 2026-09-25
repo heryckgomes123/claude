@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatDateKey } from "@/utils/dates";
 import { formatMoney } from "@/utils/money";
 
@@ -16,11 +16,11 @@ export function RevenueChart({ data, height = 240 }: { data: Point[]; height?: n
   return (
     <div role="img" aria-label={`Faturamento no período: ${formatMoney(total)}`} style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}>
+        <BarChart data={chartData} margin={{ top: 8, right: 4, left: -12, bottom: 0 }}>
           <defs>
             <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#b4583f" stopOpacity={0.28} />
-              <stop offset="100%" stopColor="#b4583f" stopOpacity={0} />
+              <stop offset="0%" stopColor="#b4583f" stopOpacity={0.95} />
+              <stop offset="100%" stopColor="#cd7b5f" stopOpacity={0.55} />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="#efe7de" strokeDasharray="3 4" />
@@ -40,7 +40,7 @@ export function RevenueChart({ data, height = 240 }: { data: Point[]; height?: n
             tickFormatter={(v: number) => (v >= 1000 ? `${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}k` : String(v))}
           />
           <Tooltip
-            cursor={{ stroke: "#dea189", strokeWidth: 1, strokeDasharray: "4 4" }}
+            cursor={{ fill: "#f5e2d9", opacity: 0.5 }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const p = payload[0].payload as Point & { label: string };
@@ -53,15 +53,8 @@ export function RevenueChart({ data, height = 240 }: { data: Point[]; height?: n
               );
             }}
           />
-          <Area
-            type="monotone"
-            dataKey="value"
-            stroke="#b4583f"
-            strokeWidth={2.5}
-            fill="url(#revenueFill)"
-            activeDot={{ r: 5, fill: "#b4583f", stroke: "#fff", strokeWidth: 2 }}
-          />
-        </AreaChart>
+          <Bar dataKey="value" fill="url(#revenueFill)" radius={[8, 8, 2, 2]} maxBarSize={44} />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
