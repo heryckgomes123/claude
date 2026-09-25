@@ -2,7 +2,9 @@
 
 Landing page institucional e de captação da **INTELRA** — soluções digitais para empresas e negócios.
 
-**Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion · Three.js (carregado sob demanda)
+**Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion
+
+**Identidade:** preto + dourado metálico do logotipo + verde neon como acento de “resultado”, tipografia de pôster (Anton) inspirada nos posts da marca.
 
 ## Rodando
 
@@ -26,7 +28,9 @@ Tudo fica centralizado no arquivo **`.env`**:
 > ⚠️ O número atual (`5500000000000`) é um placeholder — troque antes de publicar.
 
 Todos os CTAs comerciais usam `whatsappLink()` de `src/config/site.ts`. As mensagens
-pré-preenchidas ficam em `WHATSAPP_MESSAGES` (geral) e em `src/data/objectives.ts` (uma por objetivo).
+pré-preenchidas ficam em `WHATSAPP_MESSAGES` (uma por seção), em `src/data/ecosystem.ts` (uma por frente)
+e no configurador **Monte seu plano** (`src/data/builder.ts`), que monta a mensagem com o objetivo,
+as frentes e o momento escolhidos pelo visitante.
 
 ## Estrutura
 
@@ -35,10 +39,11 @@ src/
 ├── App.tsx                 # composição das seções
 ├── config/site.ts          # WhatsApp, URL, redes, mensagens
 ├── data/                   # todo o conteúdo (textos, serviços, FAQ, projetos…)
-├── sections/               # Navbar, Hero, Problem, Ecosystem, Systems, Objectives,
+├── assets/brand/           # emblema e wordmark (recortados do logo, fundo transparente)
+├── assets/work/            # imagens de projetos reais
+├── sections/               # Navbar, Hero, Tapes, Problem, Ecosystem, Systems, Builder (Monte seu plano),
 │                           # Process, Projects, Statement (Sobre), Audience, FAQ, FinalCTA, Footer
-├── components/             # CtaButton, Reveal, SectionHeader, StickyCTA, ScrollText, Logo, Icons…
-│   └── hero/               # HeroVisual (fallback CSS + lazy 3D) e coreScene (Three.js)
+├── components/             # CtaButton (magnético), Emblem, EmberCanvas, Reveal, SectionHeader, StickyCTA…
 ├── hooks/                  # useScrolled, useSpotlight
 └── styles/index.css        # tokens da marca (@theme) e utilitários
 ```
@@ -46,20 +51,17 @@ src/
 ## Editando conteúdo
 
 - **Textos e serviços:** arquivos em `src/data/`.
-- **Projetos / cases:** `src/data/projects.ts`. Hoje são placeholders visuais honestos ("Case em breve").
-  Para publicar um case, preencha `client`, `description`, `image` (coloque o arquivo em `public/projects/`)
-  e, se quiser, `href`. Não use métricas que não possam ser comprovadas.
+- **Projetos / cases:** `src/data/projects.ts`. O post de Social Media já é real; os demais são placeholders
+  ("Case em breve"). Para publicar um case, coloque a imagem em `src/assets/work/`, importe no arquivo e preencha
+  `image`, `client`, `description` e, se quiser, `href`. Não use métricas que não possam ser comprovadas.
 - **FAQ:** `src/data/faq.ts` — o schema `FAQPage` (JSON-LD) é gerado a partir desse mesmo arquivo no build.
 
 ## Performance
 
-- O núcleo 3D do Hero é um chunk separado (`three`), carregado em `requestIdleCallback`
-  **depois** da primeira pintura. Até lá (e em navegadores sem WebGL ou com *Save-Data*) aparece um
-  fallback leve em CSS.
-- A cena pausa fora da viewport e com a aba oculta, limita o *pixel ratio*, usa menos geometria no
-  mobile e se degrada sozinha (resolução → taxa de quadros) se o dispositivo não sustentar a animação.
+- O emblema do Hero é 3D em CSS (perspectiva, anéis orbitais, brilho) — sem WebGL, sem bibliotecas pesadas.
+- As faíscas douradas e as partículas são Canvas 2D leves, pausam fora da tela e com a aba oculta.
 - Framer Motion via `LazyMotion` + `m`; `prefers-reduced-motion` é respeitado em toda a página.
-- Fontes self-hosted (Geist, Geist Mono, Instrument Serif) com `unicode-range`.
+- Fontes self-hosted (Anton, Geist, Geist Mono) com `unicode-range`.
 
 ## SEO
 

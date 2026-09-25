@@ -13,12 +13,13 @@ function structuredData(siteUrl: string, instagram: string): Plugin {
         '@context': 'https://schema.org',
         '@type': 'ProfessionalService',
         name: 'INTELRA',
+        alternateName: 'INTELRA Digital',
         url: `${siteUrl}/`,
         logo: `${siteUrl}/apple-touch-icon.png`,
         image: `${siteUrl}/og-image.png`,
         description:
           'A INTELRA cria soluções digitais para empresas: marketing, inteligência artificial, desenvolvimento, automação e presença digital.',
-        slogan: 'Seu negócio. Mais inteligente.',
+        slogan: 'Estratégia • Conteúdo • Tráfego • Resultados',
         areaServed: 'BR',
         knowsAbout: ['Marketing digital', 'Inteligência artificial', 'Automação', 'Desenvolvimento web', 'Branding', 'Presença digital'],
         sameAs: [instagram],
@@ -51,13 +52,10 @@ export default defineConfig(({ mode }) => {
     plugins: [react(), tailwindcss(), structuredData(siteUrl, instagram)],
     build: {
       target: 'es2020',
-      // O chunk do Three.js (~137 kB gzip) é carregado sob demanda, depois da primeira pintura
-      chunkSizeWarningLimit: 600,
       rolldownOptions: {
         output: {
           manualChunks(id: string) {
-            if (id.includes('node_modules/three')) return 'three'
-            if (id.includes('node_modules/framer-motion') || id.includes('node_modules/motion-')) return 'motion'
+                        if (id.includes('node_modules/framer-motion') || id.includes('node_modules/motion-')) return 'motion'
             if (id.includes('node_modules/react')) return 'react'
           },
         },

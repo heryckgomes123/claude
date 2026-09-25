@@ -1,29 +1,23 @@
 import { m, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 import type { ReactNode } from 'react'
+import { Check } from '../components/Check'
 import { CtaButton } from '../components/CtaButton'
-import { HeroVisual } from '../components/hero/HeroVisual'
+import { EmberCanvas } from '../components/EmberCanvas'
+import { Emblem } from '../components/Emblem'
+import { SITE, WHATSAPP_MESSAGES } from '../config/site'
 
 const EASE = [0.22, 1, 0.36, 1] as const
-const CAPABILITIES = [
-  'Estratégia',
-  'Marketing',
-  'Inteligência Artificial',
-  'Desenvolvimento',
-  'Automação',
-  'Presença Digital',
-  'Branding',
-  'Sistemas',
-]
+const TRUST = ['Atendimento pelo WhatsApp', 'Proposta sob medida', 'Do pontual ao completo']
 
-function Line({ children, delay }: { children: ReactNode; delay: number }) {
+function Line({ children, delay, className = '' }: { children: ReactNode; delay: number; className?: string }) {
   return (
-    <span className="block overflow-hidden pb-[0.08em]">
+    <span className={`-mt-[0.16em] block overflow-hidden pb-[0.04em] pt-[0.16em] ${className}`}>
       <m.span
         className="block"
-        initial={{ y: '105%', filter: 'blur(10px)' }}
+        initial={{ y: '110%', filter: 'blur(12px)' }}
         animate={{ y: '0%', filter: 'blur(0px)' }}
-        transition={{ duration: 1.2, ease: EASE, delay }}
+        transition={{ duration: 1.1, ease: EASE, delay }}
       >
         {children}
       </m.span>
@@ -34,116 +28,114 @@ function Line({ children, delay }: { children: ReactNode; delay: number }) {
 export function Hero() {
   const ref = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const visualY = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
-  const visualOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-12%'])
+  const visualY = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
+  const visualScale = useTransform(scrollYProgress, [0, 1], [1, 0.86])
+  const visualOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0])
+  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-10%'])
 
   return (
     <section
       ref={ref}
       id="inicio"
       aria-labelledby="hero-title"
-      className="noise relative isolate flex min-h-[100svh] flex-col overflow-hidden"
+      className="grain relative isolate flex min-h-[100svh] flex-col overflow-hidden"
     >
-      {/* Fundo: grid editorial + luz */}
-      <div className="editorial-grid pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black,transparent_90%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[70vh] bg-[radial-gradient(60%_60%_at_70%_20%,rgb(245_243_238/0.06),transparent)]" />
+      {/* Fundo: vinheta + luz dourada */}
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_72%_42%,rgb(226_174_58/0.16),transparent_70%)]" />
+      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_90%_at_50%_0%,transparent_55%,rgb(0_0_0/0.85))]" />
+      <EmberCanvas className="pointer-events-none absolute inset-0 -z-10 size-full" />
 
-      {/* Visual 3D */}
+      {/* Emblema */}
       <m.div
-        style={{ y: visualY, opacity: visualOpacity }}
-        className="pointer-events-none absolute left-1/2 top-[64px] -z-10 w-[132vw] max-w-[640px] -translate-x-1/2 sm:top-[40px] md:max-w-[720px] lg:left-auto lg:right-[-9vw] lg:top-1/2 lg:w-[min(60vw,880px)] lg:max-w-none lg:-translate-x-0 lg:-translate-y-1/2 3xl:right-[2vw]"
+        style={{ y: visualY, scale: visualScale, opacity: visualOpacity }}
+        className="pointer-events-none absolute right-[3vw] top-1/2 -z-10 hidden w-[min(46vw,640px)] -translate-y-1/2 lg:block 3xl:right-[8vw]"
       >
         <m.div
-          initial={{ opacity: 0, scale: 0.92 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.8, ease: EASE, delay: 0.1 }}
+          initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
+          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+          transition={{ duration: 1.6, ease: EASE, delay: 0.1 }}
         >
-          <HeroVisual />
+          <Emblem priority />
         </m.div>
       </m.div>
-      {/* Garante leitura do texto sobre o visual no mobile */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[62%] bg-gradient-to-t from-ink-950 via-ink-950/85 to-transparent lg:hidden" />
 
       <m.div
         style={{ y: textY }}
-        className="container-x relative flex flex-1 flex-col justify-end pb-10 pt-28 md:pb-14 lg:justify-center lg:pb-24 lg:pt-32"
+        className="container-x relative z-10 flex flex-1 flex-col justify-end pb-10 pt-20 md:pb-14 md:pt-24 lg:justify-center lg:pb-20 lg:pt-32"
       >
-        <div className="max-w-[46rem] lg:max-w-[58rem]">
+        <div className="max-w-[44rem]">
+          {/* Emblema no fluxo (mobile/tablet), acima do texto */}
+          <m.div
+            className="pointer-events-none mx-auto mb-9 w-[54vw] max-w-[300px] lg:hidden"
+            initial={{ opacity: 0, scale: 0.8, filter: 'blur(16px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 1.4, ease: EASE, delay: 0.05 }}
+          >
+            <Emblem interactive={false} priority />
+          </m.div>
           <m.p
-            className="eyebrow mb-7 inline-flex items-center gap-2.5 whitespace-nowrap rounded-full text-[0.62rem]! tracking-[0.1em]! sm:text-[0.72rem]! sm:tracking-[0.14em]! border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-bone/70 backdrop-blur-md"
+            className="eyebrow mb-6 inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-neon/25 bg-neon/[0.06] px-3.5 py-1.5 text-[0.62rem]! tracking-[0.12em]! text-bone/80 backdrop-blur-md sm:text-[0.7rem]!"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
           >
-            <span className="relative flex size-1.5">
-              <span className="absolute inline-flex size-full animate-[pulse-dot_2.4s_ease-in-out_infinite] rounded-full bg-gold" />
+            <span className="relative flex size-2">
+              <span className="absolute inline-flex size-full animate-[ping-ring_1.8s_ease-out_infinite] rounded-full bg-neon" />
+              <span className="relative inline-flex size-2 rounded-full bg-neon" />
             </span>
-            Estratégia · Tecnologia · Crescimento
+            {SITE.pillars.join(' • ')}
           </m.p>
 
           <h1
             id="hero-title"
-            className="display text-[3.4rem] sm:text-[5rem] md:text-[6rem] lg:whitespace-nowrap lg:text-[6rem] xl:text-[7rem] 3xl:text-[8.4rem]"
+            className="poster text-[4.1rem] sm:text-[6.2rem] md:text-[7rem] lg:text-[7.4rem] xl:text-[8.6rem] 3xl:text-[9.6rem]"
           >
-            <Line delay={0.25}>Seu negócio.</Line>
-            <Line delay={0.38}>
-              <span className="text-bone/55">Mais </span>
-              <span className="serif-accent bg-gradient-to-br from-bone via-gold-soft to-gold bg-clip-text pr-[0.06em] text-transparent">
-                inteligente.
-              </span>
+            <Line delay={0.22}>Seu negócio.</Line>
+            <Line delay={0.34} className="text-bone/45">
+              Mais
+            </Line>
+            <Line delay={0.46} className="text-[1.12em]">
+              <span className="slant text-gold-shine pr-[0.08em]">Inteligente.</span>
             </Line>
           </h1>
 
           <m.p
-            className="mt-7 max-w-[34rem] text-pretty text-[1.02rem] leading-relaxed text-mute md:mt-9 md:text-lg"
+            className="mt-6 max-w-[33rem] text-pretty text-[1.02rem] leading-relaxed text-mute md:mt-8 md:text-lg"
             initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
             animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1, ease: EASE, delay: 0.6 }}
+            transition={{ duration: 1, ease: EASE, delay: 0.62 }}
           >
-            A INTELRA combina <span className="text-bone">marketing, inteligência artificial, tecnologia e presença digital</span> para
-            criar soluções sob medida para empresas — da estratégia à execução.
+            A INTELRA une <span className="text-bone">marketing, conteúdo, tráfego, inteligência artificial e tecnologia</span> em uma
+            estrutura sob medida para o seu negócio vender mais e crescer com método.
           </m.p>
 
           <m.div
-            className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-11"
+            className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-10"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: EASE, delay: 0.75 }}
+            transition={{ duration: 1, ease: EASE, delay: 0.76 }}
           >
-            <CtaButton size="lg" icon="whatsapp">
-              Falar com a INTELRA
+            <CtaButton size="lg" icon="whatsapp" message={WHATSAPP_MESSAGES.grow}>
+              Quero crescer agora
             </CtaButton>
-            <CtaButton size="lg" variant="secondary" href="#solucoes">
-              Explorar soluções
+            <CtaButton size="lg" variant="outline" href="#monte">
+              Montar meu plano
             </CtaButton>
           </m.div>
-        </div>
-      </m.div>
 
-      {/* Faixa de capacidades */}
-      <m.div
-        className="relative border-t border-white/[0.07]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.2, delay: 1 }}
-      >
-        <div className="flex overflow-hidden py-4 [mask-image:linear-gradient(90deg,transparent,black_12%,black_88%,transparent)] md:py-5">
-          <ul
-            className="flex shrink-0 animate-[marquee_48s_linear_infinite] items-center gap-10 pr-10 motion-reduce:animate-none"
-            aria-label="Frentes de atuação"
+          <m.ul
+            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-[0.82rem] text-bone/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1 }}
           >
-            {[...CAPABILITIES, ...CAPABILITIES].map((item, i) => (
-              <li
-                key={i}
-                aria-hidden={i >= CAPABILITIES.length}
-                className="eyebrow flex items-center gap-10 whitespace-nowrap text-bone/40"
-              >
+            {TRUST.map((item) => (
+              <li key={item} className="flex items-center gap-1.5">
+                <Check className="size-3.5 text-neon" />
                 {item}
-                <span className="size-1 rounded-full bg-gold/60" />
               </li>
             ))}
-          </ul>
+          </m.ul>
         </div>
       </m.div>
     </section>

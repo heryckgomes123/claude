@@ -1,47 +1,48 @@
 import { m } from 'framer-motion'
+import { CtaButton } from '../components/CtaButton'
 import { Reveal } from '../components/Reveal'
 import { SectionHeader } from '../components/SectionHeader'
+import { WHATSAPP_MESSAGES } from '../config/site'
 import { SYSTEM_FLOW } from '../data/system-flow'
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
 export function Systems() {
   return (
-    <section aria-labelledby="systems-title" className="relative overflow-hidden border-t border-white/[0.06]">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[520px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(201_164_92/0.07),transparent)]" />
+    <section aria-labelledby="systems-title" className="grain relative overflow-hidden border-t border-gold-300/10">
+      <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgb(226_174_58/0.12),transparent)]" />
 
-      <div className="container-x py-24 md:py-36">
+      <div className="container-x relative py-24 md:py-36">
         <SectionHeader
           id="systems-title"
           eyebrow="Mais que serviços isolados"
           align="center"
-          className="max-w-4xl!"
+          className="max-w-5xl!"
           title={
             <>
-              Não entregamos apenas peças. <span className="serif-accent text-gold-soft">Construímos sistemas.</span>
+              Não entregamos peças.
+              <br />
+              <span className="slant text-gold-shine">Construímos sistemas.</span>
             </>
           }
-          description="A INTELRA pode atuar em uma necessidade pontual ou estruturar toda a sua operação digital. Em qualquer caso, cada entrega é pensada para se conectar às outras."
+          description="Da necessidade pontual à estrutura digital completa: cada entrega é pensada para se conectar às outras e empurrar o negócio na mesma direção."
         />
 
-        {/* Fluxo */}
         <div className="relative mx-auto mt-16 max-w-6xl md:mt-24">
-          {/* Trilho horizontal (desktop) */}
           <div
-            className="pointer-events-none absolute inset-x-[8%] top-[27px] hidden h-px overflow-hidden bg-white/10 md:block"
+            className="pointer-events-none absolute inset-x-[8%] top-[31px] hidden h-[2px] overflow-hidden bg-gold-300/15 md:block"
             aria-hidden="true"
           >
-            <div className="absolute inset-0 animate-[travel-x_4.8s_cubic-bezier(0.45,0,0.2,1)_infinite]">
-              <div className="h-px w-40 bg-gradient-to-r from-transparent via-gold to-transparent" />
+            <div className="absolute inset-0 animate-[travel-x_3.8s_cubic-bezier(0.45,0,0.2,1)_infinite]">
+              <div className="h-[2px] w-48 bg-gradient-to-r from-transparent via-gold-100 to-transparent shadow-[0_0_14px_rgb(247_201_72)]" />
             </div>
           </div>
-          {/* Trilho vertical (mobile) */}
           <div
-            className="pointer-events-none absolute bottom-[28px] left-[27px] top-[28px] w-px overflow-hidden bg-white/10 md:hidden"
+            className="pointer-events-none absolute bottom-[32px] left-[31px] top-[32px] w-[2px] overflow-hidden bg-gold-300/15 md:hidden"
             aria-hidden="true"
           >
-            <div className="absolute inset-0 animate-[travel-y_4.8s_cubic-bezier(0.45,0,0.2,1)_infinite]">
-              <div className="h-32 w-px bg-gradient-to-b from-transparent via-gold to-transparent" />
+            <div className="absolute inset-0 animate-[travel-y_3.8s_cubic-bezier(0.45,0,0.2,1)_infinite]">
+              <div className="h-36 w-[2px] bg-gradient-to-b from-transparent via-gold-100 to-transparent" />
             </div>
           </div>
 
@@ -52,25 +53,25 @@ export function Systems() {
                 <m.li
                   key={node.label}
                   className="flex items-center gap-5 md:flex-col md:gap-6 md:text-center"
-                  initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
-                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  initial={{ opacity: 0, y: 16, scale: 0.9 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
                   viewport={{ once: true, margin: '0px 0px -15% 0px' }}
-                  transition={{ duration: 0.8, ease: EASE, delay: i * 0.12 }}
+                  transition={{ duration: 0.7, ease: EASE, delay: i * 0.12 }}
                 >
                   <span
-                    className={`relative grid size-14 shrink-0 place-items-center rounded-full border backdrop-blur-sm ${
-                      last ? 'border-gold/60 bg-gold/10 text-gold' : 'border-white/15 bg-ink-900 text-bone/80'
+                    className={`relative grid size-16 shrink-0 place-items-center rounded-full border ${
+                      last
+                        ? 'border-neon/70 bg-neon/10 text-neon shadow-[0_0_30px_rgb(60_255_143/0.35)]'
+                        : 'border-gold-300/40 bg-ink-900 text-gold-200 shadow-[0_0_24px_-6px_rgb(247_201_72/0.5)]'
                     }`}
                   >
-                    <span className="eyebrow">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="poster text-xl">{String(i + 1).padStart(2, '0')}</span>
                     {last && (
-                      <span className="absolute -inset-2 rounded-full border border-gold/20 motion-safe:animate-[pulse-dot_3s_ease-in-out_infinite]" />
+                      <span className="absolute inset-0 animate-[ping-ring_2s_ease-out_infinite] rounded-full border border-neon/50" />
                     )}
                   </span>
                   <span>
-                    <span className={`block text-lg font-semibold tracking-[-0.02em] md:text-xl ${last ? 'text-gold-soft' : ''}`}>
-                      {node.label}
-                    </span>
+                    <span className={`poster block text-[1.6rem] md:text-[1.8rem] ${last ? 'text-neon' : ''}`}>{node.label}</span>
                     <span className="mt-1 block text-sm text-mute">{node.note}</span>
                   </span>
                 </m.li>
@@ -79,10 +80,9 @@ export function Systems() {
           </ol>
         </div>
 
-        {/* Pontual x integrado */}
         <div className="mx-auto mt-20 grid max-w-5xl gap-3 md:mt-28 md:grid-cols-2 md:gap-4">
           <Reveal>
-            <div className="h-full rounded-[1.75rem] border border-white/[0.08] p-7 md:p-9">
+            <div className="h-full rounded-[1.75rem] border border-white/10 bg-ink-900/60 p-7 md:p-9">
               <p className="eyebrow text-mute">Necessidade pontual</p>
               <p className="mt-4 text-xl font-medium leading-snug tracking-[-0.02em] md:text-2xl">
                 Um site, uma campanha, uma automação. Resolvido com profundidade — e pronto para crescer.
@@ -90,14 +90,20 @@ export function Systems() {
             </div>
           </Reveal>
           <Reveal delay={0.08}>
-            <div className="h-full rounded-[1.75rem] border border-gold/25 bg-gradient-to-br from-gold/[0.08] to-transparent p-7 md:p-9">
-              <p className="eyebrow text-gold">Estrutura completa</p>
+            <div className="gold-edge h-full rounded-[1.75rem] bg-gradient-to-br from-gold-300/[0.14] to-transparent p-7 [--edge-opacity:0.9] md:p-9">
+              <p className="eyebrow text-gold-200">Estrutura completa</p>
               <p className="mt-4 text-xl font-medium leading-snug tracking-[-0.02em] md:text-2xl">
                 Estratégia, marca, marketing, tecnologia e IA trabalhando como um único sistema.
               </p>
             </div>
           </Reveal>
         </div>
+
+        <Reveal className="mt-12 flex justify-center">
+          <CtaButton size="lg" icon="whatsapp" message={WHATSAPP_MESSAGES.system}>
+            Quero uma estrutura completa
+          </CtaButton>
+        </Reveal>
       </div>
     </section>
   )

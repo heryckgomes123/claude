@@ -9,7 +9,7 @@ interface Particle {
 }
 
 /** Partículas leves conectadas por linhas (Canvas 2D). Pausa fora da viewport. */
-export function ConstellationCanvas({ className = '' }: { className?: string }) {
+export function ConstellationCanvas({ className = '', tone = 'dark' }: { className?: string; tone?: 'dark' | 'gold' }) {
   const ref = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -60,7 +60,12 @@ export function ConstellationCanvas({ className = '' }: { className?: string }) 
           const d2 = dx * dx + dy * dy
           if (d2 < LINK * LINK) {
             const alpha = (1 - Math.sqrt(d2) / LINK) * 0.16
-            ctx!.strokeStyle = a.gold || b.gold ? `rgba(201,164,92,${alpha * 1.6})` : `rgba(245,243,238,${alpha})`
+            ctx!.strokeStyle =
+              tone === 'gold'
+                ? `rgba(20,14,4,${alpha * 2.2})`
+                : a.gold || b.gold
+                  ? `rgba(247,201,72,${alpha * 1.8})`
+                  : `rgba(244,240,230,${alpha})`
             ctx!.lineWidth = 1
             ctx!.beginPath()
             ctx!.moveTo(a.x, a.y)
@@ -70,7 +75,14 @@ export function ConstellationCanvas({ className = '' }: { className?: string }) 
         }
       }
       for (const p of particles) {
-        ctx!.fillStyle = p.gold ? 'rgba(201,164,92,0.95)' : 'rgba(245,243,238,0.45)'
+        ctx!.fillStyle =
+          tone === 'gold'
+            ? p.gold
+              ? 'rgba(255,255,255,0.9)'
+              : 'rgba(20,14,4,0.5)'
+            : p.gold
+              ? 'rgba(247,201,72,0.95)'
+              : 'rgba(244,240,230,0.45)'
         ctx!.beginPath()
         ctx!.arc(p.x, p.y, p.gold ? 1.8 : 1.1, 0, Math.PI * 2)
         ctx!.fill()
@@ -142,7 +154,7 @@ export function ConstellationCanvas({ className = '' }: { className?: string }) 
       host?.removeEventListener('pointerleave', onLeave)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [])
+  }, [tone])
 
   return <canvas ref={ref} className={className} aria-hidden="true" />
 }

@@ -51,9 +51,9 @@ function Word({
 }) {
   const opacity = useTransform(progress, range, [0, 1])
   return (
-    <span className={`relative mr-[0.22em] inline-block ${accent ? 'serif-accent' : ''}`}>
+    <span className="relative mr-[0.22em] inline-block">
       <span className={dimClassName}>{children}</span>
-      <m.span style={{ opacity }} className="absolute inset-0">
+      <m.span style={{ opacity }} className={`absolute inset-0 ${accent ? 'text-gold' : ''}`}>
         {children}
       </m.span>
     </span>

@@ -1,8 +1,10 @@
+import { m } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { whatsappLink } from '../config/site'
+import { useMagnetic } from '../hooks/useMagnetic'
 import { ArrowRight, WhatsApp } from './Icons'
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'dark'
+type Variant = 'gold' | 'outline' | 'dark' | 'light'
 
 interface CtaButtonProps {
   children: ReactNode
@@ -11,53 +13,60 @@ interface CtaButtonProps {
   /** Mensagem pré-preenchida do WhatsApp. */
   message?: string
   variant?: Variant
-  size?: 'md' | 'lg'
+  size?: 'md' | 'lg' | 'xl'
   icon?: 'arrow' | 'whatsapp' | 'none'
   className?: string
+  magnetic?: boolean
   onClick?: () => void
 }
 
 const variants: Record<Variant, string> = {
-  primary:
-    'bg-bone text-ink-950 hover:bg-white shadow-[0_0_0_1px_rgb(245_243_238/0.2),0_10px_40px_-12px_rgb(201_164_92/0.45)] hover:shadow-[0_0_0_1px_rgb(201_164_92/0.6),0_18px_50px_-12px_rgb(201_164_92/0.55)]',
-  secondary: 'bg-white/[0.03] text-bone ring-1 ring-inset ring-white/15 hover:ring-white/35 hover:bg-white/[0.06] backdrop-blur-md',
-  ghost: 'text-bone/80 hover:text-bone',
-  dark: 'bg-ink-950 text-bone hover:bg-ink-800 shadow-[0_10px_40px_-16px_rgb(8_8_8/0.6)]',
+  gold: 'btn-gold',
+  outline:
+    'text-bone bg-white/[0.03] ring-1 ring-inset ring-gold-300/35 hover:ring-gold-300/80 hover:bg-gold-300/[0.07] hover:text-gold-100 backdrop-blur-md',
+  dark: 'bg-ink-950 text-bone hover:bg-ink-800 shadow-[0_14px_40px_-14px_rgb(7_7_7/0.7)]',
+  light: 'bg-bone text-ink-950 hover:bg-white',
 }
 
 const sizes = {
-  md: 'h-11 px-5 text-[0.9rem]',
-  lg: 'h-13 px-7 text-[0.95rem] md:h-14 md:px-8',
+  md: 'h-11 px-5 text-[0.82rem]',
+  lg: 'h-14 px-7 text-[0.9rem]',
+  xl: 'h-16 px-9 text-base md:h-[4.5rem] md:px-11 md:text-lg',
 }
 
 export function CtaButton({
   children,
   href,
   message,
-  variant = 'primary',
+  variant = 'gold',
   size = 'md',
   icon = 'arrow',
   className = '',
+  magnetic = true,
   onClick,
 }: CtaButtonProps) {
   const isWhatsApp = !href
   const url = href ?? whatsappLink(message)
+  const mag = useMagnetic(magnetic ? 0.2 : 0)
 
   return (
-    <a
+    <m.a
       href={url}
       onClick={onClick}
+      style={mag.style}
+      onPointerMove={mag.onPointerMove}
+      onPointerLeave={mag.onPointerLeave}
       {...(isWhatsApp ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      className={`group relative inline-flex select-none items-center justify-center gap-2.5 overflow-hidden rounded-full font-medium tracking-[-0.01em] transition-[background-color,box-shadow,color,transform] duration-500 ease-premium active:scale-[0.97] ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`group relative inline-flex select-none items-center justify-center gap-2.5 overflow-hidden rounded-full font-semibold uppercase tracking-[0.06em] transition-[background-color,box-shadow,color] duration-500 ease-premium active:scale-[0.97] ${variants[variant]} ${sizes[size]} ${className}`}
     >
-      {icon === 'whatsapp' && <WhatsApp className="size-4 shrink-0" />}
+      {icon === 'whatsapp' && <WhatsApp className="size-[1.15em] shrink-0" />}
       <span className="relative">{children}</span>
-      {icon === 'arrow' && (
-        <span className="relative -mr-1 inline-flex size-4 overflow-hidden">
-          <ArrowRight className="size-4 shrink-0 transition-transform duration-500 ease-premium group-hover:translate-x-4" />
-          <ArrowRight className="absolute size-4 shrink-0 -translate-x-4 transition-transform duration-500 ease-premium group-hover:translate-x-0" />
+      {icon !== 'none' && (
+        <span className="relative -mr-1 inline-flex size-[1.05em] overflow-hidden">
+          <ArrowRight className="size-full shrink-0 transition-transform duration-500 ease-premium group-hover:translate-x-[120%]" />
+          <ArrowRight className="absolute size-full shrink-0 -translate-x-[120%] transition-transform duration-500 ease-premium group-hover:translate-x-0" />
         </span>
       )}
-    </a>
+    </m.a>
   )
 }
