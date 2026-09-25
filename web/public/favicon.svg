@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="r" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe3a0"/><stop offset=".35" stop-color="#d9a441"/><stop offset=".62" stop-color="#7d4f22"/><stop offset="1" stop-color="#c8903f"/></linearGradient>
+    <radialGradient id="c" cx=".5" cy=".4" r=".65"><stop offset="0" stop-color="#4a2612"/><stop offset=".7" stop-color="#1c0e06"/><stop offset="1" stop-color="#0e0703"/></radialGradient>
+    <linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0cf83"/><stop offset=".45" stop-color="#b9823f"/><stop offset="1" stop-color="#6b4520"/></linearGradient>
+  </defs>
+  <circle cx="100" cy="100" r="98" fill="url(#r)"/>
+  <circle cx="100" cy="100" r="88" fill="url(#c)"/>
+  <g transform="translate(22 18) scale(.78)" fill="url(#b)">
+    <path d="M58 62 L34 22 L84 50 Z"/><path d="M142 62 L166 22 L116 50 Z"/>
+    <path d="M66 58 L74 36 L82 52 L90 30 L96 50 L100 26 L104 50 L110 30 L118 52 L126 36 L134 58 Z"/>
+    <path d="M56 66 Q100 40 144 66 L152 100 Q154 126 136 144 L128 162 Q118 184 100 184 Q82 184 72 162 L64 144 Q46 126 48 100 Z"/>
+    <path d="M64 92 Q82 80 96 96 L100 100 L104 96 Q118 80 136 92 Q122 90 108 104 L100 112 L92 104 Q78 90 64 92 Z" fill="rgba(0,0,0,.45)"/>
+    <path d="M72 100 Q80 94 90 102 Q80 104 72 100 Z" fill="#ff7a2e"/><path d="M128 100 Q120 94 110 102 Q120 104 128 100 Z" fill="#ff7a2e"/>
+    <ellipse cx="100" cy="157" rx="24" ry="15"/>
+    <ellipse cx="91" cy="158" rx="4.5" ry="6" fill="rgba(0,0,0,.6)"/><ellipse cx="109" cy="158" rx="4.5" ry="6" fill="rgba(0,0,0,.6)"/>
+    <path d="M78 160 Q60 152 62 128 Q70 146 84 152 Z" fill="#f4e7c8"/><path d="M122 160 Q140 152 138 128 Q130 146 116 152 Z" fill="#f4e7c8"/>
+  </g>
+</svg>

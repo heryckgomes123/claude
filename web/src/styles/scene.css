@@ -1,0 +1,151 @@
+/* ==========================================================================
+   A TOCA — cenário vivo (parede de pedra, lareira, tochas, brasas, fumaça)
+   ========================================================================== */
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #0b0604;
+  pointer-events: none;
+}
+.scene-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scene-veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 50% 45%, rgba(10, 6, 4, 0.1), rgba(6, 3, 2, 0.75) 100%);
+  transition: background 0.8s ease;
+}
+.scene--dim .scene-veil {
+  background:
+    linear-gradient(180deg, rgba(8, 5, 3, 0.72), rgba(8, 5, 3, 0.8)),
+    radial-gradient(ellipse 80% 70% at 50% 45%, rgba(10, 6, 4, 0.2), rgba(6, 3, 2, 0.85) 100%);
+}
+.scene--dark .scene-veil {
+  background: rgba(6, 3, 2, 0.9);
+}
+.scene-embers {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  mix-blend-mode: screen;
+}
+.scene-smoke {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 25% at 30% 60%, rgba(120, 100, 90, 0.07), transparent 70%),
+    radial-gradient(35% 22% at 70% 40%, rgba(120, 100, 90, 0.06), transparent 70%);
+  animation: smokeDrift 38s ease-in-out infinite alternate;
+  filter: blur(8px);
+}
+@keyframes smokeDrift {
+  from {
+    transform: translate3d(-4%, 2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5%, -3%, 0) scale(1.1);
+  }
+}
+
+/* Chamas e luzes do SVG */
+.flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flameDance 0.9s ease-in-out infinite alternate;
+}
+.flame--b {
+  animation-duration: 0.7s;
+  animation-delay: -0.3s;
+}
+.flame--c {
+  animation-duration: 1.1s;
+  animation-delay: -0.6s;
+}
+@keyframes flameDance {
+  0% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  35% {
+    transform: scale(0.94, 1.08) skewX(-3deg);
+  }
+  70% {
+    transform: scale(1.04, 0.95) skewX(2deg);
+  }
+  100% {
+    transform: scale(0.97, 1.05) skewX(-1deg);
+  }
+}
+.firelight {
+  animation: firelight 3.2s ease-in-out infinite;
+}
+.torchlight {
+  animation: firelight 1.9s ease-in-out infinite;
+}
+.torchlight--b {
+  animation-delay: -0.8s;
+}
+@keyframes firelight {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  20% {
+    opacity: 1;
+  }
+  45% {
+    opacity: 0.75;
+  }
+  60% {
+    opacity: 0.95;
+  }
+  80% {
+    opacity: 0.8;
+  }
+}
+.candle-flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: candle 0.6s ease-in-out infinite alternate;
+}
+@keyframes candle {
+  to {
+    transform: scale(0.85, 1.15) skewX(4deg);
+  }
+}
+.banner-sway {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+  animation: sway 7s ease-in-out infinite alternate;
+}
+@keyframes sway {
+  from {
+    transform: rotate(-0.8deg);
+  }
+  to {
+    transform: rotate(0.8deg);
+  }
+}
+.chandelier {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: sway 9s ease-in-out infinite alternate;
+}
+.boar-eyes {
+  animation: eyes 5s ease-in-out infinite;
+}
+@keyframes eyes {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
