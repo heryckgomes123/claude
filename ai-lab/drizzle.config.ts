@@ -1,8 +1,9 @@
-import 'dotenv/config'
 import { config } from 'dotenv'
 import { defineConfig } from 'drizzle-kit'
 
-config({ path: '.env.local', override: true })
+// Precedência: variáveis reais do ambiente > .env.local > .env
+config({ path: '.env.local' })
+config({ path: '.env' })
 
 export default defineConfig({
   dialect: 'postgresql',

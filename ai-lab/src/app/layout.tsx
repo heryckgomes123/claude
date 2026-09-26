@@ -5,7 +5,7 @@ import './globals.css'
 import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'sonner'
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.URL
+const appUrl = process.env.APP_URL || process.env.URL
 
 export const metadata: Metadata = {
   metadataBase: appUrl ? new URL(appUrl) : undefined,

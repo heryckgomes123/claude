@@ -66,7 +66,7 @@ export function SignInForm() {
       </Button>
       <p className="text-center text-sm text-mute">
         Ainda não tem conta?{' '}
-        <Link href="/criar-conta" className="text-gold-300 hover:underline">
+        <Link href="/criar-conta" className="text-gold-300 underline decoration-gold-300/40 underline-offset-4 hover:decoration-gold-300">
           Criar conta
         </Link>
       </p>
@@ -138,7 +138,7 @@ export function SignUpForm() {
       </Button>
       <p className="text-center text-sm text-mute">
         Já tem conta?{' '}
-        <Link href="/entrar" className="text-gold-300 hover:underline">
+        <Link href="/entrar" className="text-gold-300 underline decoration-gold-300/40 underline-offset-4 hover:decoration-gold-300">
           Entrar
         </Link>
       </p>

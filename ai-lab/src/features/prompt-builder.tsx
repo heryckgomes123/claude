@@ -145,7 +145,7 @@ export function PromptBuilder({
                 id={`b-${field.key}`}
                 value={state[field.key] ?? ''}
                 onChange={(e) => set(field.key, e.target.value)}
-                placeholder={field.placeholder}
+                placeholder={`ex.: ${field.placeholder}`}
                 maxLength={400}
               />
               <div className="flex flex-wrap gap-1.5 pt-1">

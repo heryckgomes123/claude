@@ -9,7 +9,8 @@ import { z } from 'zod'
 const schema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL não configurada'),
   AUTH_SECRET: z.string().min(32, 'AUTH_SECRET precisa de pelo menos 32 caracteres'),
-  NEXT_PUBLIC_APP_URL: z.url().optional(),
+  /** URL canônica (lida em runtime; nunca use NEXT_PUBLIC_* no servidor — é fixada no build). */
+  APP_URL: z.url().optional(),
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(50).default(5),
   /** Código de plano concedido automaticamente no cadastro (ex.: LAB). Vazio = nenhum. */
   SIGNUP_DEFAULT_PLAN: z.string().trim().optional(),
@@ -24,7 +25,7 @@ export function serverEnv(): ServerEnv {
   const parsed = schema.safeParse({
     DATABASE_URL: process.env.DATABASE_URL,
     AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || undefined,
+    APP_URL: process.env.APP_URL || undefined,
     DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX || undefined,
     SIGNUP_DEFAULT_PLAN: process.env.SIGNUP_DEFAULT_PLAN || undefined,
   })
@@ -41,6 +42,6 @@ export function envStatus() {
   return {
     database: Boolean(process.env.DATABASE_URL),
     authSecret: Boolean(process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET),
-    appUrl: Boolean(process.env.NEXT_PUBLIC_APP_URL || process.env.URL),
+    appUrl: Boolean(process.env.APP_URL || process.env.URL),
   }
 }

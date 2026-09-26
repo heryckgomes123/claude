@@ -7,8 +7,9 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import postgres from 'postgres'
 
+// Precedência: variáveis reais do ambiente (Netlify/CI) > .env.local > .env
+config({ path: '.env.local' })
 config({ path: '.env' })
-config({ path: '.env.local', override: true })
 
 const url = process.env.DATABASE_URL
 if (!url) {

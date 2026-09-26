@@ -10,7 +10,7 @@ import { grantSignupDefaultPlan } from '../access/memberships'
 /** Origens confiáveis: URL da aplicação + URLs que a Netlify injeta (produção e deploy previews). */
 function trustedOrigins(): string[] {
   const candidates = [
-    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.APP_URL,
     process.env.URL,
     process.env.DEPLOY_PRIME_URL,
     process.env.DEPLOY_URL,
@@ -24,7 +24,9 @@ function createAuth() {
   return betterAuth({
     appName: 'INTELRA AI LAB',
     secret: env.AUTH_SECRET,
-    baseURL: env.NEXT_PUBLIC_APP_URL ?? process.env.URL ?? undefined,
+    // Com APP_URL definida, ela é a URL canônica. Sem ela (ex.: deploy previews), a URL é inferida
+    // da requisição — e só origens confiáveis passam na verificação de CSRF.
+    baseURL: env.APP_URL,
     trustedOrigins: origins,
     database: drizzleAdapter(db, {
       provider: 'pg',

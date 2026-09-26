@@ -1,5 +1,9 @@
 # INTELRA — Landing page
 
+> **INTELRA AI LAB** (área de membros: prompts, workflows, ferramentas, referências e tutoriais) é um app Next.js
+> separado em [`ai-lab/`](ai-lab/README.md), publicado na Netlify pelo `netlify.toml` da raiz. Esta landing page
+> não depende dele.
+
 Landing page institucional e de captação da **INTELRA** — soluções digitais para empresas e negócios.
 
 **Stack:** React 19 · TypeScript · Vite · Tailwind CSS v4 · Framer Motion

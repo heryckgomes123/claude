@@ -561,3 +561,14 @@ export async function listPickable(types: ContentType[]) {
     .limit(1000)
 }
 
+
+/** Tutorial de entrada para quem ainda não tem histórico (iniciante, destaque primeiro). */
+export async function getStarterTutorial() {
+  const [row] = await db
+    .select({ slug: contentItem.slug, title: contentItem.title, summary: contentItem.summary })
+    .from(contentItem)
+    .where(and(eq(contentItem.type, 'TUTORIAL'), eq(contentItem.status, 'PUBLISHED')))
+    .orderBy(sql`(${contentItem.difficulty} = 'BEGINNER') desc nulls last`, desc(contentItem.featured), asc(contentItem.publishedAt))
+    .limit(1)
+  return row ?? null
+}

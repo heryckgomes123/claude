@@ -14,3 +14,10 @@
 [build.environment]
   NODE_VERSION = "22"
   NEXT_TELEMETRY_DISABLED = "1"
+
+# Previews e branch deploys não aplicam migrações (evita alterar o banco de produção a partir de um branch).
+[context.deploy-preview]
+  command = "npm run build"
+
+[context.branch-deploy]
+  command = "npm run build"

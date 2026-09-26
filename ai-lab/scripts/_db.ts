@@ -3,8 +3,9 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
 import * as schema from '../src/server/db/schema'
 
+// Precedência: variáveis reais do ambiente (Netlify/CI) > .env.local > .env
+config({ path: '.env.local' })
 config({ path: '.env' })
-config({ path: '.env.local', override: true })
 
 export function connect() {
   const url = process.env.DATABASE_URL

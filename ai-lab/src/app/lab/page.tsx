@@ -15,6 +15,7 @@ import {
   getLatest,
   getPopular,
   getRecommended,
+  getStarterTutorial,
 } from '@/server/queries/content'
 import { getPublishedUpdates } from '@/server/queries/updates'
 import { getRecentByAction } from '@/server/queries/user-space'
@@ -23,7 +24,7 @@ export const metadata: Metadata = { title: 'Home' }
 
 export default async function LabHome() {
   const viewer = await requireMember()
-  const [counts, latest, updates, recent, popular, recommended, categories] = await Promise.all([
+  const [counts, latest, updates, recent, popular, recommended, categories, starter] = await Promise.all([
     getContentCountsByType(),
     getLatest(viewer.id, 6),
     getPublishedUpdates(3),
@@ -31,6 +32,7 @@ export default async function LabHome() {
     getPopular(viewer.id, ['PROMPT', 'WORKFLOW'], 4),
     getRecommended(viewer.id, 4),
     getExploreCategories(),
+    getStarterTutorial(),
   ])
   const firstName = viewer.name.trim().split(/\s+/)[0]
 
@@ -108,20 +110,19 @@ export default async function LabHome() {
               <ContentCard key={card.id} card={card} showType />
             ))}
           </Rail>
-        ) : (
-          <Link
-            href="/lab/tutorials/anatomia-de-um-prompt-de-imagem"
-            className="lab-card flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center"
-          >
+        ) : starter ? (
+          <Link href={`/lab/tutorials/${starter.slug}`} className="lab-card flex flex-col gap-4 rounded-2xl p-6 sm:flex-row sm:items-center">
             <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gold-300/10">
               <BookOpen className="size-5 text-gold-300" aria-hidden />
             </span>
             <span className="flex-1">
-              <span className="block font-medium">Comece por aqui: Anatomia de um prompt de imagem</span>
-              <span className="mt-1 block text-sm text-mute">12 minutos para entender como o Lab funciona e escrever prompts melhores.</span>
+              <span className="block font-medium">Comece por aqui: {starter.title}</span>
+              <span className="mt-1 block text-sm text-mute">{starter.summary}</span>
             </span>
             <ArrowRight className="hidden size-5 text-gold-300 sm:block" aria-hidden />
           </Link>
+        ) : (
+          <p className="text-sm text-mute-600">Os conteúdos que você abrir aparecem aqui.</p>
         )}
       </section>
 

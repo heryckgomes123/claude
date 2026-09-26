@@ -15,7 +15,7 @@
   --color-ink-600: #34332e;
   --color-bone: #f4f0e6;
   --color-mute: #a39e93;
-  --color-mute-600: #736e65;
+  --color-mute-600: #88837a; /* ≥ 4.5:1 sobre ink-800/900 (WCAG AA) */
 
   --color-gold-100: #fff1c2;
   --color-gold-200: #ffe08a;
