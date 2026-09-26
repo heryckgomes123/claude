@@ -1,0 +1,37 @@
+/**
+ * Configuração central da INTELRA.
+ * O número de WhatsApp, URL e redes sociais vêm do arquivo `.env`
+ * (VITE_WHATSAPP_NUMBER, VITE_SITE_URL, VITE_INSTAGRAM_URL).
+ */
+
+const env = import.meta.env
+
+export const SITE = {
+  name: 'INTELRA',
+  fullName: 'INTELRA Digital',
+  tagline: 'Soluções digitais para empresas e negócios.',
+  pillars: ['Estratégia', 'Conteúdo', 'Tráfego', 'Resultados'],
+  url: env.VITE_SITE_URL ?? 'https://intelra.com.br',
+  instagram: env.VITE_INSTAGRAM_URL ?? 'https://instagram.com/intelra',
+  year: 2026,
+} as const
+
+/** Número no formato internacional, apenas dígitos. Ex.: 5511999999999 */
+export const WHATSAPP_NUMBER: string = (env.VITE_WHATSAPP_NUMBER ?? '5500000000000').replace(/\D/g, '')
+
+/** Mensagens pré-preenchidas por contexto de CTA. */
+export const WHATSAPP_MESSAGES = {
+  default: 'Olá, INTELRA! Vim pelo site e quero conversar sobre uma solução para o meu negócio.',
+  diagnosis: 'Olá, INTELRA! Quero descobrir o que minha empresa precisa. Podemos conversar?',
+  final: 'Olá, INTELRA! Quero tirar um projeto do papel. Podemos conversar?',
+  grow: 'Olá, INTELRA! Quero fazer meu negócio crescer. Podemos conversar?',
+  problems: 'Olá, INTELRA! Me identifiquei com alguns desses problemas e quero resolver. Podemos conversar?',
+  system: 'Olá, INTELRA! Quero montar uma estrutura digital completa para o meu negócio. Podemos conversar?',
+  project: 'Olá, INTELRA! Vi os projetos no site e quero um projeto assim para o meu negócio.',
+  idea: 'Olá, INTELRA! Tenho uma ideia e quero tirar do papel. Podemos conversar?',
+  audience: 'Olá, INTELRA! Acho que meu negócio tem o perfil de vocês. Podemos conversar?',
+} as const
+
+export function whatsappLink(message: string = WHATSAPP_MESSAGES.default): string {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+}
