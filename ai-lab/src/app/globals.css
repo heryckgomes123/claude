@@ -1,0 +1,192 @@
+@import 'tailwindcss';
+
+/*
+ * INTELRA AI LAB — design tokens.
+ * Base herdada da identidade INTELRA (ink / bone / gold). Dourado contido,
+ * um acento elétrico discreto para estados de "laboratório" e informação.
+ */
+@theme {
+  --color-ink-950: #060606;
+  --color-ink-900: #0b0b0a;
+  --color-ink-850: #111110;
+  --color-ink-800: #171715;
+  --color-ink-750: #1d1d1a;
+  --color-ink-700: #262622;
+  --color-ink-600: #34332e;
+  --color-bone: #f4f0e6;
+  --color-mute: #a39e93;
+  --color-mute-600: #736e65;
+
+  --color-gold-100: #fff1c2;
+  --color-gold-200: #ffe08a;
+  --color-gold-300: #f7c948;
+  --color-gold: #e2ae3a;
+  --color-gold-500: #c9982e;
+  --color-gold-600: #a87a1f;
+
+  --color-electric: #7cc4ff;
+  --color-electric-600: #3f8fd6;
+  --color-success: #5fd39a;
+  --color-danger: #ff7a6b;
+  --color-warning: #f2b45b;
+
+  /* aliases semânticos no padrão shadcn */
+  --color-background: var(--color-ink-950);
+  --color-foreground: var(--color-bone);
+  --color-card: var(--color-ink-900);
+  --color-muted: var(--color-ink-800);
+  --color-muted-foreground: var(--color-mute);
+  --color-border: rgb(244 240 230 / 0.08);
+  --color-input: rgb(244 240 230 / 0.12);
+  --color-ring: var(--color-gold-300);
+  --color-primary: var(--color-gold-300);
+  --color-primary-foreground: var(--color-ink-950);
+
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+  --font-display: 'Anton', 'Impact', 'Arial Narrow Bold', sans-serif;
+
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 0.5s var(--ease-premium) both;
+  --animate-pop: pop 0.35s var(--ease-premium);
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes pop {
+    0% {
+      transform: scale(1);
+    }
+    40% {
+      transform: scale(1.28);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-background);
+    color-scheme: dark;
+  }
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+  * {
+    border-color: var(--color-border);
+  }
+  ::selection {
+    background: var(--color-gold-300);
+    color: var(--color-ink-950);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 2px;
+  }
+  /* Grids sem colunas explícitas não podem crescer além do contêiner (textos com truncate). */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+  .display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: 0.005em;
+  }
+  .text-gold {
+    background-image: linear-gradient(170deg, var(--color-gold-100), var(--color-gold-300) 35%, var(--color-gold-500) 70%, var(--color-gold-200));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  /* superfície de vidro sutil */
+  .glass {
+    background: linear-gradient(180deg, rgb(244 240 230 / 0.035), rgb(244 240 230 / 0.012));
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+  }
+  /* borda luminosa fina no hover de cards */
+  .lab-card {
+    position: relative;
+    border: 1px solid var(--color-border);
+    background: linear-gradient(180deg, rgb(244 240 230 / 0.028), rgb(244 240 230 / 0.008)), var(--color-ink-900);
+    transition:
+      border-color 0.25s var(--ease-premium),
+      transform 0.25s var(--ease-premium),
+      box-shadow 0.25s var(--ease-premium);
+  }
+  .lab-card:hover {
+    border-color: rgb(247 201 72 / 0.28);
+    box-shadow:
+      0 0 0 1px rgb(247 201 72 / 0.05),
+      0 18px 40px -24px rgb(247 201 72 / 0.25);
+  }
+  .lab-grid-bg {
+    background-image:
+      linear-gradient(rgb(244 240 230 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(244 240 230 / 0.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);
+  }
+  .skeleton {
+    background: linear-gradient(90deg, var(--color-ink-800) 0%, var(--color-ink-700) 50%, var(--color-ink-800) 100%);
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+    border-radius: 0.75rem;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .prose-lab p + p {
+    margin-top: 0.75rem;
+  }
+}
