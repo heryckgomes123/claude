@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test'
+import { HOTTOK, KIWIFY_TOKEN } from './tests/e2e/fixtures'
 
 const PORT = Number(process.env.E2E_PORT ?? 3100)
 const E2E_DB = process.env.E2E_DATABASE_URL ?? 'postgres://intelra:intelra@localhost:5432/intelra_lab_e2e'
@@ -33,7 +34,9 @@ export default defineConfig({
       DATABASE_URL: E2E_DB,
       AUTH_SECRET: process.env.AUTH_SECRET ?? 'e2e-secret-e2e-secret-e2e-secret-e2e-00',
       APP_URL: `http://localhost:${PORT}`,
-      SIGNUP_DEFAULT_PLAN: '',
+      HOTMART_HOTTOK: HOTTOK,
+      KIWIFY_WEBHOOK_TOKEN: KIWIFY_TOKEN,
+      RESEND_API_KEY: '',
     },
   },
 })

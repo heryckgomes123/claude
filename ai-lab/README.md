@@ -1,71 +1,108 @@
 # INTELRA AI LAB
 
-Área de membros premium da INTELRA: **prompts + ferramentas + workflows + referências + tutoriais**, conectados
-num laboratório criativo com IA. Idioma principal: português (Brasil). Deploy: **Netlify**.
+Área de membros da INTELRA: o aluno compra, cria a conta com o e-mail da compra e acessa **prompts, aulas,
+ferramentas e favoritos**. O professor cadastra tudo por um painel simples. Idioma: português (Brasil).
+Deploy: **Netlify**.
 
 > A landing page institucional da INTELRA (Vite) continua na raiz do repositório e não foi alterada.
 > Este app vive em `ai-lab/` e é publicado separadamente.
+
+## Como funciona
+
+```
+Compra na Hotmart/Kiwify ──webhook──▶ liberação do e-mail (access_grant)
+                                             │
+Aluno cria a conta com esse e-mail ──────────┴──▶ /lab abre automaticamente
+Reembolso / chargeback / cancelamento ──webhook──▶ acesso removido na hora
+```
+
+**Aluno** (`/lab`): Início (busca, próxima aula, novos prompts) · Prompts (busca sem acento, categorias, campos
+personalizáveis, copiar, favoritar) · Aulas (módulos, vídeo do YouTube/Vimeo/Panda, texto, material, progresso) ·
+Ferramentas · Favoritos. Funciona no celular com menu inferior.
+
+**Professor** (`/admin`, só para papel ADMIN — os demais recebem 404):
+
+| Aba | O que faz |
+| --- | --- |
+| Visão geral | Números, primeiros passos, prompts mais copiados, últimas vendas |
+| Prompts | Criar/editar/excluir, imagem de exemplo (upload até 3 MB), rascunho, **importar planilha CSV** |
+| Aulas | Módulo, ordem, link do vídeo, texto, material e prompts usados na aula |
+| Ferramentas | Nome, categoria, link e "como usar" |
+| Alunos | Todos os e-mails liberados (compra ou manual), se já criaram conta, progresso, bloquear/reativar, **liberar e-mails em lote** |
+| Vendas | Link de compra e de suporte, URLs dos webhooks, status das integrações e registro de cada notificação recebida |
+
+### Escrevendo prompts
+
+Partes que o aluno pode trocar ficam entre chaves duplas: `{{produto}}`, ou com exemplo: `{{cor|dourado}}`.
+Na tela do prompt, cada campo vira uma caixa de texto; o que ficar em branco usa o exemplo.
+
+### Escrevendo aulas
+
+Texto simples: linhas começando com `## ` viram títulos; com `• `, `- ` ou `1. ` viram listas.
+
+### Importando prompts por planilha
+
+Colunas: `titulo, categoria, descricao, prompt, negativo, dicas, ferramentas` (só título, categoria e prompt são
+obrigatórios; várias dicas separadas por `|`). Aceita CSV com vírgula ou ponto e vírgula (Excel em português).
+O painel oferece uma planilha modelo para baixar.
 
 ## Stack
 
 | Camada | Escolha |
 | --- | --- |
 | Framework | Next.js 16 (App Router, Server Components, Server Actions) + React 19 + TypeScript |
-| UI | Tailwind CSS v4, componentes no padrão shadcn/ui sobre Radix, ícones Lucide, Sonner (toasts) |
-| Banco | PostgreSQL + Drizzle ORM (driver `postgres`, compatível com poolers) |
-| Autenticação | Better Auth — e-mail/senha, sessões no banco, rate limit persistente |
-| Busca | Full-text do Postgres (português, sem acento, prefixo) + fallback por similaridade (pg_trgm) |
-| Testes | Vitest (unitários + integração com Postgres real) e Playwright (E2E, mobile, acessibilidade com axe) |
+| UI | Tailwind CSS v4, componentes no padrão shadcn/ui sobre Radix, ícones Lucide, Sonner |
+| Banco | PostgreSQL + Drizzle ORM (driver `postgres`, compatível com poolers) — imagens também ficam no banco |
+| Autenticação | Better Auth — e-mail/senha, sessões no banco, rate limit persistente, confirmação de e-mail e nova senha via Resend |
+| Testes | Vitest (unitários + integração com Postgres real) e Playwright (fluxos, segurança, mobile, acessibilidade com axe) |
 
 ## Arquitetura
 
 ```
 src/
-├── app/                      # rotas
-│   ├── (auth)/               # /entrar, /criar-conta, /acesso (ativar código)
-│   ├── lab/                  # área de membros (home, explore, prompts, workflows, tools,
-│   │                         # references, tutorials, search, prompt-builder, my-lab, experiments)
-│   ├── admin/                # Command Center (conteúdo, taxonomia, membros, códigos, novidades)
-│   └── api/                  # auth, busca e health check
-├── components/{ui,lab,admin} # design system e componentes de produto
-├── features/                 # blocos de tela (bancada de prompt, builder, editor do admin…)
-├── lib/                      # lógica pura e compartilhada (rótulos, validação, busca, builder)
+├── app/
+│   ├── (auth)/          # /entrar, /criar-conta, /acesso, /esqueci-senha, /redefinir-senha
+│   ├── lab/             # área do aluno
+│   ├── admin/           # painel do professor
+│   └── api/             # auth, webhooks (hotmart, kiwify), media (imagens), health
+├── components/          # design system (ui/) e peças da área (lab/)
+├── features/            # formulários e blocos interativos (auth, bancada do prompt, painel)
+├── lib/                 # lógica pura: variáveis de prompt, texto/vídeo das aulas, CSV
 └── server/
-    ├── db/                   # schema Drizzle, conexão, manutenção de índices de busca
-    ├── auth/                 # Better Auth + guards (requireMember, requirePermission…)
-    ├── access/               # papéis, entitlements, memberships, códigos de acesso
-    ├── queries/              # leitura (sempre escopada ao usuário quando é dado privado)
-    ├── actions/              # server actions (validação zod + checagem de acesso em cada uma)
-    ├── services/             # SearchProvider (ativo) · AIProvider, EmbeddingProvider, StorageProvider (contratos)
-    └── content-ingest.ts     # motor idempotente de seed/importação
-content/                      # conteúdo inicial (seed) — edite aqui, sem mexer em UI
-drizzle/                      # migrações SQL versionadas
-scripts/                      # migrate, seed, import-content, set-role
-tests/                        # unit, integration, e2e
+    ├── db/              # schema Drizzle e conexão
+    ├── auth/            # Better Auth + guards (requireMember, requireAdmin, assert*)
+    ├── access/          # papéis e liberações de acesso por e-mail
+    ├── webhooks/        # parse (puro, testado), verificação de assinatura e processamento
+    ├── actions/         # server actions (zod + checagem de acesso em cada uma)
+    ├── queries.ts       # leituras da área do aluno
+    ├── admin-queries.ts # leituras do painel
+    ├── settings.ts      # link de compra / suporte
+    └── email.ts         # e-mails transacionais (Resend)
+drizzle/                 # migrações SQL versionadas
+scripts/                 # migrate, seed (+ seed-data/content.json), set-role
+tests/                   # unit, integration, e2e
 ```
 
-**Decisões principais**
+**Decisões**
 
-- **Supertipo de conteúdo.** `content_item` guarda o que todo conteúdo tem (título, slug, status, categoria, busca,
-  popularidade); `prompt`, `workflow`, `tool`, `reference` e `tutorial` guardam o específico (1:1). Assim favoritos,
-  histórico, tags, coleções, busca global e o **grafo de conhecimento** (`content_relation`) usam FKs reais, sem
-  tabelas duplicadas por tipo.
-- **Acesso por entitlements.** Usuário → Membership → Plano → Entitlements (`lab.access`, `lab.prompt-builder`,
-  `lab.collections`, `lab.experiments`, `content.premium`). A venda acontece fora do Lab; o acesso chega por
-  **código de acesso** (gerado no admin, guardado só como hash) ou concessão manual. Integrações de pagamento
-  futuras só precisam criar/encerrar memberships.
-- **Segurança em camadas.** Não usamos `proxy.ts` (middleware): cada página chama um guard e **cada server action e
-  route handler revalida sessão e permissão**. Dados privados (coleções, prompts próprios, experimentos) são sempre
-  consultados com `user_id` do usuário logado. O admin responde 404 para quem não tem permissão.
-- **Sem estado local.** Nada depende do sistema de arquivos; tudo persiste no Postgres (inclusive rate limit),
-  compatível com funções serverless.
-- **IA como contrato, não como demo.** `AIProvider`, `EmbeddingProvider` e `StorageProvider` definem as fronteiras
-  para recursos futuros e retornam `null` hoje. Nenhuma tela finge ter IA.
+- **Acesso por e-mail da compra.** A tabela `access_grant` guarda cada liberação (plataforma + id da venda). O acesso é
+  verificado a cada requisição: um reembolso processado agora já bloqueia a próxima página. Vendas são idempotentes
+  (reenvios não duplicam) e o reembolso de uma venda não derruba outra compra ou uma liberação manual do mesmo e-mail.
+  Cancelamento de assinatura mantém o acesso até o fim do período pago, quando a plataforma informa a data.
+- **Webhooks autenticados.** Hotmart: cabeçalho `X-HOTMART-HOTTOK` comparado em tempo constante. Kiwify: HMAC-SHA1 do
+  corpo bruto (`?signature=`). Requisições recusadas são registradas com limite (não enchem o banco) e nunca guardam
+  o id do evento. Corpo limitado a 256 KB. Erro interno responde 500 para a plataforma reenviar.
+- **Confirmação de e-mail.** Com a Resend configurada, a conta só entra depois de confirmar o e-mail — é isso que
+  prova que quem cria a conta é o dono do e-mail da compra. Sem e-mail configurado o painel mostra o alerta.
+- **Segurança em camadas.** Sem `proxy.ts`: cada página chama um guard e **cada server action e route handler
+  revalida sessão e papel**. O papel nunca pode ser definido no cadastro. Imagens enviadas são validadas pelo
+  conteúdo real (JPG/PNG/WEBP/GIF), servidas só para quem tem acesso e com CSP `sandbox`.
+- **Sem estado local.** Tudo persiste no Postgres (inclusive rate limit e imagens), compatível com serverless.
 
 ## Rodando localmente
 
-Requisitos: Node 20.9+ e um PostgreSQL 14+ (com as extensões `unaccent` e `pg_trgm`, disponíveis no Neon, Supabase e
-na maioria dos provedores).
+Requisitos: Node 20.9+ e PostgreSQL 14+ (com as extensões `unaccent` e `pg_trgm`, disponíveis no Neon, Supabase e na
+maioria dos provedores).
 
 ```bash
 cd ai-lab
@@ -76,82 +113,75 @@ SEED_ADMIN_EMAIL=voce@intelra.com.br SEED_ADMIN_PASSWORD='uma-senha-longa' npm r
 npm run dev                       # http://localhost:3000
 ```
 
-O seed cria planos (FREE, PRO, LAB, ENTERPRISE — PRO e ENTERPRISE inativos, reservados), categorias, 12 ferramentas,
-15 prompts, 6 workflows, 8 referências, 6 tutoriais e as primeiras novidades. Ele é idempotente: rodar de novo não
-duplica nada e **não sobrescreve** edições feitas no admin (use `--update` para sobrescrever).
+O seed cria 15 prompts, 12 aulas (2 módulos) e 12 ferramentas de exemplo, e o professor. Ele é idempotente e **não
+sobrescreve** o que foi editado no painel (use `--update` para sobrescrever os itens do seed). Para criar só o
+professor, sem conteúdo de exemplo: `npm run db:seed -- --no-content`.
 
-### Dando acesso a membros
-
-1. Entre como admin → **Command Center → Códigos de acesso** → gere códigos (lote de até 500, CSV).
-2. Entregue o código ao comprador (e-mail pós-compra, área do produto na plataforma de pagamento).
-3. O comprador cria a conta em `/criar-conta` informando o código (ou ativa depois em `/acesso`).
-
-Também é possível conceder/revogar acesso manualmente em **Membros**. Para promover alguém a admin num ambiente sem
-admin ainda: `npm run user:role -- email@exemplo.com ADMIN` (com o `DATABASE_URL` daquele ambiente).
-
-### Adicionando conteúdo em volume
-
-- **Admin:** crie e edite qualquer tipo em **Conteúdo** (rascunho → revisão → publicado → arquivado). Mudanças no
-  texto de um prompt geram uma nova versão.
-- **Arquivos:** edite `content/*.ts` e rode `npm run db:seed`.
-- **JSON em lote:** `npm run content:import -- arquivo.json [--dry-run] [--update]`. O formato é validado por
-  `src/lib/content-bundle.ts` (mesmo formato do seed; relações por slug, ex.: `"WORKFLOW:foto-de-produto-para-video-comercial"`).
+Para testar a liberação sem uma venda real, entre como professor → **Alunos** → libere seu e-mail de teste.
 
 ## Variáveis de ambiente
 
-| Variável | Obrigatória | Onde | Uso |
-| --- | --- | --- | --- |
-| `DATABASE_URL` | sim (secreta) | build + runtime | Postgres persistente. Em serverless use a URL com pooler e `sslmode=require`. |
-| `AUTH_SECRET` | sim (secreta) | runtime | Assina as sessões. Mín. 32 caracteres (`openssl rand -base64 48`). |
-| `APP_URL` | recomendada | runtime | URL canônica (ex.: `https://lab.intelra.com.br`). Na Netlify, use escopo *Production*. |
-| `SIGNUP_DEFAULT_PLAN` | não | runtime | Código de plano concedido a toda conta nova. Deixe vazio em produção. |
-| `DATABASE_POOL_MAX` | não | runtime | Conexões por instância (padrão 5). |
-| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | não | só no seed | Cria/promove o primeiro admin. |
+| Variável | Obrigatória | Uso |
+| --- | --- | --- |
+| `DATABASE_URL` | sim (secreta) | Postgres persistente. Em serverless use a URL com pooler e `sslmode=require`. |
+| `AUTH_SECRET` | sim (secreta) | Assina as sessões. Mín. 32 caracteres (`openssl rand -base64 48`). |
+| `APP_URL` | recomendada | URL final (ex.: `https://lab.intelra.com.br`). Usada nos links dos webhooks e e-mails. |
+| `HOTMART_HOTTOK` | para Hotmart (secreta) | Hottok da conta Hotmart. |
+| `HOTMART_PRODUCT_IDS` | não | Ids de produto que liberam o Lab (vírgula). Vazio = qualquer produto da conta. |
+| `KIWIFY_WEBHOOK_TOKEN` | para Kiwify (secreta) | Token do webhook da Kiwify. |
+| `KIWIFY_PRODUCT_IDS` | não | Ids de produto que liberam o Lab (vírgula). Vazio = qualquer produto da conta. |
+| `RESEND_API_KEY` + `EMAIL_FROM` | recomendada (secreta) | Boas-vindas, confirmação de e-mail e "esqueci minha senha". |
+| `DATABASE_POOL_MAX` | não | Conexões por instância (padrão 5). |
+| `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` | só no seed | Cria/promove o professor. |
 
-Nenhuma variável `NEXT_PUBLIC_*` é usada: o navegador não precisa de configuração, e valores `NEXT_PUBLIC_*` seriam
-fixados no build. Não há chaves de IA ou de storage porque esses recursos ainda não estão implementados.
+Nenhuma variável `NEXT_PUBLIC_*` é usada: nenhum segredo chega ao navegador.
+
+## Conectando as vendas
+
+**Hotmart:** Ferramentas → Webhook (API e notificações) → cadastrar. URL `https://SEU-DOMINIO/api/webhooks/hotmart`,
+versão 2.0.0, eventos: compra aprovada, completa, reembolsada, chargeback, cancelada, em disputa e cancelamento de
+assinatura. Copie o Hottok para `HOTMART_HOTTOK`.
+
+**Kiwify:** Apps → Webhooks → criar. URL `https://SEU-DOMINIO/api/webhooks/kiwify`, eventos: compra aprovada,
+reembolso, chargeback e assinatura cancelada. Copie o token para `KIWIFY_WEBHOOK_TOKEN`.
+
+Depois use o botão de teste da plataforma: o resultado aparece em **Painel → Vendas → Notificações recebidas**.
+As URLs prontas para copiar também estão nessa tela.
 
 ## Deploy na Netlify
 
-O `netlify.toml` na raiz do repositório já define `base = "ai-lab"`, o comando `npm run build:netlify` (aplica as
-migrações e faz o build) e o Node 22. Deploy previews e branch deploys rodam só `npm run build` — **não** aplicam
-migrações, para que um branch em teste nunca altere o banco de produção (use um banco separado para previews se
-precisar testar migrações). A Netlify detecta o Next.js e usa o adaptador oficial automaticamente
-(páginas dinâmicas, server actions e route handlers viram Netlify Functions).
+O `netlify.toml` na raiz já define `base = "ai-lab"`, o comando `npm run build:netlify` (aplica as migrações e faz o
+build) e o Node 22. Deploy previews e branch deploys rodam só `npm run build` — **não** aplicam migrações.
 
 1. Crie um Postgres persistente (Netlify DB/Neon, Supabase…) e copie a URL **com pooler**.
-2. Na Netlify: *Add new site → Import from Git* e selecione este repositório (as configurações vêm do `netlify.toml`).
-3. Em *Site configuration → Environment variables*, crie `DATABASE_URL` e `AUTH_SECRET` (escopos Builds + Functions)
-   e `APP_URL` (escopo Production, com o domínio final).
-4. Faça o deploy. O build aplica as migrações; em seguida, rode o seed uma vez apontando para o banco de produção:
-   `DATABASE_URL='…' SEED_ADMIN_EMAIL=… SEED_ADMIN_PASSWORD=… npm run db:seed`.
+2. Na Netlify: *Add new site → Import from Git* e selecione este repositório.
+3. Em *Site configuration → Environment variables*, crie as variáveis da tabela acima.
+4. Faça o deploy. Depois rode o seed uma vez apontando para o banco de produção:
+   `DATABASE_URL='…' SEED_ADMIN_EMAIL=… SEED_ADMIN_PASSWORD=… npm run db:seed` (acrescente `-- --no-content` se não
+   quiser o conteúdo de exemplo).
 5. Verifique `https://seu-dominio/api/health` → `{"status":"ok","database":"ok"}`.
 
-Se preferir configurar pela interface em vez do `netlify.toml`: *Base directory* `ai-lab`, *Build command*
-`npm run build:netlify`, *Publish directory* `ai-lab/.next`.
+> A migração `0002_member_area` troca o modelo anterior (planos, coleções, workflows, experimentos…) pelo modelo
+> simples. Contas e senhas são mantidas; o conteúdo do modelo antigo é removido.
 
 ## Scripts
 
 | Script | O que faz |
 | --- | --- |
-| `npm run dev` / `build` / `start` | Desenvolvimento, build de produção e servidor de produção |
+| `npm run dev` / `build` / `start` | Desenvolvimento, build e servidor de produção |
 | `npm run build:netlify` | Migrações + build (usado pela Netlify) |
-| `npm run lint` / `typecheck` | ESLint e TypeScript (gera os tipos de rota antes) |
-| `npm run db:generate` | Gera uma nova migração a partir do schema (`src/server/db/schema.ts`) |
-| `npm run db:migrate` / `db:seed` | Aplica migrações / carrega o conteúdo inicial |
-| `npm run content:import -- arquivo.json` | Importação em massa |
-| `npm run user:role -- email ADMIN` | Define o papel de um usuário |
-| `npm test` | Vitest (unitários; integração com `TEST_DATABASE_URL` apontando para um banco de teste) |
-| `npm run test:e2e` | Playwright contra `next start` e um banco E2E dedicado (`E2E_DATABASE_URL`, precisa de `npm run build` antes) |
+| `npm run lint` / `typecheck` | ESLint e TypeScript |
+| `npm run db:generate` | Gera uma nova migração a partir do schema |
+| `npm run db:migrate` / `db:seed` | Aplica migrações / carrega o conteúdo inicial e o professor |
+| `npm run user:role -- email ADMIN` | Torna um usuário professor (ou `USER` para remover) |
+| `npm test` | Vitest (integração com `TEST_DATABASE_URL` apontando para um banco `_test`) |
+| `npm run test:e2e` | Playwright contra `next start` e um banco E2E dedicado (rode `npm run build` antes) |
 
 ## Limitações conhecidas
 
-- Sem envio de e-mail: não há verificação de e-mail nem redefinição de senha ("esqueci minha senha") ainda. O Better
-  Auth suporta ambos; falta configurar um provedor de e-mail e as telas.
-- Sem integração de pagamento/webhook: o acesso vem de códigos ou concessão manual.
-- Imagens são URLs externas informadas no admin (sem upload); sem imagem, o Lab gera uma capa abstrata.
-- Busca semântica, recomendações personalizadas avançadas e recursos de IA estão apenas arquitetados.
-- Informações de ferramentas do seed estão marcadas como "verificação pendente" até alguém da equipe confirmar.
-- Os seletores de relações do editor carregam até 5.000 itens; para catálogos maiores, trocar por busca no servidor.
-- Páginas inexistentes dentro do Lab exibem a tela de "não encontrado" com status HTTP 200 (efeito do streaming com
+- Sem a Resend configurada não há confirmação de e-mail nem "esqueci minha senha" (a tela orienta a falar com o
+  suporte). Em produção, configure os e-mails antes de divulgar.
+- Assinaturas: cada cobrança recorrente aprovada vira uma linha em **Alunos** (uma por transação).
+- Páginas inexistentes dentro da área exibem "não encontrado" com status HTTP 200 (efeito do streaming com
   skeletons); o conteúdo protegido nunca é enviado.
+- Outras plataformas (Eduzz, Monetizze, Stripe…) ainda não têm webhook; use a liberação manual ou peça a integração.

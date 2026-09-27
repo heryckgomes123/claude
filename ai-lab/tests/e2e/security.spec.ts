@@ -1,73 +1,77 @@
-import { expect, test, type Page } from '@playwright/test'
-import postgres from 'postgres'
-import { E2E_DB, OTHER, STATE } from './fixtures'
-
-/**
- * Rotas do Lab têm limite de Suspense (loading.tsx) para skeletons de navegação; quando notFound()
- * ocorre após o início do streaming, o Next exibe a tela de não encontrado com status 200 + noindex.
- * O que importa para segurança: a tela de não encontrado e nenhum dado do recurso.
- */
-async function expectNotFound(page: Page, path: string) {
-  const res = await page.goto(path)
-  expect([200, 404], path).toContain(res?.status())
-  await expect(page.getByText(/Conteúdo não encontrado|Não encontramos esta página/).first(), path).toBeVisible()
-}
+import { expect, test } from '@playwright/test'
+import { createHmac } from 'node:crypto'
+import { HOTTOK, KIWIFY_TOKEN, STATE, uniqueEmail } from './fixtures'
 
 test.describe('red team — acesso e entradas', () => {
-  test('visitante é redirecionado e APIs exigem sessão', async ({ page, request }) => {
-    for (const path of ['/lab', '/lab/prompts', '/lab/my-lab', '/admin']) {
+  test('visitante é redirecionado e imagens exigem acesso', async ({ page, request }) => {
+    for (const path of ['/lab', '/lab/prompts', '/lab/aulas', '/lab/favoritos', '/admin', '/admin/alunos']) {
       await page.goto(path)
       await expect(page, path).toHaveURL(/\/entrar$/)
     }
-    expect((await request.get('/api/search?q=x')).status()).toBe(401)
-    const visit = await request.get('/lab/tools/midjourney/visit', { maxRedirects: 0 })
-    expect(visit.headers().location).toContain('/entrar')
+    expect((await request.get('/api/media/00000000-0000-0000-0000-000000000000')).status()).toBe(401)
   })
 
-  test.describe('como membro', () => {
+  test('cadastro ignora tentativa de virar admin', async ({ request }) => {
+    const email = uniqueEmail('hacker')
+    const res = await request.post('/api/auth/sign-up/email', {
+      data: { name: 'Hacker', email, password: 'Senha-Hacker-2026', role: 'ADMIN' },
+      headers: { origin: 'http://localhost:3100' },
+    })
+    expect(res.status()).toBeLessThan(500)
+    const admin = await request.get('/admin')
+    expect(admin.status()).toBe(404)
+  })
+
+  test('login de outra origem é recusado (CSRF)', async ({ request }) => {
+    const res = await request.post('/api/auth/sign-in/email', {
+      data: { email: 'x@e2e.intelra.test', password: 'qualquer-coisa' },
+      headers: { origin: 'https://site-malicioso.example' },
+    })
+    expect(res.status()).toBe(403)
+  })
+
+  test('webhooks recusam requisições não autenticadas ou malformadas', async ({ request }) => {
+    const body = { event: 'PURCHASE_APPROVED', data: { buyer: { email: uniqueEmail('fraude') }, purchase: { transaction: 'X' } } }
+    expect((await request.post('/api/webhooks/hotmart', { data: body })).status()).toBe(401)
+    expect((await request.post('/api/webhooks/hotmart', { data: body, headers: { 'x-hotmart-hottok': 'errado' } })).status()).toBe(401)
+    expect(
+      (await request.post('/api/webhooks/hotmart', { data: Buffer.from('{não é json'), headers: { 'x-hotmart-hottok': HOTTOK, 'content-type': 'application/json' } })).status(),
+    ).toBe(400)
+    expect(
+      (await request.post('/api/webhooks/hotmart', { data: 'x'.repeat(300_000), headers: { 'x-hotmart-hottok': HOTTOK } })).status(),
+    ).toBe(413)
+
+    const raw = JSON.stringify({ order_id: 'k-sec', order_status: 'paid', Customer: { email: uniqueEmail('kiwi') } })
+    expect((await request.post('/api/webhooks/kiwify?signature=abc', { data: raw, headers: { 'content-type': 'application/json' } })).status()).toBe(401)
+    const signature = createHmac('sha1', KIWIFY_TOKEN).update(raw).digest('hex')
+    const ok = await request.post(`/api/webhooks/kiwify?signature=${signature}`, { data: raw, headers: { 'content-type': 'application/json' } })
+    expect(await ok.json()).toMatchObject({ ok: true, outcome: 'GRANTED' })
+  })
+
+  test.describe('como aluno', () => {
     test.use({ storageState: STATE.member })
 
-    test('admin não é revelado a membros', async ({ page }) => {
-      const res = await page.goto('/admin')
-      expect(res?.status()).toBe(404)
-      expect((await page.goto('/admin/content/new'))?.status()).toBe(404)
+    test('painel do professor não é revelado', async ({ page }) => {
+      for (const path of ['/admin', '/admin/prompts/novo', '/admin/alunos', '/admin/vendas']) {
+        const res = await page.goto(path)
+        expect(res?.status(), path).toBe(404)
+      }
     })
 
-    test('coleção e prompt de outro usuário respondem 404', async ({ page }) => {
-      const sql = postgres(E2E_DB, { max: 1 })
-      const [other] = await sql`select id from "user" where email = ${OTHER.email}`
-      const [col] = await sql`insert into collection (user_id, name) values (${other.id}, ${'Privada ' + Date.now()}) returning id`
-      const [up] = await sql`insert into user_prompt (user_id, title, body) values (${other.id}, 'Segredo', 'texto privado') returning id`
-      const [exp] = await sql`insert into experiment (user_id, title) values (${other.id}, 'Privado') returning id`
-      await sql.end()
-      await expectNotFound(page, `/lab/my-lab/collections/${col.id}`)
-      await expect(page.getByText(/Privada/)).toHaveCount(0)
-      await expectNotFound(page, `/lab/my-lab/prompts/${up.id}`)
-      await expect(page.getByText('texto privado')).toHaveCount(0)
-      await expectNotFound(page, `/lab/experiments/${exp.id}`)
+    test('URLs malformadas e conteúdo inexistente mostram “não encontrado”', async ({ page }) => {
+      for (const path of ['/lab/prompts/..%2F..%2Fetc', '/lab/prompts/nao-existe', '/lab/aulas/nao-existe', '/lab/rota-inexistente']) {
+        await page.goto(path)
+        await expect(page.getByText(/Não encontramos/).first(), path).toBeVisible()
+      }
+      expect((await page.request.get('/api/media/nao-e-uuid')).status()).toBe(404)
     })
 
-    test('URLs malformadas e conteúdo inexistente dão 404', async ({ page }) => {
-      for (const path of ['/lab/prompts/..%2F..%2Fetc', '/lab/prompts/nao-existe', '/lab/my-lab/collections/not-a-uuid', '/lab/explore/categoria-fantasma', '/lab/rota-inexistente'])
-        await expectNotFound(page, path)
-    })
-
-    test('entradas hostis na busca e nos filtros não quebram a página', async ({ page, request }) => {
-      await page.goto(`/lab/search?q=${encodeURIComponent("'); drop table content_item; -- <script>alert(1)</script>")}`)
-      await expect(page.getByRole('heading', { level: 1 })).toContainText('Resultados para')
-      await page.goto('/lab/prompts?difficulty=HACKER&page=-9&media=<x>&sort=;;')
-      await expect(page.getByText(/\d+ resultados?/)).toBeVisible()
-      const tooLong = await request.get(`/api/search?q=${'a'.repeat(500)}`)
-      expect(tooLong.status()).toBe(400)
-      expect((await request.get('/api/search?q=produto&type=HACK')).status()).toBe(400)
-    })
-
-    test('visita de ferramenta só redireciona para o site cadastrado', async ({ request }) => {
-      const res = await request.get('/lab/tools/nao-existe/visit', { maxRedirects: 0 })
-      expect(res.status()).toBe(404)
-      const ok = await request.get('/lab/tools/midjourney/visit', { maxRedirects: 0 })
-      expect(ok.status()).toBe(302)
-      expect(ok.headers().location).toBe('https://www.midjourney.com/')
+    test('entradas hostis na busca não quebram a página', async ({ page }) => {
+      await page.goto(`/lab/prompts?q=${encodeURIComponent("'); drop table prompt; -- <script>alert(1)</script>%_\\")}&categoria=<x>`)
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Prompts')
+      await expect(page.getByText('Nenhum prompt encontrado')).toBeVisible()
+      await page.goto('/lab/prompts?q=produto')
+      await expect(page.getByText(/\d+ prompts? para “produto”/)).toBeVisible()
     })
   })
 })

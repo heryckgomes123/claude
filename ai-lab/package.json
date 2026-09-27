@@ -15,7 +15,6 @@
     "db:migrate": "node scripts/migrate.mjs",
     "db:seed": "tsx scripts/seed.ts",
     "db:studio": "drizzle-kit studio",
-    "content:import": "tsx scripts/import-content.ts",
     "user:role": "tsx scripts/set-role.ts"
   },
   "dependencies": {

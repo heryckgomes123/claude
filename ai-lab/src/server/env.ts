@@ -12,8 +12,9 @@ const schema = z.object({
   /** URL canônica (lida em runtime; nunca use NEXT_PUBLIC_* no servidor — é fixada no build). */
   APP_URL: z.url().optional(),
   DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(50).default(5),
-  /** Código de plano concedido automaticamente no cadastro (ex.: LAB). Vazio = nenhum. */
-  SIGNUP_DEFAULT_PLAN: z.string().trim().optional(),
+  /** E-mails transacionais (verificação de e-mail, nova senha) via Resend. Opcional. */
+  RESEND_API_KEY: z.string().trim().optional(),
+  EMAIL_FROM: z.string().trim().optional(),
 })
 
 export type ServerEnv = z.infer<typeof schema>
@@ -27,7 +28,8 @@ export function serverEnv(): ServerEnv {
     AUTH_SECRET: process.env.AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET,
     APP_URL: process.env.APP_URL || undefined,
     DATABASE_POOL_MAX: process.env.DATABASE_POOL_MAX || undefined,
-    SIGNUP_DEFAULT_PLAN: process.env.SIGNUP_DEFAULT_PLAN || undefined,
+    RESEND_API_KEY: process.env.RESEND_API_KEY || undefined,
+    EMAIL_FROM: process.env.EMAIL_FROM || undefined,
   })
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ')
@@ -35,6 +37,29 @@ export function serverEnv(): ServerEnv {
   }
   cached = parsed.data
   return cached
+}
+
+/** E-mail transacional configurado? Quando sim, o e-mail do aluno precisa ser confirmado. */
+export function emailEnabled(): boolean {
+  return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
+}
+
+/**
+ * Segredos dos webhooks de venda. Lidos sob demanda (não são obrigatórios para o app subir).
+ * *_PRODUCT_IDS: lista separada por vírgula; vazio = qualquer produto da conta libera acesso.
+ */
+export function webhookEnv() {
+  const list = (value: string | undefined) =>
+    (value ?? '')
+      .split(',')
+      .map((v) => v.trim())
+      .filter(Boolean)
+  return {
+    hotmartHottok: process.env.HOTMART_HOTTOK?.trim() || undefined,
+    hotmartProductIds: list(process.env.HOTMART_PRODUCT_IDS),
+    kiwifyToken: process.env.KIWIFY_WEBHOOK_TOKEN?.trim() || undefined,
+    kiwifyProductIds: list(process.env.KIWIFY_PRODUCT_IDS),
+  }
 }
 
 /** Diagnóstico seguro (sem valores) para o endpoint de saúde. */

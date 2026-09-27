@@ -18,11 +18,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   turbopack: { root: projectRoot },
   outputFileTracingRoot: projectRoot,
+  // Upload de imagens dos prompts (até 3 MB) pelo painel do professor.
+  experimental: { serverActions: { bodySizeLimit: '4mb' } },
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },
-      // Área de membros e admin nunca devem ser cacheadas por CDN.
-      { source: '/(lab|admin|api)/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }] },
+      // Área de membros, painel e APIs nunca devem ser cacheados por CDN
+      // (as imagens em /api/media definem o próprio cache privado).
+      { source: '/(lab|admin|acesso)/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }] },
+      { source: '/api/(auth|webhooks|health)/:path*', headers: [{ key: 'Cache-Control', value: 'private, no-store' }] },
     ]
   },
 }

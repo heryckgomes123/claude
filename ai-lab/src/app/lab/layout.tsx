@@ -1,11 +1,11 @@
-import { LabShell } from '@/components/lab/lab-shell'
+import { AppShell } from '@/components/lab/app-shell'
 import { requireMember } from '@/server/auth/viewer'
 
 /**
- * Shell da área de membros. O guard aqui melhora a UX; cada página e cada action
+ * Área do aluno. O guard aqui melhora a UX; cada página e cada action
  * também valida o acesso (layouts não são re-executados em toda navegação).
  */
 export default async function LabLayout({ children }: { children: React.ReactNode }) {
   const viewer = await requireMember()
-  return <LabShell viewer={{ name: viewer.name, email: viewer.email, isAdmin: viewer.isAdmin }}>{children}</LabShell>
+  return <AppShell viewer={{ name: viewer.name, isAdmin: viewer.isAdmin }}>{children}</AppShell>
 }

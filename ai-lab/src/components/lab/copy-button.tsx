@@ -3,7 +3,7 @@ import { Check, Copy } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { recordCopy } from '@/server/actions/lab'
+import { recordCopy } from '@/server/actions/student'
 import { Button, type ButtonProps } from '../ui/button'
 
 export async function copyToClipboard(text: string): Promise<boolean> {
@@ -27,35 +27,37 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 
 export function CopyButton({
   text,
-  contentId,
+  promptId,
   label = 'Copiar',
   copiedLabel = 'Copiado',
+  toastMessage = 'Copiado! Agora é só colar na ferramenta de IA.',
   className,
   variant = 'secondary',
   size = 'md',
-  onCopied,
 }: {
   text: string | (() => string)
-  contentId?: string
+  promptId?: string
   label?: string
   copiedLabel?: string
+  toastMessage?: string
   className?: string
   variant?: ButtonProps['variant']
   size?: ButtonProps['size']
-  onCopied?: () => void
 }) {
   const [copied, setCopied] = useState(false)
 
-  async function onClick() {
+  async function onClick(event: React.MouseEvent) {
+    event.preventDefault()
+    event.stopPropagation()
     const value = typeof text === 'function' ? text() : text
     if (!(await copyToClipboard(value))) {
       toast.error('Não foi possível copiar. Selecione o texto manualmente.')
       return
     }
     setCopied(true)
-    onCopied?.()
+    toast.success(toastMessage)
     window.setTimeout(() => setCopied(false), 2200)
-    if (contentId) void recordCopy(contentId)
+    if (promptId) void recordCopy(promptId)
   }
 
   return (

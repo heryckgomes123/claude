@@ -11,8 +11,8 @@ export default function LabError({ error, reset }: { error: Error & { digest?: s
   return (
     <EmptyState
       icon={<TriangleAlert className="size-5" />}
-      title="Algo não carregou como deveria"
-      description={`Pode ser uma instabilidade momentânea. Tente de novo.${error.digest ? ` (ref. ${error.digest})` : ''}`}
+      title="Algo deu errado ao carregar esta página"
+      description={`Tente novamente em instantes.${error.digest ? ` (ref. ${error.digest})` : ''}`}
       action={
         <Button variant="primary" onClick={reset}>
           <RotateCcw /> Tentar novamente

@@ -3,11 +3,10 @@ import { eq } from 'drizzle-orm'
 import { headers } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
 import { cache } from 'react'
+import { hasActiveGrant } from '../access/grants'
+import { isAdminRole, isRole, type Role } from '../access/roles'
 import { db } from '../db'
 import { user } from '../db/schema'
-import { ENTITLEMENTS, type Entitlement } from '../access/entitlements'
-import { getActiveEntitlements } from '../access/memberships'
-import { can, isRole, type Permission, type Role } from '../access/roles'
 import { getAuth } from '.'
 
 export type Viewer = {
@@ -15,14 +14,13 @@ export type Viewer = {
   name: string
   email: string
   role: Role
-  entitlements: Set<string>
   isAdmin: boolean
   hasLabAccess: boolean
 }
 
 /**
- * Usuário da requisição atual, lido do banco (papel e entitlements sempre atuais).
- * Memoizado por requisição com React.cache.
+ * Usuário da requisição atual, lido do banco (papel e acesso sempre atuais — um reembolso
+ * processado agora já bloqueia a próxima página). Memoizado por requisição com React.cache.
  */
 export const getViewer = cache(async (): Promise<Viewer | null> => {
   // headers() primeiro: marca a rota como dinâmica antes de qualquer acesso à configuração.
@@ -36,20 +34,14 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
     .limit(1)
   if (!row) return null
   const role: Role = isRole(row.role) ? row.role : 'USER'
-  const entitlements = await getActiveEntitlements(row.id)
-  const isAdmin = can(role, 'admin:access')
+  const isAdmin = isAdminRole(role)
   return {
     ...row,
     role,
-    entitlements,
     isAdmin,
-    hasLabAccess: isAdmin || entitlements.has(ENTITLEMENTS.LAB_ACCESS),
+    hasLabAccess: isAdmin || (await hasActiveGrant(row.email)),
   }
 })
-
-export function viewerHas(viewer: Viewer, entitlement: Entitlement): boolean {
-  return viewer.isAdmin || viewer.entitlements.has(entitlement)
-}
 
 /* ---------- Guards para páginas (redirecionam) ---------- */
 
@@ -65,11 +57,11 @@ export async function requireMember(): Promise<Viewer> {
   return viewer
 }
 
-/** Rotas administrativas respondem 404 para quem não tem permissão (não revelam que existem). */
-export async function requirePermission(permission: Permission = 'admin:access'): Promise<Viewer> {
+/** O painel do professor responde 404 para quem não é admin (não revela que existe). */
+export async function requireAdmin(): Promise<Viewer> {
   const viewer = await getViewer()
   if (!viewer) redirect('/entrar')
-  if (!can(viewer.role, permission)) notFound()
+  if (!viewer.isAdmin) notFound()
   return viewer
 }
 
@@ -84,18 +76,16 @@ export class AccessError extends Error {
   }
 }
 
-export async function assertMember(entitlement?: Entitlement): Promise<Viewer> {
+export async function assertMember(): Promise<Viewer> {
   const viewer = await getViewer()
   if (!viewer) throw new AccessError('Faça login para continuar.', 'UNAUTHENTICATED')
-  if (!viewer.hasLabAccess) throw new AccessError('Sua conta ainda não tem acesso ao Lab.', 'FORBIDDEN')
-  if (entitlement && !viewerHas(viewer, entitlement))
-    throw new AccessError('Seu plano não inclui este recurso.', 'FORBIDDEN')
+  if (!viewer.hasLabAccess) throw new AccessError('Sua conta ainda não tem acesso à área de membros.', 'FORBIDDEN')
   return viewer
 }
 
-export async function assertPermission(permission: Permission): Promise<Viewer> {
+export async function assertAdmin(): Promise<Viewer> {
   const viewer = await getViewer()
   if (!viewer) throw new AccessError('Faça login para continuar.', 'UNAUTHENTICATED')
-  if (!can(viewer.role, permission)) throw new AccessError('Você não tem permissão para esta ação.', 'FORBIDDEN')
+  if (!viewer.isAdmin) throw new AccessError('Você não tem permissão para esta ação.', 'FORBIDDEN')
   return viewer
 }

@@ -3,16 +3,16 @@ import { Heart } from 'lucide-react'
 import { useOptimistic, useTransition } from 'react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { toggleFavorite } from '@/server/actions/lab'
+import { toggleFavorite } from '@/server/actions/student'
 
 export function FavoriteButton({
-  contentId,
+  promptId,
   initial,
   title,
   variant = 'icon',
   className,
 }: {
-  contentId: string
+  promptId: string
   initial: boolean
   title: string
   variant?: 'icon' | 'button'
@@ -26,7 +26,7 @@ export function FavoriteButton({
     event.stopPropagation()
     startTransition(async () => {
       setOptimistic(!favorited)
-      const result = await toggleFavorite(contentId)
+      const result = await toggleFavorite(promptId)
       if (!result.ok) toast.error(result.error)
       else toast.success(result.message)
     })
@@ -48,7 +48,7 @@ export function FavoriteButton({
         )}
       >
         <Heart className={cn('size-4', favorited && 'animate-pop fill-gold-300 text-gold-300')} aria-hidden />
-        {favorited ? 'Favoritado' : 'Favoritar'}
+        {favorited ? 'Nos favoritos' : 'Favoritar'}
       </button>
     )
   return (

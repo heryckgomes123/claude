@@ -1,0 +1,480 @@
+{
+ "prompts": [
+  {
+   "slug": "luxury-product-photography-studio-campaign",
+   "title": "Luxury Product Photography — Studio Campaign",
+   "category": "Produtos",
+   "description": "Fotografia comercial de produto com luz de estúdio dramática, pronta para campanha de marca premium.",
+   "body": "High-end commercial product photograph of {{produto|a matte black perfume bottle with a gold cap}}, placed on a {{superficie|polished black marble podium}} in a dark studio. Dramatic rim light tracing the silhouette, soft key light from the upper left, controlled specular highlights on {{material|the glass and metal details}}. Subtle {{cor_destaque|warm gold}} accent light in the background, fine haze, deep blacks. Centered hero composition with generous negative space above. Shot on a 100mm macro lens, f/8, razor-sharp focus, luxury advertising aesthetic, ultra-detailed, photorealistic.",
+   "negative": "text, watermark, logo distortion, extra objects, clutter, fingerprints, dust, low contrast, overexposed highlights, cartoon, illustration",
+   "tips": [
+    "Descreva o produto como um fotógrafo descreveria: forma, material, acabamento.",
+    "Rótulos e logos raramente saem perfeitos — aplique a marca real na pós-produção.",
+    "Mude apenas a cor de destaque para criar uma série consistente de peças."
+   ],
+   "tools": "Midjourney · ChatGPT (GPT Image)",
+   "position": 0
+  },
+  {
+   "slug": "cinematic-fitness-campaign",
+   "title": "Cinematic Fitness Campaign",
+   "category": "Cinemático",
+   "description": "Cena cinematográfica de treino com suor, luz dura e câmera lenta — base para anúncios de academia.",
+   "body": "Cinematic slow-motion shot of {{atleta|an athletic man in black training gear}} performing {{exercicio|battle rope slams}} in a dark industrial gym. Hard top light and a single cool rim light from behind, sweat droplets catching the light, chalk dust floating in the air. Camera: low angle, slow push-in, shallow depth of field, anamorphic lens flare. Color grade: deep blacks, desaturated skin tones, {{cor|warm amber}} highlights. Mood: relentless, focused, powerful. 24fps film look, subtle grain.",
+   "negative": "distorted limbs, extra fingers, morphing face, text, logos, cartoon, jittery camera, low detail",
+   "tips": [
+    "Gere primeiro a imagem do atleta e anime depois: a consistência melhora muito.",
+    "Uma ação por clipe. Sequências complexas funcionam melhor como cortes separados.",
+    "Descreva a câmera (ângulo, movimento, lente) — é o que dá cara de cinema."
+   ],
+   "tools": "Kling AI · Runway",
+   "position": 1
+  },
+  {
+   "slug": "editorial-fashion-portrait",
+   "title": "Editorial Fashion Portrait",
+   "category": "Moda",
+   "description": "Retrato de moda com linguagem de revista: pose intencional, luz suave e styling em destaque.",
+   "body": "Editorial fashion portrait of {{modelo|a model with sharp features}} wearing {{look|an oversized camel wool coat and wide-leg trousers}}, standing against a {{fundo|seamless off-white paper backdrop}}. Soft window light from the side, gentle falloff, natural skin texture with visible pores. Confident, slightly detached expression, three-quarter body framing, intentional pose with elongated lines. Shot on medium format, 80mm lens, f/4. Muted palette, magazine cover quality, minimal styling of the set.",
+   "negative": "plastic skin, over-retouched, extra fingers, warped fabric, busy background, text, watermark",
+   "tips": [
+    "Descreva o tecido e o caimento da roupa — é o que torna o look crível.",
+    "“Natural skin texture” evita a pele plástica típica de IA."
+   ],
+   "tools": "Midjourney · Magnific AI",
+   "position": 2
+  },
+  {
+   "slug": "ai-product-advertisement-hero-banner",
+   "title": "AI Product Advertisement — Hero Banner",
+   "category": "Criar Anúncios",
+   "description": "Banner publicitário com produto em destaque e headline legível na própria imagem.",
+   "body": "Professional advertising banner for {{marca|a premium coffee brand}}. {{produto|a matte black coffee bag with copper details}} as the hero on the right side, dynamic angle, floating slightly with a soft shadow. Background: {{cenario|clean dark gradient with subtle light rays}}. On the left, bold clean sans-serif headline that reads exactly \"{{headline|Acorde com intenção}}\", with a smaller subline \"{{subheadline|Torra artesanal, entrega em 24h}}\" below. Balanced layout, clear visual hierarchy, premium commercial lighting, high contrast, ready for a paid social ad.",
+   "negative": "misspelled text, extra words, cluttered layout, low resolution, distorted product",
+   "tips": [
+    "Coloque o texto exato entre aspas.",
+    "Gere o banner e refaça apenas o texto se necessário, pedindo ajustes pontuais."
+   ],
+   "tools": "ChatGPT (GPT Image) · Ideogram",
+   "position": 3
+  },
+  {
+   "slug": "instagram-product-launch-carousel",
+   "title": "Instagram Product Launch — Carousel Cover",
+   "category": "Social Media",
+   "description": "Capa de carrossel para lançamento de produto, com composição que pede o “arrasta pro lado”.",
+   "body": "Instagram carousel cover for a product launch. {{produto|a pastel pink wireless earbud case, open}} partially cropped by the right edge of the frame, suggesting continuation to the next slide. Solid {{cor|vivid cobalt blue}} background with a soft gradient, playful hard shadow, glossy highlights. Top-left area left clean for a title. Bold, modern, scroll-stopping, commercial product photography, 4:5 vertical.",
+   "negative": null,
+   "tips": [
+    "Carrosséis com cor sólida e produto cortado aumentam o “arrasta”.",
+    "Aplique o título no Canva/Figma para controle total."
+   ],
+   "tools": "Midjourney · ChatGPT (GPT Image)",
+   "position": 4
+  },
+  {
+   "slug": "luxury-restaurant-campaign",
+   "title": "Luxury Restaurant Campaign",
+   "category": "Fotografia",
+   "description": "Fotografia gastronômica dark & moody para restaurantes de alto padrão.",
+   "body": "Fine dining food photography of {{prato|seared scallops with pea purée and micro herbs}} plated on {{louca|a handmade matte ceramic plate}}, on a dark walnut table. Low side light from a single window, deep shadows, delicate steam rising, glistening sauce, visible texture of every ingredient. Shallow depth of field, 90mm lens, f/2.8. Moody, intimate, Michelin-star restaurant atmosphere, subtle warm candle glow in the background bokeh.",
+   "negative": "plastic food, oversaturated, messy plate, cutlery clutter, text, harsh flash",
+   "tips": [
+    "Comida gerada por IA precisa de textura: cite brilho, crocância, vapor.",
+    "Use fotos reais do prato como referência para manter fidelidade ao cardápio."
+   ],
+   "tools": "Midjourney · Magnific AI",
+   "position": 5
+  },
+  {
+   "slug": "before-after-image-enhancement",
+   "title": "Before & After Image Enhancement",
+   "category": "Melhorar Fotos",
+   "description": "Instrução para restaurar e melhorar fotos reais mantendo a pessoa ou o produto fiel ao original.",
+   "body": "Enhance this photo while keeping the subject 100% identical: same face, same proportions, same expression, same clothing. Restore sharpness and fine detail, remove noise and compression artifacts, correct white balance to {{temperatura|neutral daylight}}, recover detail in shadows and highlights. {{ajuste_extra|Keep skin texture natural}}. Do not change the background composition, do not add or remove objects. Photorealistic, natural result.",
+   "negative": null,
+   "tips": [
+    "Repita “keep identical” de formas diferentes: modelos tendem a embelezar.",
+    "Compare olhos e mãos antes de publicar — são onde a IA mais altera."
+   ],
+   "tools": "ChatGPT (GPT Image) · Topaz Labs",
+   "position": 6
+  },
+  {
+   "slug": "corporate-headshot-natural-light",
+   "title": "Corporate Headshot — Natural Light",
+   "category": "Retratos",
+   "description": "Foto de perfil profissional com luz natural, fundo de escritório desfocado e expressão confiante.",
+   "body": "Professional corporate headshot of {{pessoa|a Brazilian man in his 40s with a short beard}}, wearing {{roupa|a navy blazer over a light shirt}}. Soft natural window light, gentle fill, blurred modern office background with warm tones. Chest-up framing, eyes to camera, approachable confident smile. 85mm lens, f/2, natural skin texture, true-to-life colors, LinkedIn profile quality.",
+   "negative": "plastic skin, heavy makeup, distorted teeth, harsh shadows, text",
+   "tips": [
+    "Para fotos da própria pessoa, use a foto real como referência de personagem."
+   ],
+   "tools": "Midjourney · ChatGPT (GPT Image)",
+   "position": 7
+  },
+  {
+   "slug": "product-360-turntable-video",
+   "title": "Product 360° Turntable Video",
+   "category": "Criar Vídeos",
+   "description": "Animação de produto girando sobre base, com luz que desliza pela superfície.",
+   "body": "The product slowly rotates 180 degrees on a turntable, perfectly centered. Studio lighting stays fixed while highlights glide across its surface. Camera locked off, no zoom. The product shape, label and colors remain exactly the same throughout. Clean {{fundo|deep charcoal gradient}} background, soft floor reflection, smooth and elegant motion, premium commercial feel.",
+   "negative": "morphing, warped label, shape change, camera shake, extra objects",
+   "tips": [
+    "Rotações de 180° deformam menos que 360°.",
+    "Se o rótulo deformar, recorte o giro e use o trecho estável."
+   ],
+   "tools": "Kling AI · Runway",
+   "position": 8
+  },
+  {
+   "slug": "cinematic-drone-establishing-shot",
+   "title": "Cinematic Drone Establishing Shot",
+   "category": "Cinemático",
+   "description": "Plano aéreo de abertura com movimento contínuo de drone e luz de hora dourada.",
+   "body": "Cinematic aerial drone shot slowly gliding forward over {{local|a coastal town with white houses and turquoise water}} at golden hour. Long shadows, warm sunlight, light atmospheric haze, gentle parallax between foreground and background. Smooth continuous forward motion with a subtle tilt down revealing {{destaque|a modern beach house with an infinity pool}}. Shot on a cinema camera, natural color grade, 24fps.",
+   "negative": null,
+   "tips": [
+    "Movimento contínuo e lento é mais crível que manobras rápidas."
+   ],
+   "tools": "Google Veo · Runway",
+   "position": 9
+  },
+  {
+   "slug": "brand-moodboard-generator",
+   "title": "Brand Moodboard Generator",
+   "category": "Branding",
+   "description": "Moodboard de marca em grade: texturas, materiais, paleta e fotografia numa única imagem.",
+   "body": "Brand moodboard for {{marca|Aurora}}, a {{segmento|sustainable skincare}} brand. Grid layout of 9 tiles: material textures, product details, lifestyle photography, architectural details and a color palette swatch row of {{paleta|sand, terracotta, sage green and off-white}}. Mood: {{atmosfera|refined and calm}}. Cohesive art direction, editorial layout with thin gutters, clean off-white background, high-end design studio presentation.",
+   "negative": null,
+   "tips": [
+    "Gere 2 ou 3 moodboards com atmosferas diferentes para o cliente escolher."
+   ],
+   "tools": "Midjourney · Krea AI",
+   "position": 10
+  },
+  {
+   "slug": "3d-isometric-product-scene",
+   "title": "3D Isometric Product Scene",
+   "category": "3D",
+   "description": "Cena isométrica estilo render 3D com o produto em um mini cenário lúdico.",
+   "body": "Isometric 3D diorama of {{cena|a tiny home office}}, featuring {{produto|a smartphone showing a finance app}} as the central element. Soft clay render style, rounded shapes, pastel {{paleta|soft blue and cream}} palette, soft global illumination, gentle ambient occlusion, tiny details that tell a story. Floating on a clean solid background, orthographic camera, high-quality 3D render.",
+   "negative": null,
+   "tips": [
+    "“Clay render” e “soft global illumination” dão o acabamento de render 3D."
+   ],
+   "tools": "Midjourney · ChatGPT (GPT Image)",
+   "position": 11
+  },
+  {
+   "slug": "ugc-style-testimonial-script",
+   "title": "UGC Testimonial Script — 30s",
+   "category": "Conteúdo",
+   "description": "Roteiro de depoimento estilo UGC com gancho, prova e chamada — pronto para gravar ou gerar.",
+   "body": "Write a 30-second UGC-style testimonial script in Brazilian Portuguese for {{produto|a posture-correcting office chair}}, aimed at {{publico|people who work from home}}. Structure: 1) Hook in the first 2 seconds that interrupts the scroll; 2) the specific problem I had; 3) the moment I tried the product; 4) one concrete, believable result (no exaggerated claims); 5) a casual call to action: {{cta|link na bio}}. Tone: spontaneous, conversational, like talking to a friend. Include on-screen text suggestions and B-roll ideas in brackets. Give 3 alternative hooks at the end.",
+   "negative": null,
+   "tips": [
+    "Resultado concreto e plausível converte mais que promessa exagerada.",
+    "Teste os 3 ganchos como variações do mesmo vídeo."
+   ],
+   "tools": "ChatGPT (GPT Image) · ElevenLabs",
+   "position": 12
+  },
+  {
+   "slug": "tiktok-hook-scene-transition",
+   "title": "TikTok Hook — Scene Transition",
+   "category": "Social Media",
+   "description": "Transição “impossível” entre dois ambientes para prender a atenção nos primeiros segundos.",
+   "body": "Seamless match-cut style transition: the camera pushes rapidly into {{objeto|the pupil of a woman’s eye}} in the first scene and emerges on the other side into {{cena_final|a neon-lit Tokyo street at night}}. Continuous forward motion, motion blur during the pass-through, lighting shifts naturally from {{luz_inicial|soft daylight}} to the new environment. Vertical 9:16, energetic, hypnotic, single continuous shot.",
+   "negative": null,
+   "tips": [
+    "Gere as duas imagens antes, com a mesma paleta de luz, e use-as como quadros inicial e final."
+   ],
+   "tools": "Kling AI · Runway",
+   "position": 13
+  },
+  {
+   "slug": "streetwear-night-lookbook",
+   "title": "Streetwear Night Lookbook",
+   "category": "Moda",
+   "description": "Lookbook urbano noturno com flash direto, reflexos de rua molhada e atitude.",
+   "body": "Streetwear lookbook photo of {{modelo|a tall young man with braids}} wearing {{look|an oversized black puffer jacket, cargo pants and chunky sneakers}}, on a wet city street at night. Direct on-camera flash, hard shadows, reflections of neon signs on the asphalt, slight motion blur in the background. Candid, confident pose, full body, 35mm lens, gritty film texture, youth culture campaign aesthetic.",
+   "negative": null,
+   "tips": [
+    "“Direct on-camera flash” é o termo-chave desta estética."
+   ],
+   "tools": "Midjourney",
+   "position": 14
+  }
+ ],
+ "lessons": [
+  {
+   "slug": "anatomia-de-um-prompt-de-imagem",
+   "module": "Fundamentos",
+   "title": "Anatomia de um prompt de imagem",
+   "summary": "Os blocos que todo bom prompt tem — e em que ordem escrevê-los.",
+   "content": "Escrever prompts claros, com assunto, estilo, luz, câmera e acabamento.\n\n## Comece pelo assunto\nDiga o que está em cena com substantivos concretos. “Garrafa de perfume preta fosca com tampa dourada” é melhor que “um perfume bonito”.\n\n## Defina o estilo\nFotografia publicitária, editorial de moda, render 3D, still de cinema… O estilo muda tudo o que vem depois.\n\n## Descreva luz e câmera\nLuz (direção, dureza, cor) e câmera (lente, ângulo, profundidade de campo) são o que separa uma imagem amadora de uma profissional.\n\n## Feche com atmosfera e acabamento\nHumor da cena e qualidade técnica. Evite empilhar adjetivos genéricos como “beautiful, amazing, 8k” sem contexto.\n\n## Use o negativo com moderação\nO prompt negativo remove problemas específicos (texto, marca d’água, dedos extras). Não use para “desejos”.\n\n## Erros comuns\n• Prompts vagos (“uma imagem incrível de…”)\n• Contradições (luz dura e suave ao mesmo tempo)\n• Excesso de palavras de qualidade sem descrever a cena\n\n## Dicas pro\n• Escreva como um diretor de fotografia descreveria o set.\n• Mude uma variável por vez ao iterar — assim você aprende o que cada termo faz.\n• Favorite os prompts que funcionaram para reutilizar depois.",
+   "durationMin": 12,
+   "videoUrl": null,
+   "prompts": [
+    "luxury-product-photography-studio-campaign"
+   ],
+   "position": 0
+  },
+  {
+   "slug": "iluminacao-para-fotografia-de-produto-com-ia",
+   "module": "Fundamentos",
+   "title": "Iluminação para fotografia de produto com IA",
+   "summary": "Luz de recorte, key light, preenchimento e reflexos: o vocabulário que faz o produto brilhar.",
+   "content": "Controlar a luz em imagens de produto por meio do prompt.\n\n## Key light\nA luz principal define o volume. “Soft key light from the upper left” gera sombras suaves e direção clara.\n\n## Rim light\nA luz de recorte vem de trás e desenha o contorno — essencial para vidro, metal e produtos escuros.\n\n## Reflexos controlados\nPeça “controlled specular highlights” e descreva o material. Reflexos são o que dizem “premium”.\n\n## Cor da luz\nUm acento de cor no fundo (gold, amber, teal) cria profundidade sem mudar o produto.\n\n## Erros comuns\n• Pedir “good lighting” sem direção\n• Misturar muitas cores de luz\n• Esquecer o material do produto\n\n## Dicas pro\n• Produtos escuros pedem rim light; produtos claros pedem fundo escuro.\n• Faça upscale com criatividade baixa para não alterar os reflexos.",
+   "durationMin": 20,
+   "videoUrl": null,
+   "prompts": [
+    "luxury-product-photography-studio-campaign"
+   ],
+   "position": 1
+  },
+  {
+   "slug": "consistencia-de-personagem-e-produto",
+   "module": "Fundamentos",
+   "title": "Consistência de personagem e produto",
+   "summary": "Como manter o mesmo rosto e o mesmo produto em várias imagens e vídeos.",
+   "content": "Produzir séries de imagens com identidade visual estável.\n\n## Crie a imagem-mestre\nGere uma imagem limpa, de frente, com boa luz. Ela será a referência de todas as outras.\n\n## Use referência de personagem/objeto\nFerramentas como o Midjourney aceitam uma imagem de referência de personagem. Ajuste o peso para controlar a fidelidade.\n\n## Fixe o “DNA” do prompt\nMantenha idêntico o trecho que descreve pessoa, luz e paleta. Varie só pose, cenário e ação.\n\n## Anime a partir da imagem\nEm vídeo, sempre parta de uma imagem (image-to-video) em vez de gerar do texto.\n\n## Erros comuns\n• Reescrever a descrição da pessoa a cada prompt\n• Usar referências com luz muito diferente\n\n## Dicas pro\n• Guarde o “DNA” do prompt num bloco de notas e reutilize em cada cena.\n• Corrija detalhes finais com edição por instrução.",
+   "durationMin": 25,
+   "videoUrl": null,
+   "prompts": [],
+   "position": 2
+  },
+  {
+   "slug": "animando-imagens-estaticas",
+   "module": "Fundamentos",
+   "title": "Animando imagens estáticas (image-to-video)",
+   "summary": "Transforme uma imagem em um clipe crível: movimento, câmera e o que evitar.",
+   "content": "Gerar clipes de 5s estáveis a partir de imagens.\n\n## Escolha a imagem certa\nImagens com sujeito claro e fundo simples animam melhor. Faça upscale antes.\n\n## Descreva só o movimento\nO conteúdo já está na imagem. O prompt deve dizer o que se move e como a câmera se comporta.\n\n## Controle a intensidade\nMovimento alto gera deformação. Comece baixo e aumente só se necessário.\n\n## Use quadros inicial e final\nPara transições, forneça as duas imagens e deixe a IA criar o caminho entre elas.\n\n## Erros comuns\n• Reescrever a cena inteira no prompt de vídeo\n• Movimentos múltiplos num clipe curto\n• Animar imagens de baixa resolução\n\n## Dicas pro\n• Uma ação por clipe; o ritmo vem da edição.\n• Gere 2–3 variações e escolha o take mais estável.",
+   "durationMin": 18,
+   "videoUrl": null,
+   "prompts": [
+    "product-360-turntable-video",
+    "tiktok-hook-scene-transition"
+   ],
+   "position": 3
+  },
+  {
+   "slug": "upscale-sem-artefatos",
+   "module": "Fundamentos",
+   "title": "Upscale sem artefatos",
+   "summary": "Quando usar upscale fiel ou criativo — e como não estragar rostos e logos.",
+   "content": "Ampliar imagens mantendo fidelidade e ganhando detalhe.\n\n## Fiel ou criativo?\nFotos reais e rostos: comece com upscale fiel (Topaz). Imagens geradas: upscale criativo (Magnific) pode adicionar textura.\n\n## Criatividade baixa primeiro\nSuba a criatividade aos poucos. Acima de 3, rostos e textos tendem a mudar.\n\n## Compare pontos críticos\nOlhos, dentes, mãos, logos e texto. Se mudaram, volte um nível.\n\n## Erros comuns\n• Criatividade alta em fotos de pessoas reais\n• Upscale repetido várias vezes\n\n## Dicas pro\n• Faça upscale antes de animar em vídeo.\n• Combine: fiel para estrutura, criativo com máscara só onde precisa de textura.",
+   "durationMin": 15,
+   "videoUrl": null,
+   "prompts": [
+    "before-after-image-enhancement"
+   ],
+   "position": 4
+  },
+  {
+   "slug": "direcao-de-camera-em-video-com-ia",
+   "module": "Fundamentos",
+   "title": "Direção de câmera em vídeo com IA",
+   "summary": "Planos, movimentos e lentes: fale a língua do cinema para dirigir modelos de vídeo.",
+   "content": "Especificar enquadramento, movimento e lente com precisão.\n\n## Planos\nClose, plano médio, plano aberto, plano de ambientação. Diga o plano no início do prompt.\n\n## Movimentos\nPush-in, pull-out, dolly lateral, travelling, crane, handheld, órbita. Um movimento por clipe.\n\n## Lentes e profundidade\nGrande angular dramatiza espaço; tele comprime e isola. “Shallow depth of field” separa o sujeito.\n\n## Ritmo e velocidade\nCâmera lenta aumenta a percepção de qualidade e reduz deformações em ação.\n\n## Erros comuns\n• Combinar movimentos de câmera opostos\n• Esquecer de dizer se a câmera está parada\n\n## Dicas pro\n• “Camera locked off” evita movimentos indesejados.\n• Planeje a sequência como storyboard antes de gerar.",
+   "durationMin": 30,
+   "videoUrl": null,
+   "prompts": [
+    "cinematic-drone-establishing-shot",
+    "cinematic-fitness-campaign"
+   ],
+   "position": 5
+  },
+  {
+   "slug": "foto-de-produto-para-video-comercial",
+   "module": "Projetos completos",
+   "title": "Foto de produto → vídeo comercial",
+   "summary": "Transforme uma foto simples de celular em um vídeo comercial de 15 segundos com trilha e acabamento.",
+   "content": "Sair de uma foto de celular e chegar a um vídeo vertical de 15s pronto para anúncio.\n\n## 1. Foto\nFotografe o produto de frente, com luz de janela e fundo liso. Quanto melhor a foto, mais fiel será o resultado.\nDica: Limpe o produto e evite reflexos fortes no rótulo.\n\n## 2. Análise da imagem (ChatGPT (GPT Image))\nEnvie a foto ao ChatGPT e peça uma descrição técnica do produto (forma, materiais, cores, rótulo). Essa descrição alimenta os próximos prompts.\n\n## 3. Geração de imagens de campanha (Midjourney)\nGere 3 cenas diferentes usando a descrição e a foto como referência: hero em estúdio, detalhe macro e contexto de uso.\nDica: Mantenha a mesma luz e paleta nas três cenas para o vídeo parecer uma campanha única.\n\n## 4. Upscale (Magnific AI)\nAmplie as imagens escolhidas antes de animar — o vídeo herda a nitidez da imagem inicial.\n\n## 5. Animação em vídeo (Kling AI)\nAnime cada imagem com movimentos sutis: giro, push-in da câmera, luz deslizando.\n\n## 6. Som (Suno)\nCrie uma trilha curta no clima da marca e, se quiser, uma locução com o benefício principal.\n\n## 7. Edição final (CapCut)\nMonte os clipes no ritmo da trilha, adicione logo, headline e CTA nos 3 segundos finais.\nDica: Coloque o produto nos 2 primeiros segundos — é o que segura o scroll.",
+   "durationMin": 90,
+   "videoUrl": null,
+   "prompts": [
+    "luxury-product-photography-studio-campaign",
+    "product-360-turntable-video"
+   ],
+   "position": 6
+  },
+  {
+   "slug": "anuncio-completo-para-academia",
+   "module": "Projetos completos",
+   "title": "Anúncio completo para academia",
+   "summary": "Da referência ao anúncio final: direção criativa, cenas cinematográficas, locução e edição para academias.",
+   "content": "Produzir um anúncio vertical de 20s para uma academia, com energia de marca esportiva.\n\n## 1. Referência\nEscolha a direção visual. Neon noir para energia noturna; luz dura e suor para intensidade.\nDica: Veja a referência “Neon noir urbano esportivo”.\n\n## 2. Direção criativa (ChatGPT (GPT Image))\nDefina conceito, 4 cenas e frase final. Ex.: “Cada repetição conta”. Peça ao ChatGPT 3 conceitos e escolha 1.\n\n## 3. Frames das cenas (Midjourney)\nGere uma imagem por cena com o mesmo atleta e a mesma luz.\n\n## 4. Animação (Kling AI)\nAnime cada frame com o prompt cinematográfico, uma ação por clipe.\n\n## 5. Locução (ElevenLabs)\nGrave a frase-conceito e a oferta com voz firme e ritmo curto.\n\n## 6. Edição e CTA (CapCut)\nCorte no ritmo da trilha, legendas grandes e oferta nos 4 segundos finais.",
+   "durationMin": 180,
+   "videoUrl": null,
+   "prompts": [
+    "cinematic-fitness-campaign"
+   ],
+   "position": 7
+  },
+  {
+   "slug": "ensaio-editorial-de-moda-com-ia",
+   "module": "Projetos completos",
+   "title": "Ensaio editorial de moda com IA",
+   "summary": "Crie um ensaio de 6 fotos coerente para lookbook ou lançamento de coleção.",
+   "content": "Gerar 6 imagens de um mesmo ensaio, com modelo e estética consistentes.\n\n## 1. Conceito e casting (Midjourney)\nDefina o conceito e gere a modelo principal. Salve a imagem como referência de personagem.\n\n## 2. Cenário e luz\nFixe fundo e luz: repita exatamente o mesmo trecho em todos os prompts.\n\n## 3. Variações de pose e look (Midjourney)\nTroque apenas o look e a pose a cada imagem.\n\n## 4. Correção de peças (ChatGPT (GPT Image))\nAjuste detalhes da roupa para ficarem fiéis à coleção real.\n\n## 5. Upscale e textura (Magnific AI)\nAmplie com foco em tecido e pele.",
+   "durationMin": 120,
+   "videoUrl": null,
+   "prompts": [
+    "editorial-fashion-portrait"
+   ],
+   "position": 8
+  },
+  {
+   "slug": "lancamento-de-produto-no-instagram",
+   "module": "Projetos completos",
+   "title": "Lançamento de produto no Instagram",
+   "summary": "Kit de lançamento: carrossel, post de anúncio e Reels curto — tudo com a mesma identidade.",
+   "content": "Produzir carrossel (5 slides), 1 banner de anúncio e 1 Reels de 10s.\n\n## 1. Roteiro do carrossel (ChatGPT (GPT Image))\nPeça ao ChatGPT a sequência de 5 slides: gancho, problema, produto, prova, CTA.\n\n## 2. Capa do carrossel (Midjourney)\nGere a capa com o produto cortado na borda para induzir o arrasto.\n\n## 3. Banner de anúncio (ChatGPT (GPT Image))\nCrie o banner com headline legível.\n\n## 4. Reels curto (CapCut)\nAnime a capa ou o hero e edite com texto na tela.",
+   "durationMin": 60,
+   "videoUrl": null,
+   "prompts": [
+    "instagram-product-launch-carousel",
+    "ai-product-advertisement-hero-banner"
+   ],
+   "position": 9
+  },
+  {
+   "slug": "restauracao-e-melhoria-de-fotos",
+   "module": "Projetos completos",
+   "title": "Restauração e melhoria de fotos",
+   "summary": "Recupere fotos antigas ou de celular com fidelidade — e gere o antes e depois para redes sociais.",
+   "content": "Restaurar uma foto preservando identidade e publicar um antes/depois.\n\n## 1. Limpeza e nitidez fiel (Topaz Labs)\nRemova ruído e recupere foco sem alterar conteúdo.\n\n## 2. Correção de luz e cor (ChatGPT (GPT Image))\nAjuste balanço de branco e sombras mantendo a pessoa idêntica.\n\n## 3. Detalhe final (opcional) (Magnific AI)\nAdicione textura fina com criatividade mínima.\n\n## 4. Antes e depois (CapCut)\nMonte o comparativo com cortina deslizante.",
+   "durationMin": 30,
+   "videoUrl": null,
+   "prompts": [
+    "before-after-image-enhancement"
+   ],
+   "position": 10
+  },
+  {
+   "slug": "campanha-para-restaurante-premium",
+   "module": "Projetos completos",
+   "title": "Campanha para restaurante premium",
+   "summary": "Fotos de pratos, ambiente e um vídeo curto de atmosfera para restaurantes de alto padrão.",
+   "content": "Criar 5 fotos de pratos, 1 foto de ambiente e 1 vídeo de 10s.\n\n## 1. Direção visual\nDefina a estética com base na referência dark & moody.\n\n## 2. Pratos (Midjourney)\nGere cada prato com a foto real como referência.\n\n## 3. Detalhe (Magnific AI)\nUpscale com foco em textura dos alimentos.\n\n## 4. Vídeo de atmosfera (Runway)\nAnime vapor, velas e movimento lento de câmera.\n\n## 5. Montagem (CapCut)\nJunte com trilha suave para Reels.",
+   "durationMin": 100,
+   "videoUrl": null,
+   "prompts": [
+    "luxury-restaurant-campaign"
+   ],
+   "position": 11
+  }
+ ],
+ "tools": [
+  {
+   "slug": "midjourney",
+   "name": "Midjourney",
+   "category": "Imagem",
+   "description": "Gerador de imagens com forte senso estético — referência em direção de arte e fotografia estilizada.",
+   "url": "https://www.midjourney.com",
+   "howTo": "Melhor para: Imagens de campanha, direção de arte e conceitos visuais.",
+   "position": 0
+  },
+  {
+   "slug": "chatgpt-gpt-image",
+   "name": "ChatGPT (GPT Image)",
+   "category": "Imagem",
+   "description": "Geração e edição de imagens por conversa, com ótima aderência a instruções e texto legível.",
+   "url": "https://chatgpt.com",
+   "howTo": "Melhor para: Anúncios com texto, edição por instrução e análise de imagens.",
+   "position": 1
+  },
+  {
+   "slug": "google-veo",
+   "name": "Google Veo",
+   "category": "Vídeo",
+   "description": "Modelo de vídeo do Google com movimento realista e geração de áudio sincronizado.",
+   "url": "https://deepmind.google/models/veo/",
+   "howTo": "Melhor para: Clipes cinematográficos e cenas com áudio.",
+   "position": 2
+  },
+  {
+   "slug": "runway",
+   "name": "Runway",
+   "category": "Vídeo",
+   "description": "Suíte criativa de vídeo com IA: geração, edição e ferramentas de controle de movimento.",
+   "url": "https://runwayml.com",
+   "howTo": "Melhor para: Imagem para vídeo e edição criativa.",
+   "position": 3
+  },
+  {
+   "slug": "kling-ai",
+   "name": "Kling AI",
+   "category": "Vídeo",
+   "description": "Gerador de vídeo com movimento humano convincente e boa fidelidade à imagem de partida.",
+   "url": "https://klingai.com",
+   "howTo": "Melhor para: Animar imagens de produto e pessoas.",
+   "position": 4
+  },
+  {
+   "slug": "magnific-ai",
+   "name": "Magnific AI",
+   "category": "Upscale e edição",
+   "description": "Upscaler criativo que adiciona detalhe e textura ao ampliar imagens.",
+   "url": "https://magnific.ai",
+   "howTo": "Melhor para: Upscale com ganho de detalhe.",
+   "position": 5
+  },
+  {
+   "slug": "topaz-labs",
+   "name": "Topaz Labs",
+   "category": "Upscale e edição",
+   "description": "Upscale, nitidez e redução de ruído fiéis ao original — para fotos e vídeos.",
+   "url": "https://www.topazlabs.com",
+   "howTo": "Melhor para: Restauração, nitidez e upscale fiel.",
+   "position": 6
+  },
+  {
+   "slug": "elevenlabs",
+   "name": "ElevenLabs",
+   "category": "Áudio e voz",
+   "description": "Vozes sintéticas naturais, dublagem e efeitos sonoros por texto.",
+   "url": "https://elevenlabs.io",
+   "howTo": "Melhor para: Locução, dublagem e efeitos sonoros.",
+   "position": 7
+  },
+  {
+   "slug": "suno",
+   "name": "Suno",
+   "category": "Áudio e voz",
+   "description": "Geração de músicas completas — com ou sem vocal — a partir de uma descrição.",
+   "url": "https://suno.com",
+   "howTo": "Melhor para: Trilhas originais para vídeos.",
+   "position": 8
+  },
+  {
+   "slug": "capcut",
+   "name": "CapCut",
+   "category": "Edição de vídeo",
+   "description": "Editor de vídeo para formatos verticais, com legendas automáticas e recursos de IA.",
+   "url": "https://www.capcut.com",
+   "howTo": "Melhor para: Edição final para Reels, TikTok e Shorts.",
+   "position": 9
+  },
+  {
+   "slug": "krea-ai",
+   "name": "Krea AI",
+   "category": "Imagem",
+   "description": "Plataforma que reúne vários modelos de imagem e vídeo com geração em tempo real.",
+   "url": "https://www.krea.ai",
+   "howTo": "Melhor para: Exploração rápida e comparação de modelos.",
+   "position": 10
+  },
+  {
+   "slug": "ideogram",
+   "name": "Ideogram",
+   "category": "Imagem",
+   "description": "Gerador de imagens reconhecido pela tipografia precisa — ótimo para posters e peças com texto.",
+   "url": "https://ideogram.ai",
+   "howTo": "Melhor para: Peças com tipografia e posters.",
+   "position": 11
+  }
+ ]
+}

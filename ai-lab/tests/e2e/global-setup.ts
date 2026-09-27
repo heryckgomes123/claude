@@ -4,27 +4,24 @@ import { mkdirSync } from 'node:fs'
 import { chromium, type FullConfig } from '@playwright/test'
 import { hashPassword } from 'better-auth/crypto'
 import postgres from 'postgres'
-import { ADMIN, E2E_DB, MEMBER, OTHER, STATE } from './fixtures'
+import { ADMIN, E2E_DB, MEMBER, STATE } from './fixtures'
 
-/** Prepara um banco E2E limpo: migra, carrega o seed, cria admin e membros e salva sessões. */
+/** Banco E2E limpo: migra, carrega o seed, cria professor e um aluno com compra liberada, e salva as sessões. */
 export default async function globalSetup(config: FullConfig) {
   if (!/_e2e|_test/.test(E2E_DB)) throw new Error('E2E_DATABASE_URL precisa apontar para um banco de teste (_e2e/_test).')
   const env = { ...process.env, DATABASE_URL: E2E_DB }
   const sql = postgres(E2E_DB, { max: 1, onnotice: () => {} })
   execFileSync('node', ['scripts/migrate.mjs'], { env, stdio: 'pipe' })
-  await sql`truncate content_item, category, tag, "user", plan, lab_update, rate_limit, app_rate_limit, access_code cascade`
+  await sql`truncate prompt, lesson, tool, media, access_grant, webhook_event, setting, "user", rate_limit, app_rate_limit cascade`
   execFileSync('npx', ['tsx', 'scripts/seed.ts'], {
     env: { ...env, SEED_ADMIN_EMAIL: ADMIN.email, SEED_ADMIN_PASSWORD: ADMIN.password },
     stdio: 'pipe',
   })
 
-  const [lab] = await sql`select id from plan where code = 'LAB'`
-  for (const person of [MEMBER, OTHER]) {
-    const id = randomUUID()
-    await sql`insert into "user" (id, name, email, email_verified, role) values (${id}, ${person.name}, ${person.email}, true, 'USER')`
-    await sql`insert into account (id, account_id, provider_id, user_id, password) values (${randomUUID()}, ${id}, 'credential', ${id}, ${await hashPassword(person.password)})`
-    await sql`insert into membership (user_id, plan_id, status, source) values (${id}, ${lab.id}, 'ACTIVE', 'MANUAL')`
-  }
+  const id = randomUUID()
+  await sql`insert into "user" (id, name, email, email_verified, role) values (${id}, ${MEMBER.name}, ${MEMBER.email}, true, 'USER')`
+  await sql`insert into account (id, account_id, provider_id, user_id, password) values (${randomUUID()}, ${id}, 'credential', ${id}, ${await hashPassword(MEMBER.password)})`
+  await sql`insert into access_grant (email, source, note) values (${MEMBER.email}, 'MANUAL', 'e2e')`
   await sql.end()
 
   // Sessões reutilizáveis (evita logins repetidos e o rate limit de autenticação).

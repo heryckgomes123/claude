@@ -2,21 +2,17 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { STATE } from './fixtures'
 
-const PUBLIC = ['/', '/entrar', '/criar-conta']
+const PUBLIC = ['/', '/entrar', '/criar-conta', '/esqueci-senha']
 const MEMBER = [
   '/lab',
-  '/lab/explore',
   '/lab/prompts',
   '/lab/prompts/luxury-product-photography-studio-campaign',
-  '/lab/workflows/foto-de-produto-para-video-comercial',
-  '/lab/tools/kling-ai',
-  '/lab/references/chiaroscuro-para-perfumaria-de-luxo',
-  '/lab/tutorials/anatomia-de-um-prompt-de-imagem',
-  '/lab/search?q=video',
-  '/lab/my-lab',
-  '/lab/prompt-builder',
-  '/lab/experiments/new',
+  '/lab/aulas',
+  '/lab/aulas/anatomia-de-um-prompt-de-imagem',
+  '/lab/ferramentas',
+  '/lab/favoritos',
 ]
+const ADMIN = ['/admin', '/admin/prompts', '/admin/prompts/novo', '/admin/prompts/importar', '/admin/aulas/novo', '/admin/alunos', '/admin/vendas']
 
 async function audit(page: import('@playwright/test').Page, path: string) {
   await page.goto(path)
@@ -30,16 +26,16 @@ test('páginas públicas sem violações sérias de acessibilidade', async ({ pa
   for (const path of PUBLIC) await audit(page, path)
 })
 
-test.describe('área de membros', () => {
+test.describe('aluno', () => {
   test.use({ storageState: STATE.member })
-  test('páginas do Lab sem violações sérias de acessibilidade', async ({ page }) => {
+  test('área do aluno sem violações sérias de acessibilidade', async ({ page }) => {
     for (const path of MEMBER) await audit(page, path)
   })
 })
 
-test.describe('admin', () => {
+test.describe('professor', () => {
   test.use({ storageState: STATE.admin })
-  test('Command Center sem violações sérias de acessibilidade', async ({ page }) => {
-    for (const path of ['/admin', '/admin/content', '/admin/content/new?type=WORKFLOW', '/admin/members', '/admin/access-codes']) await audit(page, path)
+  test('painel sem violações sérias de acessibilidade', async ({ page }) => {
+    for (const path of ADMIN) await audit(page, path)
   })
 })

@@ -7,17 +7,12 @@ export default function LabNotFound() {
   return (
     <EmptyState
       icon={<SearchX className="size-5" />}
-      title="Conteúdo não encontrado"
-      description="Ele pode ter sido removido, renomeado ou ainda não foi publicado."
+      title="Não encontramos este conteúdo"
+      description="Ele pode ter sido removido ou o link está incorreto."
       action={
-        <div className="flex gap-2">
-          <Button asChild variant="primary">
-            <Link href="/lab/explore">Explorar o Lab</Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link href="/lab/search">Buscar</Link>
-          </Button>
-        </div>
+        <Button asChild variant="secondary">
+          <Link href="/lab">Voltar ao início</Link>
+        </Button>
       }
     />
   )

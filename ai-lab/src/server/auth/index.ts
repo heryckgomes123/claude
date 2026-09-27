@@ -4,8 +4,8 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { nextCookies } from 'better-auth/next-js'
 import { db } from '../db'
 import * as schema from '../db/schema'
-import { serverEnv } from '../env'
-import { grantSignupDefaultPlan } from '../access/memberships'
+import { emailEnabled, serverEnv } from '../env'
+import { sendResetPasswordEmail, sendVerificationEmail } from '../email'
 
 /** Origens confiáveis: URL da aplicação + URLs que a Netlify injeta (produção e deploy previews). */
 function trustedOrigins(): string[] {
@@ -21,6 +21,9 @@ function trustedOrigins(): string[] {
 function createAuth() {
   const env = serverEnv()
   const origins = trustedOrigins()
+  // Com e-mail configurado, o aluno precisa confirmar o e-mail antes de entrar: o acesso é liberado
+  // pelo e-mail da compra, então é a confirmação que prova que o e-mail é dele.
+  const withEmail = emailEnabled()
   return betterAuth({
     appName: 'INTELRA AI LAB',
     secret: env.AUTH_SECRET,
@@ -43,7 +46,25 @@ function createAuth() {
       minPasswordLength: 8,
       maxPasswordLength: 128,
       autoSignIn: true,
+      requireEmailVerification: withEmail,
+      revokeSessionsOnPasswordReset: true,
+      sendResetPassword: withEmail
+        ? async ({ user, url }) => {
+            await sendResetPasswordEmail(user.email, url)
+          }
+        : undefined,
     },
+    emailVerification: withEmail
+      ? {
+          sendOnSignUp: true,
+          sendOnSignIn: true,
+          autoSignInAfterVerification: true,
+          expiresIn: 60 * 60 * 24,
+          sendVerificationEmail: async ({ user, url }) => {
+            await sendVerificationEmail(user.email, url)
+          },
+        }
+      : undefined,
     user: {
       additionalFields: {
         // input: false — o papel nunca pode ser definido pelo próprio usuário no cadastro.
@@ -62,21 +83,14 @@ function createAuth() {
       customRules: {
         '/sign-in/email': { window: 60, max: 8 },
         '/sign-up/email': { window: 60 * 10, max: 5 },
+        '/request-password-reset': { window: 60 * 10, max: 3 },
+        '/send-verification-email': { window: 60 * 10, max: 3 },
       },
     },
     advanced: {
       ipAddress: {
         // Netlify envia o IP real do cliente neste cabeçalho.
         ipAddressHeaders: ['x-nf-client-connection-ip', 'x-forwarded-for'],
-      },
-    },
-    databaseHooks: {
-      user: {
-        create: {
-          after: async (created) => {
-            await grantSignupDefaultPlan(created.id)
-          },
-        },
       },
     },
     plugins: [nextCookies()],

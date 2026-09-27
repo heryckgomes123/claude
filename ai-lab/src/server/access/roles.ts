@@ -1,38 +1,19 @@
 /**
- * Papéis e permissões. Hoje: USER e ADMIN.
- * Para adicionar EDITOR, CURATOR ou SUPER_ADMIN: inclua o papel aqui com suas permissões
- * e amplie a constraint `user_role_check` com uma migração.
+ * Papéis: USER (aluno) e ADMIN (professor/equipe).
+ * O acesso do aluno ao conteúdo vem de uma liberação por e-mail (ver ./grants.ts), não do papel.
  */
 export const ROLES = ['USER', 'ADMIN'] as const
 export type Role = (typeof ROLES)[number]
-
-export const PERMISSIONS = [
-  'admin:access',
-  'content:write',
-  'content:publish',
-  'content:delete',
-  'taxonomy:write',
-  'members:manage',
-  'codes:manage',
-  'updates:write',
-] as const
-export type Permission = (typeof PERMISSIONS)[number]
-
-const ROLE_PERMISSIONS: Record<Role, readonly Permission[]> = {
-  USER: [],
-  ADMIN: PERMISSIONS,
-}
 
 export function isRole(value: unknown): value is Role {
   return typeof value === 'string' && (ROLES as readonly string[]).includes(value)
 }
 
-export function can(role: string | null | undefined, permission: Permission): boolean {
-  if (!isRole(role)) return false
-  return ROLE_PERMISSIONS[role].includes(permission)
+export function isAdminRole(role: string | null | undefined): boolean {
+  return role === 'ADMIN'
 }
 
 export const ROLE_LABELS: Record<Role, string> = {
-  USER: 'Membro',
-  ADMIN: 'Administrador',
+  USER: 'Aluno',
+  ADMIN: 'Professor',
 }

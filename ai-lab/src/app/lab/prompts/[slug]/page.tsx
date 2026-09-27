@@ -1,110 +1,95 @@
-import { FlaskConical, Ratio } from 'lucide-react'
+import { ArrowLeft, BookOpen, Lightbulb } from 'lucide-react'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Cover } from '@/components/lab/cover'
-import { BulletList, DetailHeader, DetailSection, KeyValueList, LockedNotice, RelatedGroup, ToolChips } from '@/components/lab/detail'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { detailMetadata, getDetailContext } from '@/features/detail-context'
+import { PromptCover } from '@/components/lab/cover'
+import { FavoriteButton } from '@/components/lab/favorite-button'
 import { PromptWorkbench } from '@/features/prompt-workbench'
-import { MEDIA_LABELS } from '@/lib/labels'
-import { getPromptDetail } from '@/server/queries/details'
+import { requireMember } from '@/server/auth/viewer'
+import { getPrompt } from '@/server/queries'
 
-export async function generateMetadata({ params }: PageProps<'/lab/prompts/[slug]'>) {
-  return detailMetadata('PROMPT', (await params).slug)
+export async function generateMetadata({ params }: PageProps<'/lab/prompts/[slug]'>): Promise<Metadata> {
+  const { slug } = await params
+  return { title: slug.replace(/-/g, ' ') }
 }
 
-export default async function PromptDetailPage({ params }: PageProps<'/lab/prompts/[slug]'>) {
+export default async function PromptPage({ params }: PageProps<'/lab/prompts/[slug]'>) {
+  const viewer = await requireMember()
   const { slug } = await params
-  const ctx = await getDetailContext('PROMPT', slug)
-  const detail = await getPromptDetail(ctx.meta.id)
-  if (!detail) notFound()
-  const { meta, related } = ctx
-  const tools = [...related.compatibleTools, ...related.requiredTools]
+  const prompt = await getPrompt(slug, viewer.id)
+  if (!prompt) notFound()
 
   return (
-    <article className="grid gap-8">
-      <DetailHeader
-        ctx={ctx}
-        type="PROMPT"
-        badges={
-          <>
-            <Badge variant="mono">{MEDIA_LABELS[detail.mediaType]}</Badge>
-            {detail.aspectRatio && (
-              <Badge>
-                <Ratio /> {detail.aspectRatio}
-              </Badge>
-            )}
-            <Badge variant="mono">v{detail.currentVersion}</Badge>
-          </>
-        }
-      />
+    <article className="grid max-w-4xl gap-6">
+      <Link href="/lab/prompts" className="inline-flex items-center gap-1.5 justify-self-start text-sm text-mute hover:text-bone">
+        <ArrowLeft className="size-4" aria-hidden /> Prompts
+      </Link>
 
-      {ctx.locked ? (
-        <LockedNotice />
-      ) : (
-        <>
-          <ToolChips items={tools} label="Funciona com" />
-          <PromptWorkbench
-            contentId={meta.id}
-            body={detail.body}
-            negativePrompt={detail.negativePrompt}
-            variables={detail.variables}
-            canSave={meta.status === 'PUBLISHED'}
-          />
+      <header className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+        <div className="max-w-2xl animate-fade-up">
+          <Link
+            href={`/lab/prompts?categoria=${encodeURIComponent(prompt.category)}`}
+            className="inline-block rounded-full border border-border px-3 py-1 text-xs text-bone/80 hover:border-gold-300/40"
+          >
+            {prompt.category}
+          </Link>
+          <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-4xl">{prompt.title}</h1>
+          {prompt.description && <p className="mt-3 text-[15px] leading-relaxed text-mute">{prompt.description}</p>}
+          {prompt.tools && (
+            <p className="mt-3 text-sm">
+              <span className="text-mute">Use em:</span> {prompt.tools}
+            </p>
+          )}
+        </div>
+        <FavoriteButton promptId={prompt.id} initial={prompt.isFavorite} title={prompt.title} variant="button" className="shrink-0" />
+      </header>
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <DetailSection title="Resultado esperado" className="lg:col-span-2">
-              <div className="grid gap-5 md:grid-cols-[200px_1fr]">
-                <Cover
-                  seed={meta.slug}
-                  type="PROMPT"
-                  imageUrl={meta.coverImageUrl}
-                  label={meta.coverImageUrl ? `Prévia de ${meta.title}` : undefined}
-                  className="aspect-[4/5] rounded-xl"
-                />
-                <div className="grid content-start gap-4">
-                  <p className="text-sm leading-relaxed text-bone/85">{detail.expectedResult ?? '—'}</p>
-                  {meta.description && <p className="text-sm leading-relaxed text-mute">{meta.description}</p>}
-                  {!meta.coverImageUrl && (
-                    <p className="text-xs text-mute-600">Prévia visual ilustrativa — o resultado real depende da ferramenta e das variáveis.</p>
-                  )}
-                </div>
-              </div>
-            </DetailSection>
-            <DetailSection title="Parâmetros">
-              <KeyValueList items={detail.parameters} />
-            </DetailSection>
-            <DetailSection title="Configurações recomendadas">
-              <KeyValueList items={detail.recommendedSettings} />
-            </DetailSection>
-            <DetailSection title="Dicas" className="lg:col-span-2">
-              <BulletList items={detail.tips} tone="gold" />
-            </DetailSection>
-          </div>
+      {prompt.imageId && (
+        <figure className="max-w-xl overflow-hidden rounded-2xl border border-border">
+          <PromptCover seed={prompt.slug} imageId={prompt.imageId} className="aspect-[4/3]" priority />
+          <figcaption className="border-t border-border bg-ink-900 px-4 py-2 text-xs text-mute">Exemplo de resultado</figcaption>
+        </figure>
+      )}
 
-          <section aria-labelledby="next-title" className="grid gap-6 rounded-2xl border border-border p-5 md:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <h2 id="next-title" className="text-lg font-semibold">
-                  Próximo passo
-                </h2>
-                <p className="text-sm text-mute">Onde este prompt se encaixa no caminho da criação.</p>
-              </div>
-              <Button asChild variant="outline" size="sm">
-                <Link href={`/lab/experiments/new?prompt=${meta.slug}`}>
-                  <FlaskConical /> Testar num experimento
+      <PromptWorkbench promptId={prompt.id} body={prompt.body} negative={prompt.negative} />
+
+      {prompt.tips.length > 0 && (
+        <section className="rounded-2xl border border-border bg-ink-900/70 p-5" aria-labelledby="dicas">
+          <h2 id="dicas" className="eyebrow flex items-center gap-2">
+            <Lightbulb className="size-3.5 text-gold-300" aria-hidden /> Dicas de uso
+          </h2>
+          <ul className="mt-3 grid gap-2 text-sm leading-relaxed text-bone/85">
+            {prompt.tips.map((tip) => (
+              <li key={tip} className="flex gap-2.5">
+                <span className="mt-2 size-1.5 shrink-0 rounded-full bg-gold-300" aria-hidden />
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {prompt.lessons.length > 0 && (
+        <section className="rounded-2xl border border-border bg-ink-900/70 p-5" aria-labelledby="aulas-rel">
+          <h2 id="aulas-rel" className="eyebrow">
+            Aprenda nas aulas
+          </h2>
+          <ul className="mt-3 grid gap-2">
+            {prompt.lessons.map((l) => (
+              <li key={l.slug}>
+                <Link href={`/lab/aulas/${l.slug}`} className="flex items-center gap-3 rounded-xl p-2 hover:bg-bone/[0.04]">
+                  <span className="grid size-9 place-items-center rounded-lg bg-gold-300/10 text-gold-300">
+                    <BookOpen className="size-4" aria-hidden />
+                  </span>
+                  <span>
+                    <span className="block text-sm font-medium">{l.title}</span>
+                    <span className="block text-xs text-mute">{l.module}</span>
+                  </span>
                 </Link>
-              </Button>
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              <RelatedGroup title="Workflows que usam" items={related.workflows} empty="Nenhum workflow ainda." />
-              <RelatedGroup title="Prompts relacionados" items={related.prompts} empty="—" />
-              <RelatedGroup title="Referências" items={related.references} empty="—" />
-              <RelatedGroup title="Aprenda a técnica" items={related.tutorials} empty="—" />
-            </div>
-          </section>
-        </>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </article>
   )

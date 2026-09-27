@@ -1,25 +1,41 @@
-/** Variáveis de prompt no formato {{chave}}. Chaves: letras, números, _ e -. */
-const VARIABLE_PATTERN = /\{\{\s*([a-zA-Z0-9_-]+)\s*\}\}/g
+/**
+ * Campos editáveis nos prompts: {{chave}} ou {{chave|valor padrão}}.
+ * Chaves: letras (com acento), números, _ e -.
+ */
+const VARIABLE_PATTERN = /\{\{\s*([\p{L}\p{N}_-]+)\s*(?:\|([^{}]*))?\}\}/gu
 
-export function extractVariableKeys(body: string): string[] {
-  const keys: string[] = []
-  for (const match of body.matchAll(VARIABLE_PATTERN)) {
-    if (!keys.includes(match[1])) keys.push(match[1])
-  }
-  return keys
+export type PromptVariable = { key: string; label: string; defaultValue: string }
+
+/** "cor_destaque" → "Cor destaque" */
+export function humanizeKey(key: string): string {
+  const words = key.replace(/[_-]+/g, ' ').trim()
+  return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
-/** Substitui variáveis preenchidas; as vazias permanecem como {{chave}} para o usuário perceber. */
+export function extractVariables(body: string): PromptVariable[] {
+  const found = new Map<string, PromptVariable>()
+  for (const match of body.matchAll(VARIABLE_PATTERN)) {
+    const key = match[1]
+    const defaultValue = match[2]?.trim() ?? ''
+    const current = found.get(key)
+    if (!current) found.set(key, { key, label: humanizeKey(key), defaultValue })
+    else if (!current.defaultValue && defaultValue) current.defaultValue = defaultValue
+  }
+  return [...found.values()]
+}
+
+/** Troca cada campo pelo valor digitado ou pelo padrão; campos vazios sem padrão ficam como [chave]. */
 export function fillVariables(body: string, values: Record<string, string | undefined>): string {
-  return body.replace(VARIABLE_PATTERN, (whole, key: string) => {
-    const value = values[key]?.trim()
-    return value ? value : whole
+  const defaults = new Map(extractVariables(body).map((v) => [v.key, v.defaultValue]))
+  return body.replace(VARIABLE_PATTERN, (_whole, key: string) => {
+    const value = values[key]?.trim() || defaults.get(key)
+    return value ? value : `[${humanizeKey(key).toLowerCase()}]`
   })
 }
 
-export type PromptSegment = { kind: 'text'; value: string } | { kind: 'variable'; key: string; value?: string }
+export type PromptSegment = { kind: 'text'; value: string } | { kind: 'variable'; key: string; value: string; filled: boolean }
 
-/** Quebra o prompt em segmentos para destacar variáveis na pré-visualização. */
+/** Quebra o prompt em segmentos para destacar os campos na pré-visualização. */
 export function segmentPrompt(body: string, values: Record<string, string | undefined> = {}): PromptSegment[] {
   const segments: PromptSegment[] = []
   let last = 0
@@ -27,7 +43,14 @@ export function segmentPrompt(body: string, values: Record<string, string | unde
     const index = match.index ?? 0
     if (index > last) segments.push({ kind: 'text', value: body.slice(last, index) })
     const key = match[1]
-    segments.push({ kind: 'variable', key, value: values[key]?.trim() || undefined })
+    const typed = values[key]?.trim()
+    const fallback = match[2]?.trim()
+    segments.push({
+      kind: 'variable',
+      key,
+      value: typed || fallback || humanizeKey(key).toLowerCase(),
+      filled: Boolean(typed || fallback),
+    })
     last = index + match[0].length
   }
   if (last < body.length) segments.push({ kind: 'text', value: body.slice(last) })
