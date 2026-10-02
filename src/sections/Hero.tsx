@@ -1,143 +1,167 @@
-import { m, useScroll, useTransform } from 'framer-motion'
+import { m } from 'framer-motion'
 import { useRef } from 'react'
-import type { ReactNode } from 'react'
-import { Check } from '../components/Check'
-import { CtaButton } from '../components/CtaButton'
-import { EmberCanvas } from '../components/EmberCanvas'
-import { Emblem } from '../components/Emblem'
-import { SITE, WHATSAPP_MESSAGES } from '../config/site'
+import type { PointerEvent } from 'react'
+import portal from '../assets/scene/portal.webp'
+import portalMobile from '../assets/scene/portal-mobile.webp'
+import { ArrowDown, ArrowRight } from '../components/Icons'
+import { CTA, HERO, QUICK_CHOICES } from '../config/content'
+import { track } from '../lib/analytics'
+import { prefersReducedMotion, scrollToAnchor } from '../lib/scroll'
+import { Mascot } from '../mascot/Mascot'
+import { MASCOT_LINES } from '../config/mascot'
+import { useProjectActions } from '../state/actions'
+import { useProject } from '../state/project'
+import { useUI } from '../state/ui'
 
 const EASE = [0.22, 1, 0.36, 1] as const
-const TRUST = ['Atendimento pelo WhatsApp', 'Proposta sob medida', 'Do pontual ao completo']
-
-function Line({ children, delay, className = '' }: { children: ReactNode; delay: number; className?: string }) {
-  return (
-    <span className={`-mt-[0.16em] block overflow-hidden pb-[0.04em] pt-[0.16em] ${className}`}>
-      <m.span
-        className="block"
-        initial={{ y: '110%', filter: 'blur(12px)' }}
-        animate={{ y: '0%', filter: 'blur(0px)' }}
-        transition={{ duration: 1.1, ease: EASE, delay }}
-      >
-        {children}
-      </m.span>
-    </span>
-  )
-}
 
 export function Hero() {
-  const ref = useRef<HTMLElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
-  const visualY = useTransform(scrollYProgress, [0, 1], ['0%', '22%'])
-  const visualScale = useTransform(scrollYProgress, [0, 1], [1, 0.86])
-  const visualOpacity = useTransform(scrollYProgress, [0, 0.9], [1, 0])
-  const textY = useTransform(scrollYProgress, [0, 1], ['0%', '-10%'])
+  const ui = useUI()
+  const { state } = useProject()
+  const { chooseInterest } = useProjectActions()
+  const sectionRef = useRef<HTMLElement>(null)
+
+  // Profundidade discreta: a arte e o robô se deslocam em direções opostas com o ponteiro.
+  const onPointerMove = (e: PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== 'mouse' || prefersReducedMotion()) return
+    const el = sectionRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    el.style.setProperty('--px', ((e.clientX - r.left) / r.width - 0.5).toFixed(3))
+    el.style.setProperty('--py', ((e.clientY - r.top) / r.height - 0.5).toFixed(3))
+  }
+
+  const heroLine = state.interest ? MASCOT_LINES.interest[state.interest] : HERO.question
 
   return (
     <section
-      ref={ref}
       id="inicio"
+      data-scene="inicio"
+      ref={sectionRef}
+      onPointerMove={onPointerMove}
       aria-labelledby="hero-title"
-      className="grain relative isolate flex min-h-[100svh] flex-col overflow-hidden"
+      className="relative isolate overflow-hidden lg:flex lg:min-h-[100svh] lg:items-center"
     >
-      {/* Fundo: vinheta + luz dourada */}
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(70%_60%_at_72%_42%,rgb(226_174_58/0.16),transparent_70%)]" />
-      <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(120%_90%_at_50%_0%,transparent_55%,rgb(0_0_0/0.85))]" />
-      <EmberCanvas className="pointer-events-none absolute inset-0 -z-10 size-full" />
+      {/* Arte do portal (camada de abertura). Textos e botões são HTML real por cima. */}
+      <div className="relative h-[46svh] min-h-[300px] max-h-[480px] overflow-hidden lg:absolute lg:inset-y-0 lg:right-0 lg:-z-10 lg:h-auto lg:max-h-none lg:w-[72%]">
+        <picture>
+          <source media="(max-width: 1023px)" srcSet={portalMobile} width={800} height={750} />
+          <img
+            src={portal}
+            width={1672}
+            height={941}
+            fetchPriority="high"
+            decoding="async"
+            alt="Portal cromado com luz roxa e ciano; de dentro saem um monitor retrô, uma fita cassete, uma película de filme e um tênis."
+            className="h-full w-full object-cover object-[50%_60%] lg:object-[78%_50%] lg:[transform:translate3d(calc(var(--px,0)*-14px),calc(var(--py,0)*-10px),0)_scale(1.04)] lg:transition-transform lg:duration-700 lg:ease-out"
+          />
+        </picture>
+        <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-ink-950/60 via-transparent to-ink-950 lg:hidden" />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 hidden bg-[linear-gradient(90deg,var(--color-ink-950)_0%,rgb(9_8_15/0.85)_22%,rgb(9_8_15/0.2)_48%,transparent_70%),linear-gradient(0deg,var(--color-ink-950)_0%,transparent_22%)] lg:block"
+        />
+        <p aria-hidden="true" className="eyebrow absolute bottom-6 right-6 hidden items-center gap-2 text-bone/55 lg:flex">
+          <span className="h-2 w-2 rounded-full bg-coral-400" style={{ animation: 'blink-dot 1.6s steps(2) infinite' }} />
+          Rec · INTELRA Lab · Cena 01
+        </p>
+      </div>
 
-      {/* Emblema */}
-      <m.div
-        style={{ y: visualY, scale: visualScale, opacity: visualOpacity }}
-        className="pointer-events-none absolute right-[3vw] top-1/2 -z-10 hidden w-[min(46vw,640px)] -translate-y-1/2 lg:block 3xl:right-[8vw]"
-      >
-        <m.div
-          initial={{ opacity: 0, scale: 0.8, filter: 'blur(20px)' }}
-          animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.6, ease: EASE, delay: 0.1 }}
-        >
-          <Emblem priority />
-        </m.div>
-      </m.div>
-
-      <m.div
-        style={{ y: textY }}
-        className="container-x relative z-10 flex flex-1 flex-col justify-end pb-10 pt-20 md:pb-14 md:pt-24 lg:justify-center lg:pb-20 lg:pt-32"
-      >
-        <div className="max-w-[44rem]">
-          {/* Emblema no fluxo (mobile/tablet), acima do texto */}
-          <m.div
-            className="pointer-events-none mx-auto mb-9 w-[54vw] max-w-[300px] lg:hidden"
-            initial={{ opacity: 0, scale: 0.8, filter: 'blur(16px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            transition={{ duration: 1.4, ease: EASE, delay: 0.05 }}
-          >
-            <Emblem interactive={false} priority />
-          </m.div>
+      <div className="container-x relative -mt-24 pb-14 lg:mt-0 lg:py-28">
+        <div className="max-w-[40rem]">
           <m.p
-            className="eyebrow mb-6 inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border border-neon/25 bg-neon/[0.06] px-3.5 py-1.5 text-[0.62rem]! tracking-[0.12em]! text-bone/80 backdrop-blur-md sm:text-[0.7rem]!"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
+            transition={{ duration: 0.6, ease: EASE }}
+            className="eyebrow flex items-center gap-2 text-ion-300"
           >
-            <span className="relative flex size-2">
-              <span className="absolute inline-flex size-full animate-[ping-ring_1.8s_ease-out_infinite] rounded-full bg-neon" />
-              <span className="relative inline-flex size-2 rounded-full bg-neon" />
-            </span>
-            {SITE.pillars.join(' • ')}
+            <span aria-hidden="true" className="inline-block h-1.5 w-1.5 bg-ion-300" />
+            {HERO.eyebrow}
           </m.p>
-
-          <h1
+          <m.h1
             id="hero-title"
-            className="poster text-[4.1rem] sm:text-[6.2rem] md:text-[7rem] lg:text-[7.4rem] xl:text-[8.6rem] 3xl:text-[9.6rem]"
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.05 }}
+            className="display mt-4 text-[2.55rem] text-bone sm:text-[3.4rem] lg:text-[4.1rem] xl:text-[4.5rem]"
           >
-            <Line delay={0.22}>Seu negócio.</Line>
-            <Line delay={0.34} className="text-bone/45">
-              Mais
-            </Line>
-            <Line delay={0.46} className="text-[1.12em]">
-              <span className="slant text-gold-shine pr-[0.08em]">Inteligente.</span>
-            </Line>
-          </h1>
-
+            Sua próxima ideia merece <span className="text-volt">sair do comum.</span>
+          </m.h1>
           <m.p
-            className="mt-6 max-w-[33rem] text-pretty text-[1.02rem] leading-relaxed text-mute md:mt-8 md:text-lg"
-            initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
-            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-            transition={{ duration: 1, ease: EASE, delay: 0.62 }}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.12 }}
+            className="mt-5 max-w-[34rem] text-[1.05rem] leading-relaxed text-mute md:text-lg"
           >
-            A INTELRA une <span className="text-bone">marketing, conteúdo, tráfego, inteligência artificial e tecnologia</span> em uma
-            estrutura sob medida para o seu negócio vender mais e crescer com método.
+            {HERO.subtitle}
           </m.p>
 
           <m.div
-            className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-10"
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: EASE, delay: 0.76 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.18 }}
+            className="mt-8 flex flex-col gap-3 sm:flex-row"
           >
-            <CtaButton size="lg" icon="whatsapp" message={WHATSAPP_MESSAGES.grow}>
-              Quero crescer agora
-            </CtaButton>
-            <CtaButton size="lg" variant="outline" href="#monte">
-              Montar meu plano
-            </CtaButton>
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={() => {
+                track('hero_cta_click', { cta: 'primary' })
+                ui.openQuote({ source: 'hero' })
+              }}
+            >
+              {CTA.primary}
+              <ArrowRight size={18} />
+            </button>
+            <a
+              href="#criacoes"
+              className="btn btn-ghost"
+              onClick={(e) => {
+                e.preventDefault()
+                track('hero_cta_click', { cta: 'explore' })
+                scrollToAnchor('#criacoes')
+              }}
+            >
+              {CTA.explore}
+              <ArrowDown size={18} />
+            </a>
           </m.div>
 
-          <m.ul
-            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-[0.82rem] text-bone/60"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
+          {/* Anfitrião + escolhas rápidas */}
+          <m.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: EASE, delay: 0.28 }}
+            className="mt-10 lg:mt-12"
           >
-            {TRUST.map((item) => (
-              <li key={item} className="flex items-center gap-1.5">
-                <Check className="size-3.5 text-neon" />
-                {item}
-              </li>
-            ))}
-          </m.ul>
+            <div className="flex items-end gap-3 sm:gap-4">
+              <div className="lg:[transform:translate3d(calc(var(--px,0)*10px),calc(var(--py,0)*6px),0)] lg:transition-transform lg:duration-700 lg:ease-out">
+                <Mascot state={state.interest ? 'exploring' : 'welcome'} size={84} alt="Robô anfitrião da INTELRA" className="sm:h-24! sm:w-24!" />
+              </div>
+              <p
+                className="glass chrome-edge relative mb-4 rounded-2xl rounded-bl-sm px-4 py-3 font-display text-[0.98rem] font-medium leading-snug text-bone sm:text-[1.05rem]"
+                aria-live="polite"
+              >
+                {heroLine}
+              </p>
+            </div>
+            <div role="group" aria-label="O que você quer criar?" className="mt-4 grid grid-cols-2 gap-2 sm:gap-2.5">
+              {QUICK_CHOICES.map((choice) => (
+                <button
+                  key={choice.id}
+                  type="button"
+                  aria-pressed={state.interest === choice.id}
+                  onClick={() => chooseInterest(choice.id, choice.anchor)}
+                  className="chip justify-between text-[0.86rem] sm:text-[0.92rem]"
+                >
+                  <span>{choice.label}</span>
+                  <ArrowRight size={15} className="shrink-0 opacity-60" />
+                </button>
+              ))}
+            </div>
+          </m.div>
         </div>
-      </m.div>
+      </div>
     </section>
   )
 }

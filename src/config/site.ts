@@ -1,37 +1,49 @@
 /**
- * Configuração central da INTELRA.
- * O número de WhatsApp, URL e redes sociais vêm do arquivo `.env`
- * (VITE_WHATSAPP_NUMBER, VITE_SITE_URL, VITE_INSTAGRAM_URL).
+ * Configuração central da INTELRA (dados públicos, lidos do `.env` / variáveis da Vercel).
+ *
+ * Nada aqui é segredo: tudo que começa com VITE_ vai para o navegador.
+ * Credenciais privilegiadas (Supabase) ficam só no servidor — ver `api/quote.ts`.
  */
 
 const env = import.meta.env
 
+function clean(value: string | undefined): string {
+  return (value ?? '').trim()
+}
+
 export const SITE = {
   name: 'INTELRA',
-  fullName: 'INTELRA Digital',
-  tagline: 'Soluções digitais para empresas e negócios.',
-  pillars: ['Estratégia', 'Conteúdo', 'Tráfego', 'Resultados'],
-  url: env.VITE_SITE_URL ?? 'https://intelra.com.br',
-  instagram: env.VITE_INSTAGRAM_URL ?? 'https://instagram.com/intelra',
-  year: 2026,
+  concept: 'A Máquina de Possibilidades',
+  description: 'Imagens, vídeos e experiências digitais com IA e direção criativa para colocar sua marca em destaque.',
+  url: clean(env.VITE_SITE_URL).replace(/\/$/, '') || 'https://intelra.com.br',
+  year: new Date().getFullYear(),
 } as const
 
-/** Número no formato internacional, apenas dígitos. Ex.: 5511999999999 */
-export const WHATSAPP_NUMBER: string = (env.VITE_WHATSAPP_NUMBER ?? '5500000000000').replace(/\D/g, '')
-
-/** Mensagens pré-preenchidas por contexto de CTA. */
-export const WHATSAPP_MESSAGES = {
-  default: 'Olá, INTELRA! Vim pelo site e quero conversar sobre uma solução para o meu negócio.',
-  diagnosis: 'Olá, INTELRA! Quero descobrir o que minha empresa precisa. Podemos conversar?',
-  final: 'Olá, INTELRA! Quero tirar um projeto do papel. Podemos conversar?',
-  grow: 'Olá, INTELRA! Quero fazer meu negócio crescer. Podemos conversar?',
-  problems: 'Olá, INTELRA! Me identifiquei com alguns desses problemas e quero resolver. Podemos conversar?',
-  system: 'Olá, INTELRA! Quero montar uma estrutura digital completa para o meu negócio. Podemos conversar?',
-  project: 'Olá, INTELRA! Vi os projetos no site e quero um projeto assim para o meu negócio.',
-  idea: 'Olá, INTELRA! Tenho uma ideia e quero tirar do papel. Podemos conversar?',
-  audience: 'Olá, INTELRA! Acho que meu negócio tem o perfil de vocês. Podemos conversar?',
+/** Contatos públicos. Campos vazios simplesmente não aparecem na página. */
+export const CONTACT = {
+  /** WhatsApp comercial, só dígitos, com DDI + DDD (ex.: 5511999999999). */
+  whatsapp: clean(env.VITE_WHATSAPP_NUMBER).replace(/\D/g, ''),
+  email: clean(env.VITE_CONTACT_EMAIL),
 } as const
 
-export function whatsappLink(message: string = WHATSAPP_MESSAGES.default): string {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
+/** Links sociais. Deixe vazio para ocultar. */
+export const SOCIAL: { label: string; href: string }[] = [{ label: 'Instagram', href: clean(env.VITE_INSTAGRAM_URL) }].filter(
+  (link) => link.href.startsWith('https://'),
+)
+
+/**
+ * O WhatsApp só é habilitado com um número plausível e real:
+ * 10 a 15 dígitos e que não seja um placeholder (DDI seguido só de zeros).
+ */
+export const WHATSAPP_ENABLED = /^\d{10,15}$/.test(CONTACT.whatsapp) && !/^\d{1,3}0{8,}$/.test(CONTACT.whatsapp)
+
+export function whatsappLink(message: string): string | null {
+  if (!WHATSAPP_ENABLED) return null
+  return `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`
 }
+
+/** Endpoint de envio do orçamento (função serverless em `api/quote.ts`). */
+export const QUOTE_ENDPOINT = '/api/quote'
+
+/** Versão do aviso de privacidade exibido no formulário (gravada junto com cada solicitação). */
+export const PRIVACY_NOTICE_VERSION = '2026-10'

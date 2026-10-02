@@ -1,80 +1,64 @@
-import { m, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
-import { CtaButton } from '../components/CtaButton'
 import { Reveal } from '../components/Reveal'
-import { SectionHeader } from '../components/SectionHeader'
-import { WHATSAPP_MESSAGES } from '../config/site'
-import { PROCESS } from '../data/process'
-
-const EASE = [0.22, 1, 0.36, 1] as const
+import { PROCESS } from '../config/content'
+import { FAQ } from '../config/faq'
 
 export function Process() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.8', 'end 0.55'] })
-  const progress = useTransform(scrollYProgress, [0, 1], [0, 1])
-
   return (
-    <section id="como-funciona" aria-labelledby="process-title" className="relative border-t border-gold-300/10">
-      <div className="container-x py-24 md:py-36">
-        <SectionHeader
-          id="process-title"
-          eyebrow="Como funciona"
-          title={
-            <>
-              Simples de começar.
-              <br />
-              <span className="slant text-gold">Claro até o fim.</span>
-            </>
-          }
-        />
-
-        <div ref={ref} className="relative mt-16 pl-12 md:mt-24 md:pl-0">
-          <div
-            className="absolute bottom-2 left-[9px] top-2 w-[2px] bg-white/10 md:bottom-auto md:left-0 md:right-0 md:top-[9px] md:h-[2px] md:w-auto"
-            aria-hidden="true"
-          >
-            <m.div
-              style={{ scaleY: progress }}
-              className="absolute inset-0 origin-top bg-gradient-to-b from-gold-100 to-gold-500 shadow-[0_0_12px_rgb(247_201_72/0.7)] md:hidden"
-            />
-            <m.div
-              style={{ scaleX: progress }}
-              className="absolute inset-0 hidden origin-left bg-gradient-to-r from-gold-500 to-gold-100 shadow-[0_0_12px_rgb(247_201_72/0.7)] md:block"
-            />
-          </div>
-
-          <ol className="grid gap-12 md:grid-cols-4 md:gap-8">
-            {PROCESS.map((item, i) => (
-              <m.li
-                key={item.step}
-                className="group relative md:pt-14"
-                initial={{ opacity: 0, y: 20, filter: 'blur(8px)' }}
-                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                viewport={{ once: true, margin: '0px 0px -15% 0px' }}
-                transition={{ duration: 0.9, ease: EASE, delay: i * 0.12 }}
-              >
-                <span
-                  className="absolute -left-12 top-1 grid size-5 place-items-center rounded-full border border-gold-300/70 bg-ink-950 shadow-[0_0_14px_rgb(247_201_72/0.5)] md:left-0 md:top-0"
-                  aria-hidden="true"
-                >
-                  <span className="size-2 rounded-full bg-gold-300" />
-                </span>
-                <p className="poster text-outline-gold text-[5rem] leading-none transition-all duration-700 group-hover:text-gold-300 md:text-[6rem]">
-                  {item.step}
-                </p>
-                <h3 className="poster mt-3 text-[2.2rem] leading-none">{item.title}</h3>
-                <p className="mt-3 max-w-xs text-pretty leading-relaxed text-mute">{item.text}</p>
-              </m.li>
-            ))}
-          </ol>
-        </div>
-
-        <Reveal className="mt-16 flex flex-col items-start gap-4 sm:flex-row sm:items-center md:mt-20">
-          <CtaButton size="lg" icon="whatsapp" message={WHATSAPP_MESSAGES.diagnosis}>
-            Começar pelo diagnóstico
-          </CtaButton>
-          <p className="text-sm text-mute">O primeiro passo é uma conversa pelo WhatsApp.</p>
+    <section id="como-funciona" data-scene="como-funciona" aria-labelledby="processo-title" className="relative bg-ink-900 py-20 md:py-28">
+      <div className="container-x">
+        <Reveal>
+          <p className="eyebrow text-ion-300">{PROCESS.eyebrow}</p>
+          <h2 id="processo-title" className="display mt-4 text-[2.2rem] text-bone md:text-[3.2rem]">
+            {PROCESS.title}
+          </h2>
         </Reveal>
+
+        {/* Película: quatro quadros em sequência */}
+        <ol className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {PROCESS.steps.map((step, i) => (
+            <li key={step.title}>
+              <Reveal delay={i * 0.06} className="relative h-full rounded-2xl border border-white/10 bg-ink-850 p-6 pt-9">
+                <span aria-hidden="true" className="absolute inset-x-5 top-3 flex justify-between">
+                  {Array.from({ length: 7 }, (_, k) => (
+                    <span key={k} className="h-1.5 w-2.5 rounded-[2px] bg-white/10" />
+                  ))}
+                </span>
+                <span className="eyebrow text-volt-300">Quadro {String(i + 1).padStart(2, '0')}</span>
+                <h3 className="mt-3 font-display text-[1.2rem] font-semibold leading-snug text-bone">{step.title}</h3>
+                <p className="mt-2 text-[0.95rem] leading-relaxed text-mute">{step.text}</p>
+              </Reveal>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-20 grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <Reveal className="lg:col-span-4">
+            <h2 id="faq-title" className="display text-[1.9rem] text-bone md:text-[2.4rem]">
+              Perguntas frequentes
+            </h2>
+            <p className="mt-4 text-mute">Respostas diretas sobre materiais, processo, formatos, prazos e orçamento.</p>
+          </Reveal>
+          <div className="lg:col-span-8">
+            <ul aria-labelledby="faq-title" className="divide-y divide-white/10 border-y border-white/10">
+              {FAQ.map((item) => (
+                <li key={item.q}>
+                  <details className="group">
+                    <summary className="flex min-h-[60px] cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-[1.05rem] font-semibold text-bone marker:hidden [&::-webkit-details-marker]:hidden">
+                      {item.q}
+                      <span
+                        aria-hidden="true"
+                        className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-white/15 text-mute transition-transform duration-300 group-open:rotate-45"
+                      >
+                        +
+                      </span>
+                    </summary>
+                    <p className="max-w-2xl pb-5 leading-relaxed text-mute">{item.a}</p>
+                  </details>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </section>
   )

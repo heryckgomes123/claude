@@ -13,5 +13,5 @@
     "strict": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts", "src/data/faq.ts"]
+  "include": ["vite.config.ts", "src/config/faq.ts"]
 }
