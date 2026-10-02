@@ -43,8 +43,8 @@ export interface PortfolioItem {
 export const FILM = {
   id: 'filme-mascote',
   sources: [
-    { src: '/media/intelra-film.mp4', type: 'video/mp4; codecs="avc1.64001f, mp4a.40.2"' },
-    { src: '/media/intelra-film.webm', type: 'video/webm; codecs="vp9, opus"' },
+    { src: `${import.meta.env.BASE_URL}media/intelra-film.mp4`, type: 'video/mp4; codecs="avc1.64001f, mp4a.40.2"' },
+    { src: `${import.meta.env.BASE_URL}media/intelra-film.webm`, type: 'video/webm; codecs="vp9, opus"' },
   ],
   poster: { src: filmPoster, width: 720, height: 1280, alt: 'O robô da INTELRA, em versão 3D, olhando para a câmera numa rua de cidade futurista.' },
   duration: 10,

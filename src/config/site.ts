@@ -42,8 +42,11 @@ export function whatsappLink(message: string): string | null {
   return `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(message)}`
 }
 
-/** Endpoint de envio do orçamento (função serverless em `api/quote.ts`). */
-export const QUOTE_ENDPOINT = '/api/quote'
+/**
+ * Endpoint de envio do orçamento (função serverless em `api/quote.ts`).
+ * Na versão estática (`npm run build:static`) fica vazio: o envio aparece como “não configurado”.
+ */
+export const QUOTE_ENDPOINT: string = env.VITE_QUOTE_ENDPOINT ?? '/api/quote'
 
 /** Versão do aviso de privacidade exibido no formulário (gravada junto com cada solicitação). */
 export const PRIVACY_NOTICE_VERSION = '2026-10'

@@ -30,6 +30,7 @@ export function buildPayload(state: ProjectState, honeypot: string): QuotePayloa
 
 /** Envia o orçamento. Só retorna ok depois que o servidor confirma a gravação. */
 export async function submitQuote(payload: QuotePayload, signal?: AbortSignal): Promise<SubmitResult> {
+  if (!QUOTE_ENDPOINT) return { ok: false, error: 'not_configured' }
   let res: Response
   try {
     res = await fetch(QUOTE_ENDPOINT, {
