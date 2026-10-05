@@ -5,7 +5,9 @@
 import { useEffect, useSyncExternalStore, type AnchorHTMLAttributes } from 'react'
 
 function read() {
-  const raw = window.location.hash.replace(/^#/, '') || '/'
+  // aceita também âncoras simples (#admin, #loja) — é o formato que links externos preservam
+  const hash = window.location.hash.replace(/^#/, '')
+  const raw = hash ? (hash.startsWith('/') ? hash : '/' + hash) : '/'
   const [path, qs = ''] = raw.split('?')
   return { path: path.replace(/\/+$/, '') || '/', query: new URLSearchParams(qs), raw }
 }

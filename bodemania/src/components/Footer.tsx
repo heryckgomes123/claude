@@ -68,6 +68,7 @@ export default function Footer() {
               ['/politicas/privacidade', 'Privacidade (LGPD)'],
               ['/politicas/termos', 'Termos de uso'],
               ['/sobre', 'Sobre nós'],
+              ['/admin', 'Painel da loja'],
             ]}
           />
         </div>
