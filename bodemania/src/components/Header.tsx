@@ -3,8 +3,8 @@ import { CATEGORIES, UNIVERSES, type Universe } from '../data/catalog'
 import { RULES } from '../config/store'
 import { Link, useRoute } from '../router'
 import { favStore, openCart, uiStore, useCart, useUser } from '../state/shop'
-import { Bag, ChevronDown, Cube, Heart, Menu, Truck, User } from './Icons'
-import Logo from './Logo'
+import { Bag, ChevronDown, ChevronLeft, Cube, Heart, Home, Lock, Menu, Truck, User } from './Icons'
+import Logo, { Mark } from './Logo'
 import ProductArt from './ProductArt'
 import SearchBox from './SearchBox'
 import { Sheet } from './ui'
@@ -134,17 +134,21 @@ export default function Header() {
   if (checkout)
     return (
       <header className="sticky top-[env(safe-area-inset-top,0px)] z-40 border-b border-line bg-paper/90 backdrop-blur">
-        <div className="wrap flex h-16 items-center justify-between">
-          <Link to="/" aria-label="Bodemania — início">
-            <Logo compact />
+        <div className="wrap grid h-16 grid-cols-[1fr_auto_1fr] items-center gap-2">
+          <Link to="/carrinho" className="-ml-2 flex h-11 items-center gap-1 justify-self-start rounded-full px-2 text-sm font-semibold text-navy-700 hover:bg-paper-2">
+            <ChevronLeft size={20} /> <span className="hidden xs:inline">Voltar ao</span> carrinho
           </Link>
-          <span className="flex items-center gap-2 text-xs font-medium text-mute">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <rect x="5" y="10" width="14" height="11" rx="2" />
-              <path d="M8 10V7a4 4 0 0 1 8 0v3" />
-            </svg>
-            Compra 100% segura
-          </span>
+          <Link to="/" aria-label="Bodemania — início">
+            <Mark size={34} />
+          </Link>
+          <div className="flex items-center gap-4 justify-self-end">
+            <span className="hidden items-center gap-2 text-xs font-medium text-mute md:flex">
+              <Lock size={16} /> Compra 100% segura
+            </span>
+            <Link to="/" className="-mr-2 flex h-11 items-center gap-1.5 rounded-full px-2 text-sm font-semibold text-navy-700 hover:bg-paper-2">
+              <Home size={19} /> Início
+            </Link>
+          </div>
         </div>
       </header>
     )

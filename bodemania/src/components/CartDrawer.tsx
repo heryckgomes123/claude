@@ -103,6 +103,9 @@ export default function CartDrawer() {
             >
               Ver carrinho completo e calcular frete
             </button>
+            <button type="button" className="btn btn-ghost mt-1 w-full" onClick={closeCart}>
+              Continuar comprando
+            </button>
           </div>
         )
       }

@@ -4,7 +4,7 @@ import { formatDate, money } from '../lib/format'
 import { Link, useRoute } from '../router'
 import { STATUS_FLOW, STATUS_INFO, dbStore, setOrderStatus, statusLabel, toast, useUser, type Order } from '../state/shop'
 import { AddressText } from '../components/AddressForm'
-import { Barcode, Box, Card, Check, Clock, Copy, Pix, Truck, Upload, Whatsapp } from '../components/Icons'
+import { Barcode, Box, Card, Check, Clock, Copy, Home, Pix, Truck, Upload, Whatsapp } from '../components/Icons'
 import ProductArt from '../components/ProductArt'
 import QR from '../components/QR'
 import { Breadcrumbs } from '../components/ui'
@@ -215,6 +215,14 @@ export default function OrderPage({ id }: { id: string }) {
             <p className="mt-4 text-sm text-white/60">
               Número do pedido: <b className="text-gold-300">{order.id}</b>
             </p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link to="/" className="btn btn-gold btn-sm">
+                <Home size={16} /> Voltar ao início
+              </Link>
+              <Link to="/conta" className="btn btn-sm border border-white/25 text-white hover:bg-white/10">
+                Meus pedidos
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -4,7 +4,7 @@ import { money } from '../lib/format'
 import { Link, navigate } from '../router'
 import { cartStore, pixPrice, toast, useCart } from '../state/shop'
 import { CartLine, FreeShippingBar } from '../components/CartDrawer'
-import { Bag, Lock, Pix } from '../components/Icons'
+import { Bag, ChevronLeft, Home, Lock, Pix } from '../components/Icons'
 import ShippingEstimator from '../components/ShippingEstimator'
 import { Breadcrumbs, Empty } from '../components/ui'
 
@@ -67,7 +67,17 @@ export default function CartPage() {
   return (
     <div className="wrap pb-10">
       <Breadcrumbs items={[{ label: 'Início', to: '/' }, { label: 'Carrinho' }]} />
-      <h1 className="display mb-6 text-3xl font-semibold md:text-4xl">Carrinho</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="display text-3xl font-semibold md:text-4xl">Carrinho</h1>
+        <div className="flex gap-2">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => (window.history.length > 1 ? window.history.back() : navigate('/loja'))}>
+            <ChevronLeft size={16} /> Voltar
+          </button>
+          <Link to="/" className="btn btn-ghost btn-sm">
+            <Home size={16} /> Início
+          </Link>
+        </div>
+      </div>
       <div className="grid gap-8 lg:grid-cols-[1fr_380px]">
         <div>
           {!totals.digitalOnly && <FreeShippingBar subtotal={totals.subtotal} />}
