@@ -5,10 +5,10 @@ import { Link, useRoute } from '../router'
 import { STATUS_FLOW, STATUS_INFO, dbStore, setOrderStatus, statusLabel, toast, useUser, type Order } from '../state/shop'
 import { AddressText } from '../components/AddressForm'
 import { Barcode, Box, Card, Check, Clock, Copy, Home, Pix, Truck, Upload, Whatsapp } from '../components/Icons'
-import ProductArt from '../components/ProductArt'
 import QR from '../components/QR'
 import { Breadcrumbs } from '../components/ui'
 import { AuthForms } from './Auth'
+import ProductImage from '../components/ProductImage'
 
 export function StatusPill({ order }: { order: Order }) {
   return <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_INFO[order.status].tone}`}>{statusLabel(order, order.status)}</span>
@@ -259,7 +259,7 @@ export default function OrderPage({ id }: { id: string }) {
             <ul className="divide-y divide-line">
               {order.items.map((i, k) => (
                 <li key={k} className="flex gap-3 py-3">
-                  {i.photo ? <img src={i.photo} alt="" className="h-16 w-16 rounded-xl object-cover" /> : <ProductArt art={i.art} color={i.color} universe={i.universe} className="h-16 w-16 shrink-0 rounded-xl" />}
+                  {i.photo ? <img src={i.photo} alt="" className="h-16 w-16 rounded-xl object-cover" /> : <ProductImage productId={i.productId} color={i.color} className="h-16 w-16 shrink-0 rounded-xl" />}
                   <div className="min-w-0 flex-1 text-sm">
                     <p className="font-semibold">{i.name}</p>
                     <p className="text-xs text-mute">{i.variant.join(' · ')}</p>

@@ -6,6 +6,7 @@ import { ArrowRight, Box, Card, Cube, Gift, Pix, Refresh, Shield, Sparkle, Truck
 import ProductArt, { Goat, SquareCompass } from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
 import { SectionTitle } from '../components/ui'
+import ProductImage from '../components/ProductImage'
 
 const pick = (ids: string[]) => ids.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean)
 
@@ -39,7 +40,7 @@ function Hero() {
           <div className="mt-auto flex gap-3 pt-8 md:justify-end">
             {pick(['p01', 'p06', 'p04']).map((p, i) => (
               <Link key={p.id} to={`/p/${p.slug}`} className={`block overflow-hidden rounded-2xl ring-1 ring-white/15 transition hover:-translate-y-1 ${i === 0 ? 'h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'} self-end`}>
-                <ProductArt art={p.art} color={p.tone} universe="maconaria" view={1} className="h-full w-full" label={p.name} />
+                <ProductImage p={p} view={1} className="h-full w-full" />
               </Link>
             ))}
           </div>
@@ -71,7 +72,7 @@ function Hero() {
           <div className="mt-auto flex gap-3 pt-8 md:justify-end">
             {pick(['p18', 'p23', 'p20']).map((p, i) => (
               <Link key={p.id} to={`/p/${p.slug}`} className={`block overflow-hidden rounded-2xl ring-1 ring-white/15 transition hover:-translate-y-1 ${i === 0 ? 'h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'} self-end`}>
-                <ProductArt art={p.art} color={p.tone} universe="3d" view={1} className="h-full w-full" label={p.name} />
+                <ProductImage p={p} view={1} className="h-full w-full" />
               </Link>
             ))}
           </div>

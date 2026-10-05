@@ -7,6 +7,7 @@ import { Link, navigate } from '../router'
 import { addToCart, favStore, openCart, pixPrice, toast, toggleFav } from '../state/shop'
 import { Bag, Check, Clock, Heart, Pix, Refresh, Shield, Upload, Whatsapp, X } from '../components/Icons'
 import ProductArt from '../components/ProductArt'
+import { useProductPhotos } from '../state/photos'
 import ProductCard, { defaultOptions, installmentsText } from '../components/ProductCard'
 import ShippingEstimator from '../components/ShippingEstimator'
 import { Badge, Breadcrumbs, Price, QtyStepper } from '../components/ui'
@@ -26,7 +27,7 @@ function ProductView({ slug }: { slug: string }) {
   const [qty, setQty] = useState(1)
   const [text, setText] = useState('')
   const [photo, setPhoto] = useState<string>('')
-  const [view, setView] = useState<0 | 1 | 2>(0)
+  const [view, setView] = useState(0)
   const [tab, setTab] = useState<'desc' | 'specs' | 'entrega'>('desc')
   const [error, setError] = useState('')
   const fav = favStore.use((s) => s.ids.includes(p.id))
@@ -35,6 +36,21 @@ function ProductView({ slug }: { slug: string }) {
 
   const artOpt = p.options?.find((o) => o.affectsArt)
   const color = (artOpt && artOpt.values.find((v) => v.id === opts[artOpt.id])?.hex) ?? p.tone
+  const photos = useProductPhotos(p)
+  type SlideT = { kind: 'photo'; src: string; alt: string } | { kind: 'art'; view: 0 | 1 | 2 }
+  const slides: SlideT[] = [
+    ...(photos.length
+      ? photos.map((src, i) => ({ kind: 'photo' as const, src, alt: `${p.name} — foto ${i + 1}` }))
+      : ([0, 1, 2] as const).map((v) => ({ kind: 'art' as const, view: v }))),
+    ...(photo ? [{ kind: 'photo' as const, src: photo, alt: 'Sua foto' }] : []),
+  ]
+  const slide = (sl: SlideT, className: string) =>
+    sl.kind === 'photo' ? (
+      <img src={sl.src} alt={sl.alt} className={`object-cover ${className}`} />
+    ) : (
+      <ProductArt art={p.art} color={color} universe={universe} view={sl.view} className={className} label={p.name} />
+    )
+
   const unit = useMemo(() => {
     let price = p.price
     for (const o of p.options ?? []) price += o.values.find((v) => v.id === opts[o.id])?.priceDelta ?? 0
@@ -42,7 +58,13 @@ function ProductView({ slug }: { slug: string }) {
     return price
   }, [p, opts, text])
 
-  const related = useMemo(() => PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id).concat(PRODUCTS.filter((x) => universeOf(x) === universe && x.category !== p.category)).slice(0, 4), [p, universe])
+  const related = useMemo(
+    () =>
+      PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id)
+        .concat(PRODUCTS.filter((x) => universeOf(x) === universe && x.category !== p.category))
+        .slice(0, 4),
+    [p, universe],
+  )
 
   const validate = () => {
     if (p.personalization?.required && !text.trim()) return `Preencha: ${p.personalization.label.toLowerCase()}.`
@@ -97,17 +119,13 @@ function ProductView({ slug }: { slug: string }) {
             className="no-scrollbar -mx-4 flex snap-x snap-mandatory overflow-x-auto sm:mx-0 sm:overflow-hidden sm:rounded-[28px]"
             onScroll={(e) => {
               const el = e.currentTarget
-              setView(Math.round(el.scrollLeft / el.clientWidth) as 0 | 1 | 2)
+              setView(Math.round(el.scrollLeft / el.clientWidth))
             }}
           >
-            {([0, 1, 2] as const).map((v) => (
-              <div key={v} className={`relative aspect-square w-full shrink-0 snap-center ${v !== view ? 'sm:hidden' : ''}`}>
-                {v === 2 && photo ? (
-                  <img src={photo} alt="Sua foto" className="h-full w-full object-cover" />
-                ) : (
-                  <ProductArt art={p.art} color={color} universe={universe} view={v} className="h-full w-full" label={p.name} />
-                )}
-                {p.badge && (
+            {slides.map((sl, v) => (
+              <div key={v} className={`relative aspect-square w-full shrink-0 snap-center bg-paper-2 ${v !== view ? 'sm:hidden' : ''}`}>
+                {slide(sl, 'h-full w-full')}
+                {p.badge && v === 0 && (
                   <span className="absolute top-4 left-4">
                     <Badge tone={p.badge === 'Mais vendido' ? 'gold' : p.badge === 'Novo' ? 'filament' : 'navy'}>{p.badge}</Badge>
                   </span>
@@ -115,26 +133,26 @@ function ProductView({ slug }: { slug: string }) {
               </div>
             ))}
           </div>
-          <div className="mt-3 flex justify-center gap-2 sm:justify-start">
-            {([0, 1, 2] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => {
-                  setView(v)
-                  const el = galleryRef.current
-                  if (el && el.scrollWidth > el.clientWidth) el.scrollTo({ left: v * el.clientWidth, behavior: 'smooth' })
-                }}
-                className={`overflow-hidden rounded-xl transition sm:h-20 sm:w-20 ${view === v ? 'ring-2 ring-navy-900' : 'opacity-70 ring-1 ring-line hover:opacity-100'} h-2.5 w-2.5 sm:block`}
-                aria-label={`Imagem ${v + 1}`}
-              >
-                <span className="hidden sm:block">
-                  {v === 2 && photo ? <img src={photo} alt="" className="h-20 w-20 object-cover" /> : <ProductArt art={p.art} color={color} universe={universe} view={v} className="h-20 w-20" />}
-                </span>
-                <span className={`block h-full w-full rounded-full sm:hidden ${view === v ? 'bg-navy-900' : 'bg-line-2'}`} />
-              </button>
-            ))}
-          </div>
+          {slides.length > 1 && (
+            <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+              {slides.map((sl, v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => {
+                    setView(v)
+                    const el = galleryRef.current
+                    if (el && el.scrollWidth > el.clientWidth) el.scrollTo({ left: v * el.clientWidth, behavior: 'smooth' })
+                  }}
+                  className={`h-2.5 w-2.5 overflow-hidden rounded-xl transition sm:h-20 sm:w-20 ${view === v ? 'ring-2 ring-navy-900' : 'opacity-70 ring-1 ring-line hover:opacity-100'}`}
+                  aria-label={`Imagem ${v + 1}`}
+                >
+                  <span className="hidden sm:block">{slide(sl, 'h-20 w-20')}</span>
+                  <span className={`block h-full w-full rounded-full sm:hidden ${view === v ? 'bg-navy-900' : 'bg-line-2'}`} />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Informações */}
@@ -187,7 +205,14 @@ function ProductView({ slug }: { slug: string }) {
                         <span className="h-8 w-8 rounded-full shadow-inner" style={{ background: v.hex }} />
                       </button>
                     ) : (
-                      <button key={v.id} type="button" role="radio" aria-checked={opts[o.id] === v.id} className="chip !min-h-11 !px-4" onClick={() => setOpts((s) => ({ ...s, [o.id]: v.id }))}>
+                      <button
+                        key={v.id}
+                        type="button"
+                        role="radio"
+                        aria-checked={opts[o.id] === v.id}
+                        className="chip !min-h-11 !px-4"
+                        onClick={() => setOpts((s) => ({ ...s, [o.id]: v.id }))}
+                      >
                         {v.label}
                         {v.priceDelta ? <span className="text-xs opacity-70">+{money(v.priceDelta)}</span> : null}
                       </button>
@@ -204,7 +229,9 @@ function ProductView({ slug }: { slug: string }) {
                     <span className="mb-1.5 flex items-center justify-between text-sm font-semibold">
                       <span>
                         {p.personalization.label}
-                        {p.personalization.price > 0 && <span className="ml-1 font-normal text-mute">(+{money(p.personalization.price)})</span>}
+                        {p.personalization.price > 0 && (
+                          <span className="ml-1 font-normal text-mute">(+{money(p.personalization.price)})</span>
+                        )}
                       </span>
                       <span className="text-xs font-normal text-mute tabular-nums">
                         {text.length}/{p.personalization.maxLength}
@@ -281,7 +308,11 @@ function ProductView({ slug }: { slug: string }) {
               )}
               <span className="flex items-center gap-1.5 text-mute">
                 <Clock size={15} />
-                {p.kind === 'digital' ? `Entrega digital em até ${p.leadDays + 2} dias úteis` : p.leadDays <= 1 ? 'Envio em 24h úteis' : `Produção: ${p.leadDays} dias úteis`}
+                {p.kind === 'digital'
+                  ? `Entrega digital em até ${p.leadDays + 2} dias úteis`
+                  : p.leadDays <= 1
+                    ? 'Envio em 24h úteis'
+                    : `Produção: ${p.leadDays} dias úteis`}
               </span>
             </div>
 
@@ -320,9 +351,15 @@ function ProductView({ slug }: { slug: string }) {
               <Shield size={20} className="text-navy-700" /> Compra segura
             </span>
             <span className="flex flex-col items-center gap-1 rounded-xl p-2">
-              <Refresh size={20} className="text-navy-700" /> {p.personalization || p.photoUpload ? 'Garantia de qualidade' : '7 dias para troca'}
+              <Refresh size={20} className="text-navy-700" />{' '}
+              {p.personalization || p.photoUpload ? 'Garantia de qualidade' : '7 dias para troca'}
             </span>
-            <a href={whatsappLink(`Olá! Tenho uma dúvida sobre: ${p.name}`)} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-1 rounded-xl p-2 hover:bg-white">
+            <a
+              href={whatsappLink(`Olá! Tenho uma dúvida sobre: ${p.name}`)}
+              target="_blank"
+              rel="noreferrer"
+              className="flex flex-col items-center gap-1 rounded-xl p-2 hover:bg-white"
+            >
               <Whatsapp size={20} className="text-[#1faa59]" /> Tirar dúvida
             </a>
           </div>
@@ -350,7 +387,12 @@ function ProductView({ slug }: { slug: string }) {
               ))}
             </div>
             <div className="py-5 text-[0.95rem] leading-relaxed text-ink/85" role="tabpanel">
-              {tab === 'desc' && p.description.map((d) => <p key={d} className="mb-3">{d}</p>)}
+              {tab === 'desc' &&
+                p.description.map((d) => (
+                  <p key={d} className="mb-3">
+                    {d}
+                  </p>
+                ))}
               {tab === 'specs' && (
                 <dl className="divide-y divide-line rounded-2xl border border-line bg-white">
                   {p.specs.map(([k, v]) => (
@@ -364,13 +406,16 @@ function ProductView({ slug }: { slug: string }) {
               {tab === 'entrega' && (
                 <div className="space-y-3 text-sm">
                   <p>
-                    <b>Envio:</b> Correios (PAC ou SEDEX) com código de rastreio, ou retirada no ateliê em São Paulo/SP. Frete grátis no PAC acima de {money(RULES.freeShippingFrom)}.
+                    <b>Envio:</b> Correios (PAC ou SEDEX) com código de rastreio, ou retirada no ateliê em São Paulo/SP. Frete grátis no PAC
+                    acima de {money(RULES.freeShippingFrom)}.
                   </p>
                   <p>
-                    <b>Produção:</b> peças feitas sob encomenda entram em produção após a confirmação do pagamento. O prazo total aparece no cálculo de frete.
+                    <b>Produção:</b> peças feitas sob encomenda entram em produção após a confirmação do pagamento. O prazo total aparece no
+                    cálculo de frete.
                   </p>
                   <p>
-                    <b>Trocas:</b> você tem 7 dias após o recebimento para desistir da compra (Código de Defesa do Consumidor). Itens personalizados só são trocados em caso de defeito.{' '}
+                    <b>Trocas:</b> você tem 7 dias após o recebimento para desistir da compra (Código de Defesa do Consumidor). Itens
+                    personalizados só são trocados em caso de defeito.{' '}
                     <Link to="/politicas/trocas" className="font-medium text-navy-700 underline">
                       Política completa
                     </Link>

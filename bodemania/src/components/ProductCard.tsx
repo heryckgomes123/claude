@@ -1,11 +1,11 @@
 import { RULES } from '../config/store'
-import { categoryById, universeOf, type Product } from '../data/catalog'
+import { categoryById, type Product } from '../data/catalog'
 import { money } from '../lib/format'
 import { Link, navigate } from '../router'
 import { addToCart, favStore, openCart, pixPrice, toast, toggleFav } from '../state/shop'
 import { Bag, Heart } from './Icons'
-import ProductArt from './ProductArt'
 import { Badge } from './ui'
+import ProductImage from './ProductImage'
 
 export function defaultOptions(p: Product) {
   return Object.fromEntries((p.options ?? []).map((o) => [o.id, o.values[0].id]))
@@ -21,7 +21,6 @@ export function installmentsText(price: number) {
 
 export default function ProductCard({ p }: { p: Product }) {
   const fav = favStore.use((s) => s.ids.includes(p.id))
-  const universe = universeOf(p)
   const to = p.href ?? `/p/${p.slug}`
   const inst = installmentsText(p.price)
   const badgeTone = p.badge === 'Mais vendido' ? 'gold' : p.badge === 'Novo' ? 'filament' : 'navy'
@@ -30,7 +29,7 @@ export default function ProductCard({ p }: { p: Product }) {
     <article className="group relative flex flex-col">
       <div className="relative overflow-hidden rounded-[22px] bg-paper-2">
         <Link to={to} aria-label={p.name} className="block aspect-square">
-          <ProductArt art={p.art} color={p.tone} universe={universe} label={p.name} className="h-full w-full transition duration-700 ease-out group-hover:scale-[1.04]" />
+          <ProductImage p={p} className="h-full w-full transition duration-700 ease-out group-hover:scale-[1.04]" />
         </Link>
         <div className="pointer-events-none absolute top-3 left-3 flex flex-col items-start gap-1.5">
           {p.badge && <Badge tone={badgeTone}>{p.badge}</Badge>}

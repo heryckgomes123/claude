@@ -1,11 +1,11 @@
 import { RULES } from '../config/store'
-import { productById, universeOf } from '../data/catalog'
+import { productById } from '../data/catalog'
 import { money } from '../lib/format'
 import { Link, navigate } from '../router'
 import { closeCart, itemColor, pixPrice, removeFromCart, setQty, uiStore, unitPrice, useCart, variantLabels, type CartItem } from '../state/shop'
 import { Bag, Trash, Truck } from './Icons'
-import ProductArt from './ProductArt'
 import { Empty, QtyStepper, Sheet } from './ui'
+import ProductImage from './ProductImage'
 
 export function CartLine({ item, compact }: { item: CartItem; compact?: boolean }) {
   const p = productById(item.productId)
@@ -17,7 +17,7 @@ export function CartLine({ item, compact }: { item: CartItem; compact?: boolean 
         {item.photo ? (
           <img src={item.photo} alt="" className="h-20 w-20 rounded-xl object-cover" />
         ) : (
-          <ProductArt art={p.art} color={itemColor(item)} universe={universeOf(p)} className="h-20 w-20 rounded-xl" />
+          <ProductImage p={p} color={itemColor(item)} className="h-20 w-20 rounded-xl" />
         )}
       </Link>
       <div className="min-w-0 flex-1">

@@ -50,6 +50,15 @@ Dicas de teste:
 - **Institucional:** sobre, FAQ, trocas (CDC), entrega, privacidade (LGPD), termos, banner de cookies, WhatsApp.
 - **100% responsivo:** testado de 320 px a 1440 px, barra de navegação inferior no celular.
 
+## Fotos dos produtos
+
+Sem foto, cada produto mostra uma ilustração vetorial. Há duas formas de colocar fotos reais:
+
+1. **Pelo painel** (`#/admin` → *Produtos e fotos*): envie as fotos do celular e elas aparecem na hora.
+   Ficam guardadas só naquele navegador — ótimo para testar e mostrar.
+2. **Definitivas:** coloque os arquivos em `src/assets/produtos/<pasta-do-produto>/` (lista de pastas em
+   `src/assets/produtos/LEIA-ME.md`) e rode `npm run build:single`. Elas entram no site e no HTML de testes.
+
 ## Configuração (`.env`)
 
 | Variável | Uso |

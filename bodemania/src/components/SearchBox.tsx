@@ -1,9 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { PRODUCTS, categoryById, universeOf } from '../data/catalog'
+import { PRODUCTS, categoryById } from '../data/catalog'
 import { money, normalize } from '../lib/format'
 import { navigate } from '../router'
 import { Search } from './Icons'
-import ProductArt from './ProductArt'
+import ProductImage from './ProductImage'
 
 export function searchProducts(q: string) {
   const terms = normalize(q).split(/\s+/).filter(Boolean)
@@ -64,7 +64,7 @@ export default function SearchBox({ autoFocus, onDone }: { autoFocus?: boolean; 
             <>
               {results.map((p) => (
                 <button key={p.id} type="button" onClick={() => go(p.href ?? `/p/${p.slug}`)} className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-paper">
-                  <ProductArt art={p.art} color={p.tone} universe={universeOf(p)} className="h-11 w-11 shrink-0 rounded-lg" />
+                  <ProductImage p={p} className="h-11 w-11 shrink-0 rounded-lg" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{p.name}</span>
                     <span className="text-xs text-mute">{categoryById(p.category)?.name}</span>

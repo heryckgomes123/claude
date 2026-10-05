@@ -6,9 +6,9 @@ import { Link, navigate, useRoute } from '../router'
 import { dbStore, logout, removeAddress, saveAddress, toast, updateUser, useUser, type SavedAddress } from '../state/shop'
 import AddressForm, { AddressText } from '../components/AddressForm'
 import { Box, Edit, Logout, MapPin, Plus, Trash, User } from '../components/Icons'
-import ProductArt from '../components/ProductArt'
 import { Empty, Field } from '../components/ui'
 import { StatusPill } from './OrderPage'
+import ProductImage from '../components/ProductImage'
 
 type Tab = 'pedidos' | 'enderecos' | 'dados'
 
@@ -93,7 +93,7 @@ function Orders({ userId }: { userId: string }) {
           </div>
           <div className="mt-3 flex items-center gap-2">
             {o.items.slice(0, 5).map((i, k) =>
-              i.photo ? <img key={k} src={i.photo} alt="" className="h-12 w-12 rounded-lg object-cover" /> : <ProductArt key={k} art={i.art} color={i.color} universe={i.universe} className="h-12 w-12 rounded-lg" />,
+              i.photo ? <img key={k} src={i.photo} alt="" className="h-12 w-12 rounded-lg object-cover" /> : <ProductImage key={k} productId={i.productId} color={i.color} className="h-12 w-12 rounded-lg" />,
             )}
             {o.items.length > 5 && <span className="text-xs text-mute">+{o.items.length - 5}</span>}
             <span className="ml-auto text-sm font-semibold text-navy-700">Acompanhar →</span>
