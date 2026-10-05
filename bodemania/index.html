@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Bodemania — Artigos maçônicos & impressão 3D</title>
+    <meta
+      name="description"
+      content="Aventais, paramentos, joias e presentes maçônicos + ateliê de impressão 3D com orçamento instantâneo. Frete grátis acima de R$ 299, 5% off no Pix e até 6x sem juros."
+    />
+    <meta name="theme-color" content="#0d1a2b" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='26' fill='%230d1a2b'/%3E%3Cg transform='translate(14 10) scale(.72)'%3E%3Cpath d='M38 32C30 12 14 8 8 22c8-6 18-2 22 14zM62 32c8-20 24-24 30-10-8-6-18-2-22 14z' fill='%23c79b3b'/%3E%3Cpath d='M33 40 10 44l20 8zM67 40l23 4-20 8z' fill='%23f4e7c4'/%3E%3Cpath d='M36 30h28l7 14-11 30-10 6-10-6-11-30z' fill='%23f4e7c4'/%3E%3Cpath d='M43 77h14l-7 19z' fill='%23f4e7c4'/%3E%3C/g%3E%3C/svg%3E" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:site_name" content="Bodemania" />
+    <meta property="og:title" content="Bodemania — Artigos maçônicos & impressão 3D" />
+    <meta property="og:description" content="Tradição com acabamento de respeito. E se dá pra imaginar, dá pra imprimir." />
+
+    <style>
+      #boot {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        background: #faf7f0;
+        transition: opacity 0.45s ease, visibility 0.45s;
+        animation: boot-fallback 0.4s 4s forwards;
+      }
+      #boot[data-state='done'] {
+        opacity: 0;
+        visibility: hidden;
+      }
+      #boot span {
+        font: 700 22px/1 Georgia, serif;
+        color: #0d1a2b;
+        letter-spacing: -0.02em;
+      }
+      #boot span b {
+        color: #a47b25;
+      }
+      #boot i {
+        display: block;
+        margin: 14px auto 0;
+        width: 56px;
+        height: 2px;
+        border-radius: 2px;
+        background: linear-gradient(90deg, transparent, #c79b3b, transparent);
+        animation: boot-line 1.1s ease-in-out infinite;
+      }
+      @keyframes boot-line {
+        0%, 100% { opacity: 0.25; transform: scaleX(0.4); }
+        50% { opacity: 1; transform: scaleX(1); }
+      }
+      @keyframes boot-fallback {
+        to { opacity: 0; visibility: hidden; }
+      }
+    </style>
+    <noscript><style>#boot { display: none; }</style></noscript>
+  </head>
+  <body>
+    <div id="boot" aria-hidden="true"><div><span>Bode<b>mania</b></span><i></i></div></div>
+    <div id="root"></div>
+    <noscript>
+      <p style="padding: 2rem; font-family: system-ui">A Bodemania precisa do JavaScript ativado para funcionar.</p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
