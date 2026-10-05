@@ -6,7 +6,7 @@ E-commerce da **Bodemania**: artigos maçônicos + ateliê de impressão 3D.
 
 ## Arquivo único para testes
 
-`Bodemania-teste.html` (nesta pasta) é a loja inteira em **um só arquivo**: abra com dois cliques em
+`Bodemania-teste.html` (nesta pasta) é a loja inteira em **um só arquivo**: abra no Chrome, Safari, Edge ou Firefox em
 qualquer computador ou celular, sem instalar nada e sem internet (só a busca de CEP usa a internet;
 offline, o endereço é preenchido à mão).
 
@@ -15,7 +15,7 @@ Para gerar de novo depois de mexer no código:
 ```bash
 npm install
 npm run build:single          # gera dist-single/index.html
-cp dist-single/index.html Bodemania-teste.html
+                              # e atualiza Bodemania-teste.html
 ```
 
 Dicas de teste:

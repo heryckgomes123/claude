@@ -133,7 +133,7 @@ export default function Header() {
 
   if (checkout)
     return (
-      <header className="sticky top-0 z-40 border-b border-line bg-paper/90 backdrop-blur">
+      <header className="sticky top-[env(safe-area-inset-top,0px)] z-40 border-b border-line bg-paper/90 backdrop-blur">
         <div className="wrap flex h-16 items-center justify-between">
           <Link to="/" aria-label="Bodemania — início">
             <Logo compact />
@@ -152,7 +152,7 @@ export default function Header() {
   return (
     <>
       <PromoBar />
-      <header className={`sticky top-0 z-40 border-b bg-paper/92 backdrop-blur-md transition-shadow ${scrolled ? 'border-line shadow-[0_8px_30px_-18px_rgba(13,26,43,.35)]' : 'border-transparent'}`}>
+      <header className={`sticky top-[env(safe-area-inset-top,0px)] z-40 border-b bg-paper/92 backdrop-blur-md transition-shadow ${scrolled ? 'border-line shadow-[0_8px_30px_-18px_rgba(13,26,43,.35)]' : 'border-transparent'}`}>
         <div className="wrap flex h-16 items-center gap-3 md:h-[72px] md:gap-6">
           <button type="button" className="-ml-2 grid h-11 w-11 place-items-center rounded-full hover:bg-paper-2 lg:hidden" onClick={() => uiStore.set({ menuOpen: true })} aria-label="Abrir menu">
             <Menu size={22} />

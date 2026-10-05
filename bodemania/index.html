@@ -27,7 +27,20 @@
         place-items: center;
         background: #faf7f0;
         transition: opacity 0.45s ease, visibility 0.45s;
-        animation: boot-fallback 0.4s 4s forwards;
+        text-align: center;
+        padding: 24px;
+      }
+      #boot p {
+        display: none;
+        max-width: 340px;
+        margin: 22px auto 0;
+        font: 15px/1.5 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color: #3b4250;
+        opacity: 0;
+        animation: boot-help 0.4s 5s forwards;
+      }
+      #boot p b {
+        color: #0d1a2b;
       }
       #boot[data-state='done'] {
         opacity: 0;
@@ -54,14 +67,23 @@
         0%, 100% { opacity: 0.25; transform: scaleX(0.4); }
         50% { opacity: 1; transform: scaleX(1); }
       }
-      @keyframes boot-fallback {
-        to { opacity: 0; visibility: hidden; }
+      @keyframes boot-help {
+        to { opacity: 1; }
       }
+      #boot p { display: block; }
     </style>
-    <noscript><style>#boot { display: none; }</style></noscript>
   </head>
   <body>
-    <div id="boot" aria-hidden="true"><div><span>Bode<b>mania</b></span><i></i></div></div>
+    <div id="boot">
+      <div>
+        <span>Bode<b>mania</b></span><i></i>
+        <p>
+          A loja não carregou? O visualizador que você usou não roda sites.<br /><br />
+          <b>No celular:</b> toque em “Abrir com” / “Compartilhar” e escolha <b>Chrome</b> ou <b>Safari</b>.<br />
+          <b>No computador:</b> clique com o botão direito no arquivo → Abrir com → Chrome, Edge ou Firefox.
+        </p>
+      </div>
+    </div>
     <div id="root"></div>
     <noscript>
       <p style="padding: 2rem; font-family: system-ui">A Bodemania precisa do JavaScript ativado para funcionar.</p>
