@@ -11,11 +11,11 @@ export const STORE = {
   name: 'Bodemania',
   tagline: 'Artigos maçônicos & impressão 3D sob medida',
   url: env.VITE_SITE_URL ?? 'https://bodemania.com.br',
-  instagram: env.VITE_INSTAGRAM_URL ?? 'https://instagram.com/bodemania',
+  instagram: env.VITE_INSTAGRAM_URL ?? 'https://instagram.com/lojabodemania',
   email: 'contato@bodemania.com.br',
   /** Troque pelos dados reais da empresa antes de publicar. */
   legalName: 'Bodemania Comércio de Artigos LTDA',
-  cnpj: '00.000.000/0001-00',
+  cnpj: '06.127.667/0001-36',
   city: 'São Paulo/SP',
   year: 2026,
   /** Modo demonstração: sem VITE_SUPABASE_URL, pagamentos e contas são simulados no navegador. */
