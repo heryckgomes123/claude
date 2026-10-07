@@ -64,7 +64,7 @@ ${line('Subtotal', brl(o.subtotal))}${o.discount > 0 ? line('Cupom', '-' + brl(o
   }${line('Total', brl(o.total), true)}</table></td></tr></table>`
 }
 
-const orderLink = (siteUrl: string, o: MailOrder) => `${siteUrl.replace(/\/$/, '')}/pedido/${encodeURIComponent(o.id)}?email=${encodeURIComponent(o.customerEmail)}`
+const orderLink = (siteUrl: string, o: MailOrder) => `${siteUrl.replace(/\/$/, '')}/pedido/${encodeURIComponent(o.id)}`
 
 const first = (name: string) => esc(name.split(' ')[0])
 

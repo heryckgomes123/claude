@@ -53,7 +53,7 @@ export class FakeRepo implements Repo {
     return id
   }
   async findOrderByIdem(userId: string, key: string) {
-    return [...this.orders.values()].find((o) => o.user_id === userId && o.payment.idem === key) ?? null
+    return [...this.orders.values()].find((o) => o.user_id === userId && o.payment.idem === key && o.status !== 'cancelado') ?? null
   }
   async patchPayment(orderId: string, patch: Record<string, unknown>) {
     const o = this.orders.get(orderId)!

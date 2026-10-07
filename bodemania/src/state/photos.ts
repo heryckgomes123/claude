@@ -26,9 +26,11 @@ export const photoStore = createStore({ byId: {} as Record<string, string[]> }, 
 
 const EMPTY: string[] = []
 
-export function useProductPhotos(p: Pick<Product, 'id' | 'slug'> | undefined): string[] {
+/** Ordem: fotos do banco (produção) → fotos enviadas neste navegador (teste) → fotos da pasta do projeto. */
+export function useProductPhotos(p: Pick<Product, 'id' | 'slug' | 'images'> | undefined): string[] {
   const uploaded = photoStore.use((s) => (p ? s.byId[p.id] : undefined))
   if (!p) return EMPTY
+  if (p.images?.length) return p.images
   return uploaded?.length ? uploaded : (BUNDLED[p.slug] ?? EMPTY)
 }
 

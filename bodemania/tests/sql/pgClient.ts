@@ -34,6 +34,10 @@ export function pgSupabase(db: pg.Client): Db {
           filters.push({ sql: `${sqlCol} = $#`, value })
           return builder
         },
+        neq(col: string, value: unknown) {
+          filters.push({ sql: `t.${col} <> $#`, value })
+          return builder
+        },
         in(col: string, values: unknown[]) {
           filters.push({ sql: `t.${col} = any($#)`, value: values })
           return builder

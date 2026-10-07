@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { RULES, STORE, whatsappLink } from '../config/store'
+import { trackPurchase } from '../lib/analytics'
+import { setPageMeta } from '../lib/seo'
 import { formatDate, money } from '../lib/format'
 import { Link, useRoute } from '../router'
-import { STATUS_FLOW, STATUS_INFO, dbStore, setOrderStatus, statusLabel, toast, useUser, type Order } from '../state/shop'
+import { api, STATUS_FLOW, STATUS_INFO, dbStore, messageOf, statusLabel, toast, useSessionReady, useUser, type Order } from '../state/shop'
 import { AddressText } from '../components/AddressForm'
 import { Barcode, Box, Card, Check, Clock, Copy, Home, Pix, Truck, Upload, Whatsapp } from '../components/Icons'
 import QR from '../components/QR'
@@ -58,7 +60,7 @@ function copy(text: string, label: string) {
 }
 
 function PixBox({ order }: { order: Order }) {
-  const expires = new Date(order.createdAt).getTime() + RULES.pixExpiresMin * 60_000
+  const expires = order.expiresAt ? new Date(order.expiresAt).getTime() : new Date(order.createdAt).getTime() + RULES.pixExpiresMin * 60_000
   const [now, setNow] = useState(Date.now())
   useEffect(() => {
     const t = window.setInterval(() => setNow(Date.now()), 1000)
@@ -92,7 +94,7 @@ function PixBox({ order }: { order: Order }) {
                 </b>
               </>
             ) : (
-              <b className="text-err">Código expirado — fale conosco para gerar outro.</b>
+              <b className="text-err">Código expirado — faça um novo pedido ou fale conosco.</b>
             )}
           </p>
           <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-mute">
@@ -112,7 +114,7 @@ function PixBox({ order }: { order: Order }) {
         </div>
       </div>
       {STORE.demo && (
-        <button type="button" className="mt-4 w-full rounded-xl border border-dashed border-gold-300 bg-gold-50 py-3 text-sm font-semibold text-gold-700" onClick={() => setOrderStatus(order.id, 'pago', 'Pix recebido e confirmado automaticamente.')}>
+        <button type="button" className="mt-4 w-full rounded-xl border border-dashed border-gold-300 bg-gold-50 py-3 text-sm font-semibold text-gold-700" onClick={() => api.admin.setStatus({ orderId: order.id, status: 'pago', note: 'Pix recebido e confirmado automaticamente.' })}>
           Demonstração: simular pagamento recebido
         </button>
       )}
@@ -128,15 +130,20 @@ function BoletoBox({ order }: { order: Order }) {
         <Barcode size={22} />
         <h2 className="text-lg font-semibold">Boleto gerado</h2>
       </div>
-      <p className="mt-2 text-sm text-mute">Vencimento em 2 dias úteis. Pague pelo app do banco usando a linha digitável:</p>
+      <p className="mt-2 text-sm text-mute">Vencimento em 3 dias. Pague pelo app do banco usando a linha digitável ou abra o boleto em PDF:</p>
       <div className="mt-3 flex gap-2">
         <input readOnly value={line} className="field !min-h-11 flex-1 font-mono text-xs" onFocus={(e) => e.target.select()} aria-label="Linha digitável" />
         <button type="button" className="btn btn-primary btn-sm !min-h-11" onClick={() => copy(line.replace(/\D/g, ''), 'Linha digitável')}>
           <Copy size={16} /> Copiar
         </button>
       </div>
+      {(order.payment.boletoUrl || order.payment.ticketUrl) && (
+        <a href={order.payment.boletoUrl ?? order.payment.ticketUrl} target="_blank" rel="noreferrer" className="btn btn-ghost mt-3 w-full">
+          Abrir boleto em PDF
+        </a>
+      )}
       {STORE.demo && (
-        <button type="button" className="mt-4 w-full rounded-xl border border-dashed border-gold-300 bg-gold-50 py-3 text-sm font-semibold text-gold-700" onClick={() => setOrderStatus(order.id, 'pago', 'Boleto compensado.')}>
+        <button type="button" className="mt-4 w-full rounded-xl border border-dashed border-gold-300 bg-gold-50 py-3 text-sm font-semibold text-gold-700" onClick={() => api.admin.setStatus({ orderId: order.id, status: 'pago', note: 'Boleto compensado.' })}>
           Demonstração: simular compensação do boleto
         </button>
       )}
@@ -158,21 +165,58 @@ export default function OrderPage({ id }: { id: string }) {
   const { query } = useRoute()
   const order = dbStore.use((s) => s.orders.find((o) => o.id === id))
   const user = useUser()
+  const ready = useSessionReady()
+  const [loading, setLoading] = useState(api.mode === 'supabase')
   const isNew = query.get('novo') === '1'
-  const viaTracking = query.get('email') && order && query.get('email')!.toLowerCase() === order.customer.email
+  const viaTracking = api.mode === 'local' && query.get('email') && order && query.get('email')!.toLowerCase() === order.customer.email
+  const waiting = order?.status === 'aguardando'
+
+  useEffect(() => setPageMeta({ title: `Pedido ${id}` }), [id])
+  useEffect(() => {
+    if (isNew && order && order.status !== 'cancelado') trackPurchase(order)
+  }, [isNew, order?.id]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // produção: busca o pedido e, enquanto aguarda pagamento, confere a cada 5 s se o Pix/boleto foi pago
+  useEffect(() => {
+    if (api.mode !== 'supabase' || !ready || !user) return
+    let alive = true
+    const load = () => api.orders.refresh(id).catch((e) => alive && toast(messageOf(e), 'err')).finally(() => alive && setLoading(false))
+    void load()
+    if (!waiting) return () => void (alive = false)
+    const t = window.setInterval(load, 5000)
+    return () => {
+      alive = false
+      window.clearInterval(t)
+    }
+  }, [id, ready, user?.id, waiting]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (api.mode === 'supabase' && !ready) return <div className="wrap py-24 text-center text-mute" aria-busy="true">Carregando pedido…</div>
+
+  if (api.mode === 'supabase' && !user)
+    return (
+      <div className="wrap max-w-md py-12">
+        <h1 className="display mb-2 text-center text-3xl font-semibold">Entre para ver o pedido</h1>
+        <p className="mb-6 text-center text-sm text-mute">Por segurança, os pedidos só aparecem para quem comprou.</p>
+        <div className="rounded-3xl border border-line bg-white p-6">
+          <AuthForms onDone={() => undefined} />
+        </div>
+      </div>
+    )
+
+  if (!order && loading) return <div className="wrap py-24 text-center text-mute" aria-busy="true">Carregando pedido…</div>
 
   if (!order)
     return (
       <div className="wrap py-20 text-center">
         <h1 className="display text-3xl font-semibold">Pedido não encontrado</h1>
         <p className="mt-2 text-mute">Confira o número do pedido ou acesse a sua conta.</p>
-        <Link to="/rastreio" className="btn btn-primary mt-6">
-          Rastrear outro pedido
+        <Link to="/conta" className="btn btn-primary mt-6">
+          Meus pedidos
         </Link>
       </div>
     )
 
-  if (!viaTracking && order.userId !== user?.id)
+  if (!viaTracking && order.userId !== user?.id && !(user?.role === 'admin'))
     return (
       <div className="wrap max-w-md py-12">
         <h1 className="display mb-6 text-center text-3xl font-semibold">Entre para ver o pedido</h1>

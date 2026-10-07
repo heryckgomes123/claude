@@ -1,7 +1,8 @@
 import { useMemo, useState, type ReactNode } from 'react'
-import { CATEGORIES, PRODUCTS, UNIVERSES, categoryById, universeOf, type CategoryId, type Product, type Universe } from '../data/catalog'
+import { CATEGORIES, UNIVERSES, categoryById, universeOf, useCatalogStatus, useProducts, type CategoryId, type Product, type Universe } from '../data/catalog'
 import { navigate, useRoute } from '../router'
 import { Filter, Search } from '../components/Icons'
+import { CatalogPlaceholder } from '../components/CatalogStatus'
 import ProductCard from '../components/ProductCard'
 import { searchProducts } from '../components/SearchBox'
 import { Breadcrumbs, Empty, Sheet } from '../components/ui'
@@ -25,6 +26,8 @@ const SORTS = [
 
 export default function Catalog({ category }: { category?: CategoryId }) {
   const { query } = useRoute()
+  const products = useProducts()
+  const status = useCatalogStatus()
   const q = query.get('q') ?? ''
   const cat = category ? categoryById(category) : undefined
   const universe = (cat?.universe ?? query.get('u') ?? '') as Universe | ''
@@ -44,7 +47,7 @@ export default function Catalog({ category }: { category?: CategoryId }) {
   }
 
   const list = useMemo(() => {
-    let items: Product[] = q ? searchProducts(q) : PRODUCTS
+    let items: Product[] = q ? searchProducts(q, products) : products
     if (category) items = items.filter((p) => p.category === category)
     else if (universe) items = items.filter((p) => universeOf(p) === universe)
     if (price.length) items = items.filter((p) => PRICE_RANGES.some((r) => price.includes(r.id) && r.test(p.price)))
@@ -56,7 +59,7 @@ export default function Catalog({ category }: { category?: CategoryId }) {
     if (sort === 'desconto') sorted.sort((a, b) => (b.compareAt ? 1 - b.price / b.compareAt : 0) - (a.compareAt ? 1 - a.price / a.compareAt : 0))
     if (sort === 'populares') sorted.sort((a, b) => Number(b.badge === 'Mais vendido') - Number(a.badge === 'Mais vendido'))
     return sorted
-  }, [q, category, universe, price, onlyCustom, onlySale, sort])
+  }, [products, q, category, universe, price, onlyCustom, onlySale, sort])
 
   const title = q ? `Resultados para “${q}”` : cat ? cat.name : universe ? UNIVERSES[universe].name : 'Toda a loja'
   const subtitle = q ? undefined : cat ? cat.blurb : universe ? UNIVERSES[universe].blurb : 'Artigos maçônicos e impressão 3D em um só lugar.'
@@ -171,7 +174,9 @@ export default function Catalog({ category }: { category?: CategoryId }) {
             </label>
           </div>
 
-          {list.length ? (
+          {!products.length && status !== 'ready' ? (
+            <CatalogPlaceholder status={status} />
+          ) : list.length ? (
             <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3">
               {list.map((p) => (
                 <ProductCard key={p.id} p={p} />

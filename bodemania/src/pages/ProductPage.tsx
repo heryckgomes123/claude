@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from 'react'
-import { PRODUCTS, UNIVERSES, categoryById, productBySlug, universeOf } from '../data/catalog'
-import { RULES, whatsappLink } from '../config/store'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { UNIVERSES, categoryById, productBySlug, universeOf, useCatalogStatus, useProducts } from '../data/catalog'
+import { RULES, STORE, whatsappLink } from '../config/store'
 import { money } from '../lib/format'
 import { resizeImage } from '../lib/image'
+import { setPageMeta } from '../lib/seo'
 import { Link, navigate } from '../router'
 import { addToCart, favStore, openCart, pixPrice, toast, toggleFav } from '../state/shop'
 import { Bag, Check, Clock, Heart, Pix, Refresh, Shield, Upload, Whatsapp, X } from '../components/Icons'
@@ -14,12 +15,16 @@ import { Badge, Breadcrumbs, Price, QtyStepper } from '../components/ui'
 import NotFound from './NotFound'
 
 export default function ProductPage({ slug }: { slug: string }) {
+  useProducts() // volta a renderizar quando o catálogo carregar
+  const status = useCatalogStatus()
   const p = productBySlug(slug)
+  if (!p && status === 'loading') return <div className="wrap py-24 text-center text-mute" aria-busy="true">Carregando produto…</div>
   if (!p) return <NotFound />
   return <ProductView key={p.id} slug={slug} />
 }
 
 function ProductView({ slug }: { slug: string }) {
+  const products = useProducts()
   const p = productBySlug(slug)!
   const universe = universeOf(p)
   const cat = categoryById(p.category)!
@@ -60,10 +65,11 @@ function ProductView({ slug }: { slug: string }) {
 
   const related = useMemo(
     () =>
-      PRODUCTS.filter((x) => x.category === p.category && x.id !== p.id)
-        .concat(PRODUCTS.filter((x) => universeOf(x) === universe && x.category !== p.category))
+      products
+        .filter((x) => x.category === p.category && x.id !== p.id)
+        .concat(products.filter((x) => universeOf(x) === universe && x.category !== p.category))
         .slice(0, 4),
-    [p, universe],
+    [products, p, universe],
   )
 
   const validate = () => {
@@ -96,6 +102,34 @@ function ProductView({ slug }: { slug: string }) {
       toast((e as Error).message, 'err')
     }
   }
+
+  // título, descrição, imagem e dados estruturados (Google Shopping/resultados com preço)
+  const cover = photos[0]
+  useEffect(() => {
+    const abs = (u: string) => (u.startsWith('http') ? u : `${STORE.url.replace(/\/$/, '')}${u.startsWith('/') ? '' : '/'}${u}`)
+    setPageMeta({
+      title: p.name,
+      description: p.short,
+      image: cover && !cover.startsWith('data:') ? abs(cover) : undefined,
+      path: `/p/${p.slug}`,
+      jsonLd: {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: p.name,
+        description: p.short,
+        ...(cover && !cover.startsWith('data:') ? { image: [abs(cover)] } : {}),
+        sku: p.id,
+        brand: { '@type': 'Brand', name: 'Bodemania' },
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'BRL',
+          price: p.price.toFixed(2),
+          availability: p.stock === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+          url: `${STORE.url.replace(/\/$/, '')}/p/${p.slug}`,
+        },
+      },
+    })
+  }, [p, cover])
 
   const inst = installmentsText(unit)
   const stockLow = p.stock !== undefined && p.stock <= 8
@@ -342,7 +376,7 @@ function ProductView({ slug }: { slug: string }) {
 
           {p.kind === 'physical' && (
             <div className="mt-6">
-              <ShippingEstimator weight={p.weight * qty} subtotal={unit * qty} leadDays={p.leadDays} />
+              <ShippingEstimator items={[{ key: 'pdp', productId: p.id, qty, options: opts }]} goods={unit * qty} weight={p.weight * qty} leadDays={p.leadDays} />
             </div>
           )}
 

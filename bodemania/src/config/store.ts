@@ -3,6 +3,8 @@
  * WhatsApp, chave Pix, CEP de origem e URL vêm do arquivo `.env`.
  */
 
+import { BACKEND } from './env'
+
 const env = import.meta.env
 
 export const STORE = {
@@ -16,11 +18,8 @@ export const STORE = {
   cnpj: '00.000.000/0001-00',
   city: 'São Paulo/SP',
   year: 2026,
-  /**
-   * Modo demonstração: pagamentos e logins são simulados no próprio navegador.
-   * Ao integrar um gateway real (Mercado Pago, Pagar.me, Stripe…) mude para false.
-   */
-  demo: true,
+  /** Modo demonstração: sem VITE_SUPABASE_URL, pagamentos e contas são simulados no navegador. */
+  demo: BACKEND === 'local',
 } as const
 
 export const WHATSAPP_NUMBER: string = (env.VITE_WHATSAPP_NUMBER ?? '5500000000000').replace(/\D/g, '')

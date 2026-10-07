@@ -57,7 +57,7 @@ export function supabaseRepo(db: Db): Repo {
       return data as string
     },
     async findOrderByIdem(userId, key) {
-      const { data, error } = await db.from('orders').select(ORDER_SELECT).eq('user_id', userId).eq('payment->>idem', key).maybeSingle()
+      const { data, error } = await db.from('orders').select(ORDER_SELECT).eq('user_id', userId).eq('payment->>idem', key).neq('status', 'cancelado').maybeSingle()
       wrap(error)
       return (data as OrderRow | null) ?? null
     },

@@ -1,16 +1,18 @@
 import { m } from 'framer-motion'
-import { CATEGORIES, PRODUCTS, UNIVERSES } from '../data/catalog'
+import { CATEGORIES, UNIVERSES, universeOf, useCatalogStatus, useProducts, type Product } from '../data/catalog'
 import { RULES, whatsappLink } from '../config/store'
 import { Link } from '../router'
 import { ArrowRight, Box, Card, Cube, Gift, Pix, Refresh, Shield, Sparkle, Truck, Upload, Whatsapp } from '../components/Icons'
 import ProductArt, { Goat, SquareCompass } from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
 import { SectionTitle } from '../components/ui'
+import { CatalogPlaceholder } from '../components/CatalogStatus'
 import ProductImage from '../components/ProductImage'
 
-const pick = (ids: string[]) => ids.map((id) => PRODUCTS.find((p) => p.id === id)!).filter(Boolean)
 
-function Hero() {
+function Hero({ products }: { products: Product[] }) {
+  const masonic = products.filter((p) => universeOf(p) === 'maconaria').slice(0, 3)
+  const print3d = products.filter((p) => universeOf(p) === '3d' && !p.href).slice(0, 3)
   return (
     <section className="wrap pt-4 md:pt-8">
       <div className="grid gap-3 md:grid-cols-2 md:gap-4">
@@ -38,7 +40,7 @@ function Hero() {
             </Link>
           </div>
           <div className="mt-auto flex gap-3 pt-8 md:justify-end">
-            {pick(['p01', 'p06', 'p04']).map((p, i) => (
+            {masonic.map((p, i) => (
               <Link key={p.id} to={`/p/${p.slug}`} className={`block overflow-hidden rounded-2xl ring-1 ring-white/15 transition hover:-translate-y-1 ${i === 0 ? 'h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'} self-end`}>
                 <ProductImage p={p} view={1} className="h-full w-full" />
               </Link>
@@ -70,7 +72,7 @@ function Hero() {
             </Link>
           </div>
           <div className="mt-auto flex gap-3 pt-8 md:justify-end">
-            {pick(['p18', 'p23', 'p20']).map((p, i) => (
+            {print3d.map((p, i) => (
               <Link key={p.id} to={`/p/${p.slug}`} className={`block overflow-hidden rounded-2xl ring-1 ring-white/15 transition hover:-translate-y-1 ${i === 0 ? 'h-20 w-20 sm:h-24 sm:w-24 md:h-28 md:w-28' : 'h-20 w-20 sm:h-24 sm:w-24'} self-end`}>
                 <ProductImage p={p} view={1} className="h-full w-full" />
               </Link>
@@ -135,10 +137,10 @@ function Categories() {
   )
 }
 
-function Grid({ ids }: { ids: string[] }) {
+function Grid({ items }: { items: Product[] }) {
   return (
     <div className="grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-x-5 md:grid-cols-3 lg:grid-cols-4">
-      {pick(ids).map((p) => (
+      {items.map((p) => (
         <ProductCard key={p.id} p={p} />
       ))}
     </div>
@@ -272,9 +274,14 @@ function ForLodges() {
 }
 
 export default function Home() {
+  const products = useProducts()
+  const status = useCatalogStatus()
+  const shelf = products.filter((p) => !p.href)
+  const best = [...shelf.filter((p) => p.badge === 'Mais vendido'), ...shelf.filter((p) => p.badge !== 'Mais vendido')].slice(0, 8)
+  const gifts = shelf.filter((p) => p.category === 'presentes-maconicos').slice(0, 4)
   return (
     <>
-      <Hero />
+      <Hero products={products} />
       <TrustStrip />
       <Categories />
       <section className="wrap mt-14 md:mt-20">
@@ -287,7 +294,7 @@ export default function Home() {
             </Link>
           }
         />
-        <Grid ids={['p01', 'p18', 'p06', 'p23', 'p12', 'p20', 'p14', 'p19']} />
+        {products.length ? <Grid items={best} /> : <CatalogPlaceholder status={status} />}
       </section>
       <QuoteBanner />
       <section className="wrap mt-16 md:mt-24">
@@ -300,7 +307,7 @@ export default function Home() {
             </Link>
           }
         />
-        <Grid ids={['p10', 'p11', 'p15', 'p17']} />
+        {gifts.length ? <Grid items={gifts} /> : null}
       </section>
       <LithoBanner />
       <HowItWorks />

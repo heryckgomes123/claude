@@ -1,14 +1,15 @@
 import { useMemo, useRef, useState } from 'react'
 import { RULES, whatsappLink } from '../config/store'
+import { putFile } from '../lib/blobStore'
 import { money } from '../lib/format'
-import { BUILD_VOLUME, FILAMENT_COLORS, INFILLS, MATERIALS, QUALITIES, parseSTL, quotePrint, sampleSTL, type MaterialId, type MeshInfo, type QualityId } from '../lib/print3d'
+import { BUILD_VOLUME, FILAMENT_COLORS, INFILLS, MATERIALS, QUALITIES, parseSTL, printLeadDays, printShippingWeightKg, quotePrint, sampleSTL, type MaterialId, type MeshInfo, type QualityId } from '../lib/print3d'
 import { Link } from '../router'
 import { addToCart, openCart, pixPrice, toast } from '../state/shop'
 import { Bag, Check, Cube, Info, Sparkle, Upload, Whatsapp, X } from '../components/Icons'
 import MeshPreview from '../components/MeshPreview'
 import { Breadcrumbs, QtyStepper } from '../components/ui'
 
-type Source = { kind: 'file'; name: string; mesh: MeshInfo } | { kind: 'manual'; dims: [number, number, number]; fill: number }
+type Source = { kind: 'file'; name: string; mesh: MeshInfo; file: File } | { kind: 'manual'; dims: [number, number, number]; fill: number }
 
 const FILLS = [
   { v: 0.25, label: 'Vazado / fino', hint: 'grades, letras, suportes' },
@@ -42,7 +43,7 @@ export default function Quote3D() {
     setLoading(true)
     try {
       const mesh = parseSTL(await file.arrayBuffer())
-      setSource({ kind: 'file', name: file.name, mesh })
+      setSource({ kind: 'file', name: file.name, mesh, file })
       setScale(100)
     } catch (e) {
       setError((e as Error).message || 'Não conseguimos ler este arquivo.')
@@ -53,7 +54,7 @@ export default function Quote3D() {
 
   const useSample = () => {
     const mesh = parseSTL(sampleSTL())
-    setSource({ kind: 'file', name: 'vaso-torcido-exemplo.stl', mesh })
+    setSource({ kind: 'file', name: 'vaso-torcido-exemplo.stl', mesh, file: new File([sampleSTL()], 'vaso-torcido-exemplo.stl', { type: 'model/stl' }) })
     setMode('file')
     setScale(100)
     setError('')
@@ -73,13 +74,14 @@ export default function Quote3D() {
   const scaled = geometry ? geometry.size.map((d) => (d * scale) / 100) : null
   const mat = MATERIALS.find((m) => m.id === material)!
   const q = QUALITIES.find((x) => x.id === quality)!
-  const leadDays = quote ? Math.max(2, Math.ceil((quote.hours * qty) / 16) + 1) : 3
+  const leadDays = quote ? printLeadDays(quote.hours, qty) : 3
 
-  const add = () => {
+  const add = async () => {
     if (!quote || !scaled) return
     if (!quote.fits) return setError('A peça é maior que a área de impressão. Reduza a escala ou fale conosco para dividir em partes.')
     const title = source?.kind === 'file' ? `Impressão 3D — ${source.name}` : `Impressão 3D sob medida (${scaled.map((d) => Math.round(d)).join('×')} mm)`
-    addToCart({
+    const hasFile = source?.kind === 'file'
+    const key = addToCart({
       productId: 's01',
       qty,
       options: {},
@@ -94,11 +96,29 @@ export default function Quote3D() {
           `≈ ${Math.round(quote.grams)} g`,
         ],
         unitPrice: quote.unit,
-        weight: Math.max(0.05, (quote.grams / 1000) * 1.3),
+        weight: printShippingWeightKg(quote.grams),
         leadDays,
         color: color.hex,
+        hasFile,
+        // o servidor recalcula o preço a partir destes parâmetros e do arquivo
+        print: {
+          fileName: source?.kind === 'file' ? source.name : undefined,
+          manual: mode === 'manual' ? { x: Number(manual.x), y: Number(manual.y), z: Number(manual.z), fill: manual.fill } : undefined,
+          scale,
+          material,
+          quality,
+          infill,
+          color: colorId,
+        },
       },
     })
+    if (source?.kind === 'file') {
+      try {
+        await putFile(key, source.file) // fica guardado no aparelho até o checkout
+      } catch {
+        toast('Não foi possível guardar o arquivo neste navegador. Tente em outra aba (não anônima).', 'err')
+      }
+    }
     toast('Impressão adicionada ao carrinho')
     openCart()
   }

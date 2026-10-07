@@ -39,6 +39,8 @@ export interface CreateOrderInput {
   shippingId: ShippingId
   coupon?: string
   notes?: string
+  /** total que o cliente viu na tela; se o servidor calcular outro valor, o pedido NÃO é criado */
+  expectedTotal?: number
   payment: {
     method: PaymentMethod
     card?: { token: string; installments: number; paymentMethodId: string; issuerId?: string }
@@ -101,12 +103,14 @@ export function parseCreateOrder(body: unknown): CreateOrderInput {
     shippingId: body.shippingId,
     coupon: str(body.coupon, 40)?.trim().toUpperCase() || undefined,
     notes: str(body.notes, 300)?.trim() || undefined,
+    expectedTotal: Number.isFinite(Number(body.expectedTotal)) && body.expectedTotal !== null ? Number(body.expectedTotal) : undefined,
     payment: { method, card, deviceId: str(pay.deviceId, 120) },
   }
 }
 
 // ───────── impressão 3D sob medida: o preço é recalculado aqui, a partir do arquivo ─────────
 
+const brl = (n: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(n)
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n))
 
 async function priceCustomPrint(deps: Deps, userId: string, line: OrderLineInput) {
@@ -268,6 +272,9 @@ export async function handleCreateOrder(deps: Deps, userId: string, input: Creat
   // 5) totais e prazos
   const method = input.payment.method
   const totals = computeTotals({ subtotal, coupon, shipping: shipOption.price, pix: method === 'pix', pixRate: deps.config.pixRate })
+  if (input.expectedTotal !== undefined && Math.abs(input.expectedTotal - totals.total) > 0.01) {
+    throw new AppError('total_changed', `O valor do pedido mudou para ${brl(totals.total)}. Confira o resumo e confirme de novo.`, 409, String(totals.total))
+  }
   if (method === 'card') {
     const maxInst = Math.max(1, Math.min(deps.config.maxInstallments, Math.floor(totals.total / deps.config.minInstallment)))
     if (input.payment.card!.installments > maxInst) throw new AppError('bad_request', `Para este valor o máximo é ${maxInst}x.`)
@@ -291,7 +298,7 @@ export async function handleCreateOrder(deps: Deps, userId: string, input: Creat
         coupon: coupon?.code ?? null,
         payment: { method, idem: input.idempotencyKey, installments: input.payment.card?.installments },
         customer: { name: profile.name, email: profile.email, cpf: profile.cpf, phone: profile.phone },
-        address,
+        address: address ? { recipient: address.recipient, label: address.label, cep: address.cep, street: address.street, number: address.number, complement: address.complement, district: address.district, city: address.city, uf: address.uf } : null,
         shipping_option: shipOption,
         lead_days: leadDays,
         estimate: estimate.toISOString(),

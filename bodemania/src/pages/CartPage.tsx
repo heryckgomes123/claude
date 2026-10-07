@@ -1,8 +1,7 @@
 import { useState } from 'react'
-import { COUPONS } from '../config/store'
 import { money } from '../lib/format'
 import { Link, navigate } from '../router'
-import { cartStore, pixPrice, toast, useCart } from '../state/shop'
+import { applyCoupon, pixPrice, removeCoupon, useCart } from '../state/shop'
 import { CartLine, FreeShippingBar } from '../components/CartDrawer'
 import { Bag, ChevronLeft, Home, Lock, Pix } from '../components/Icons'
 import ShippingEstimator from '../components/ShippingEstimator'
@@ -11,28 +10,34 @@ import { Breadcrumbs, Empty } from '../components/ui'
 export function CouponBox() {
   const { coupon, totals } = useCart()
   const [code, setCode] = useState(coupon)
+  const [busy, setBusy] = useState(false)
   return (
     <div>
       <form
         className="flex gap-2"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault()
-          const c = code.trim().toUpperCase()
-          cartStore.set({ coupon: c })
-          if (c && COUPONS[c]) toast(`Cupom ${c} aplicado!`)
+          setBusy(true)
+          try {
+            await applyCoupon(code)
+          } finally {
+            setBusy(false)
+          }
         }}
       >
         <input value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Cupom de desconto" aria-label="Cupom de desconto" className="field !min-h-11 flex-1 uppercase" />
-        <button className="btn btn-ghost btn-sm !min-h-11">Aplicar</button>
+        <button className="btn btn-ghost btn-sm !min-h-11" disabled={busy}>
+          {busy ? '…' : 'Aplicar'}
+        </button>
       </form>
       {coupon && (
-        <p className={`mt-1.5 flex items-center justify-between text-xs font-medium ${totals.couponError ? 'text-err' : 'text-ok'}`}>
+        <p className={`mt-1.5 flex items-center justify-between text-xs font-medium ${totals.couponError ? 'text-err' : 'text-ok'}`} role="status">
           <span>{totals.couponError ?? `${coupon}: ${totals.couponLabel}`}</span>
           <button
             type="button"
             className="text-mute underline"
             onClick={() => {
-              cartStore.set({ coupon: '' })
+              removeCoupon()
               setCode('')
             }}
           >
@@ -45,7 +50,7 @@ export function CouponBox() {
 }
 
 export default function CartPage() {
-  const { items, totals } = useCart()
+  const { items, totals, couponInfo } = useCart()
   const total = totals.subtotal - totals.discount
 
   if (!items.length)
@@ -91,7 +96,7 @@ export default function CartPage() {
           </Link>
         </div>
         <aside className="space-y-4 lg:sticky lg:top-36 lg:self-start">
-          {!totals.digitalOnly && <ShippingEstimator weight={totals.weight} subtotal={totals.subtotal - totals.discount} leadDays={totals.leadDays} freeShippingCoupon={totals.freeShippingCoupon} />}
+          {!totals.digitalOnly && <ShippingEstimator items={items} goods={totals.subtotal - totals.discount} weight={totals.weight} leadDays={totals.leadDays} coupon={couponInfo} />}
           <div className="rounded-3xl border border-line bg-white p-5">
             <h2 className="mb-4 text-lg font-semibold">Resumo</h2>
             <CouponBox />

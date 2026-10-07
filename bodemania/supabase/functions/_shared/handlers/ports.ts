@@ -61,6 +61,7 @@ export interface Repo {
   checkCoupon(code: string, subtotal: number): Promise<{ ok: true; coupon: CouponInfo } | { ok: false; error: string }>
   /** Chama a função place_order. Lança AppError('out_of_stock' | 'product_unavailable' | 'coupon_unavailable'). */
   placeOrder(order: Record<string, unknown>, items: Record<string, unknown>[]): Promise<string>
+  /** Pedido não cancelado criado com a mesma chave (evita cobrança dupla). Após falha, o cliente usa chave nova. */
   findOrderByIdem(userId: string, key: string): Promise<OrderRow | null>
   patchPayment(orderId: string, patch: Record<string, unknown>, expiresAt?: Date | null): Promise<void>
   cancelOrder(orderId: string, note: string): Promise<void>

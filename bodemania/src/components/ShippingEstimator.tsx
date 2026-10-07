@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { api } from '../api'
 import { addBusinessDays, money } from '../lib/format'
 import { maskCEP } from '../lib/masks'
-import { lookupCep, quoteShipping, type ShippingOption } from '../lib/shipping'
+import { lookupCep, type ShippingOption } from '../lib/shipping'
 import { isCEP } from '../lib/validate'
-import { prefsStore } from '../state/shop'
+import { messageOf, prefsStore, type CartItem, type CouponInfo } from '../state/shop'
 import { MapPin, Truck } from './Icons'
 
 export function etaText(leadDays: number, days: number) {
@@ -11,34 +12,43 @@ export function etaText(leadDays: number, days: number) {
   return d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' })
 }
 
-export default function ShippingEstimator({ weight, subtotal, leadDays, freeShippingCoupon = false }: { weight: number; subtotal: number; leadDays: number; freeShippingCoupon?: boolean }) {
+export default function ShippingEstimator({ items, goods, weight, leadDays, coupon = null }: { items: CartItem[]; goods: number; weight: number; leadDays: number; coupon?: CouponInfo | null }) {
   const saved = prefsStore.use((s) => s.cep)
   const [cep, setCep] = useState(saved ? maskCEP(saved) : '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [place, setPlace] = useState<{ city?: string; uf: string } | null>(null)
+  const [place, setPlace] = useState<{ city?: string; uf?: string } | null>(null)
   const [options, setOptions] = useState<ShippingOption[]>([])
+  const seq = useRef(0)
+  const signature = JSON.stringify([items.map((i) => [i.productId, i.qty, i.options, i.custom?.unitPrice]), Math.round(goods * 100), coupon?.code])
 
-  const run = async (value: string) => {
+  const run = async (value: string, quiet = false) => {
     if (!isCEP(value)) return setError('Digite um CEP com 8 números.')
+    const mine = ++seq.current
     setError('')
-    setLoading(true)
-    const res = await lookupCep(value)
-    setLoading(false)
-    if (!res) {
+    if (!quiet) setLoading(true)
+    try {
+      const [quote, where] = await Promise.all([api.shipping.quote({ cep: value, items, goods, weight, coupon }), lookupCep(value).catch(() => null)])
+      if (mine !== seq.current) return
+      prefsStore.set({ cep: value.replace(/\D/g, '') })
+      setPlace({ city: where?.city, uf: where?.uf })
+      setOptions(quote.options)
+    } catch (e) {
+      if (mine !== seq.current) return
       setOptions([])
       setPlace(null)
-      return setError('CEP não encontrado. Confira os números.')
+      setError(messageOf(e, 'Não foi possível calcular o frete agora.'))
+    } finally {
+      if (mine === seq.current) setLoading(false)
     }
-    prefsStore.set({ cep: value.replace(/\D/g, '') })
-    setPlace({ city: res.city, uf: res.uf })
-    setOptions(quoteShipping(res.uf, weight, subtotal, freeShippingCoupon))
   }
 
-  // recalcula quando o carrinho muda
+  // recalcula quando o carrinho muda (com uma pequena espera para não chamar o servidor a cada clique)
   useEffect(() => {
-    if (place) setOptions(quoteShipping(place.uf, weight, subtotal, freeShippingCoupon))
-  }, [weight, subtotal, freeShippingCoupon])
+    if (!place) return
+    const t = window.setTimeout(() => run(cep, true), 450)
+    return () => window.clearTimeout(t)
+  }, [signature])
 
   useEffect(() => {
     if (saved && isCEP(saved)) run(saved)
@@ -76,7 +86,7 @@ export default function ShippingEstimator({ weight, subtotal, leadDays, freeShip
       {place && options.length > 0 && (
         <div className="mt-3">
           <p className="mb-2 flex items-center gap-1.5 text-xs text-mute">
-            <MapPin size={14} /> {place.city ? `${place.city}/${place.uf}` : place.uf}
+            <MapPin size={14} /> {place.city ? `${place.city}/${place.uf}` : place.uf ?? `CEP ${cep}`}
           </p>
           <ul className="divide-y divide-line rounded-xl border border-line text-sm">
             {options.map((o) => (

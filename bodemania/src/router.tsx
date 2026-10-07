@@ -1,23 +1,33 @@
 /**
- * Roteador por hash (#/loja, #/p/slug…). Funciona abrindo o HTML direto do disco
- * (file://), em qualquer hospedagem estática e sem configuração de servidor.
+ * Roteador com dois modos (VITE_ROUTER):
+ *  · history → /loja, /p/avental  (site publicado: URLs limpas para Google e WhatsApp)
+ *  · hash    → #/loja             (arquivo único aberto direto do disco, sem servidor)
  */
-import { useEffect, useSyncExternalStore, type AnchorHTMLAttributes } from 'react'
+import { useEffect, useSyncExternalStore, type AnchorHTMLAttributes, type MouseEvent } from 'react'
+import { ROUTER } from './config/env'
 
 function read() {
-  // aceita também âncoras simples (#admin, #loja) — é o formato que links externos preservam
-  const hash = window.location.hash.replace(/^#/, '')
-  const raw = hash ? (hash.startsWith('/') ? hash : '/' + hash) : '/'
+  let raw: string
+  if (ROUTER === 'hash') {
+    // aceita também âncoras simples (#admin, #loja) — é o formato que links externos preservam
+    const hash = window.location.hash.replace(/^#/, '')
+    raw = hash ? (hash.startsWith('/') ? hash : '/' + hash) : '/'
+  } else {
+    raw = window.location.pathname + window.location.search
+  }
   const [path, qs = ''] = raw.split('?')
   return { path: path.replace(/\/+$/, '') || '/', query: new URLSearchParams(qs), raw }
 }
 
 let current = read()
 const listeners = new Set<() => void>()
-window.addEventListener('hashchange', () => {
-  current = read()
+const sync = () => {
+  const next = read()
+  if (next.raw === current.raw) return
+  current = next
   listeners.forEach((l) => l())
-})
+}
+window.addEventListener(ROUTER === 'hash' ? 'hashchange' : 'popstate', sync)
 
 export function useRoute() {
   return useSyncExternalStore(
@@ -30,9 +40,14 @@ export function useRoute() {
 }
 
 export function navigate(to: string, opts: { replace?: boolean } = {}) {
-  const target = '#' + to
-  if (opts.replace) window.location.replace(target)
-  else window.location.hash = to
+  if (ROUTER === 'hash') {
+    if (opts.replace) window.location.replace('#' + to)
+    else window.location.hash = to
+    return
+  }
+  if (opts.replace) window.history.replaceState(null, '', to)
+  else window.history.pushState(null, '', to)
+  sync()
 }
 
 /** Compara o caminho atual com um padrão do tipo "/p/:slug". */
@@ -48,8 +63,23 @@ export function match(pattern: string, path: string): Record<string, string> | n
   return params
 }
 
-export function Link({ to, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
-  return <a href={'#' + to} {...rest} />
+export const hrefFor = (to: string) => (ROUTER === 'hash' ? '#' + to : to)
+
+export function Link({ to, onClick, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }) {
+  return (
+    <a
+      href={hrefFor(to)}
+      onClick={(e: MouseEvent<HTMLAnchorElement>) => {
+        onClick?.(e)
+        if (ROUTER === 'hash' || e.defaultPrevented) return
+        // deixa o navegador cuidar de Ctrl/Cmd+clique, botão do meio e "abrir em nova aba"
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || rest.target === '_blank') return
+        e.preventDefault()
+        navigate(to)
+      }}
+      {...rest}
+    />
+  )
 }
 
 /** Volta ao topo a cada troca de página. */

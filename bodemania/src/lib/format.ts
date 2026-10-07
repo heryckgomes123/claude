@@ -14,16 +14,7 @@ export function formatDate(iso: string, withTime = false) {
   })
 }
 
-export function addBusinessDays(from: Date, days: number) {
-  const d = new Date(from)
-  let left = days
-  while (left > 0) {
-    d.setDate(d.getDate() + 1)
-    const wd = d.getDay()
-    if (wd !== 0 && wd !== 6) left--
-  }
-  return d
-}
+export { addBusinessDays } from '../../supabase/functions/_shared/money'
 
 export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 

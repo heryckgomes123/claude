@@ -92,6 +92,27 @@ describe('criar pedido', () => {
     expect(h.logs.some((l) => l.startsWith('shipping_quote_failed'))).toBe(true)
   })
 
+  it('se o valor mudou desde que o cliente viu na tela, NADA é cobrado nem reservado', async () => {
+    h.repo.products.get('avental')!.price = 250 // preço subiu no painel enquanto o cliente decidia
+    const e = await handleCreateOrder(h.deps, USER, order({ expectedTotal: 221.9 })).catch((x) => x)
+    expect(e).toMatchObject({ code: 'total_changed', status: 409 })
+    expect(h.repo.orders.size).toBe(0)
+    expect(h.mpCalls).toHaveLength(0)
+    expect(h.repo.products.get('avental')!.stock).toBe(10)
+    const ok = await handleCreateOrder(h.deps, USER, order({ expectedTotal: 250 + 31.9 - 12.5 }))
+    expect(ok.status).toBe(201)
+  })
+
+  it('após cartão recusado, repetir com a mesma chave cria um pedido novo (não devolve o cancelado)', async () => {
+    h.setMp((b) => ({ id: 80, status: 'rejected', status_detail: 'cc_rejected_other_reason', external_reference: b.external_reference }))
+    const i = order({ payment: card() })
+    await handleCreateOrder(h.deps, USER, i).catch(() => null)
+    h.setMp((b) => ({ id: 81, status: 'approved', external_reference: b.external_reference, transaction_amount: b.transaction_amount }))
+    const r = await handleCreateOrder(h.deps, USER, i)
+    expect(r.status).toBe(201)
+    expect((r.body as any).orderId).toBe('BM-10421')
+  })
+
   it('cliente com cadastro incompleto não compra; visitante não existe', async () => {
     h.repo.profiles.get(USER)!.cpf = ''
     expect(await code(handleCreateOrder(h.deps, USER, order()))).toBe('profile_incomplete')

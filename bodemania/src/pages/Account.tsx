@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { api } from '../api'
 import { formatDate, money } from '../lib/format'
 import { maskCPF, maskPhone } from '../lib/masks'
 import { isCPF, isFullName, isPhone } from '../lib/validate'
 import { Link, navigate, useRoute } from '../router'
-import { dbStore, logout, removeAddress, saveAddress, toast, updateUser, useUser, type SavedAddress } from '../state/shop'
+import { dbStore, logout, messageOf, removeAddress, saveAddress, toast, updateProfile, useSessionReady, useUser, type SavedAddress } from '../state/shop'
 import AddressForm, { AddressText } from '../components/AddressForm'
 import { Box, Edit, Logout, MapPin, Plus, Trash, User } from '../components/Icons'
 import { Empty, Field } from '../components/ui'
@@ -14,11 +15,12 @@ type Tab = 'pedidos' | 'enderecos' | 'dados'
 
 export default function Account({ tab = 'pedidos' }: { tab?: Tab }) {
   const user = useUser()
+  const ready = useSessionReady()
   const { path } = useRoute()
   useEffect(() => {
-    if (!user) navigate(`/entrar?next=${encodeURIComponent(path)}`, { replace: true })
-  }, [user, path])
-  if (!user) return null
+    if (ready && !user) navigate(`/entrar?next=${encodeURIComponent(path)}`, { replace: true })
+  }, [ready, user, path])
+  if (!user) return <div className="wrap py-20 text-center text-mute" aria-busy="true">Carregando sua conta…</div>
   const tabs: [Tab, string, typeof Box][] = [
     ['pedidos', 'Meus pedidos', Box],
     ['enderecos', 'Endereços', MapPin],
@@ -34,8 +36,8 @@ export default function Account({ tab = 'pedidos' }: { tab?: Tab }) {
         <button
           type="button"
           className="btn btn-ghost btn-sm"
-          onClick={() => {
-            logout()
+          onClick={async () => {
+            await logout()
             navigate('/')
           }}
         >
@@ -62,7 +64,13 @@ export default function Account({ tab = 'pedidos' }: { tab?: Tab }) {
 
 function Orders({ userId }: { userId: string }) {
   const all = dbStore.use((s) => s.orders)
+  const [loading, setLoading] = useState(api.mode === 'supabase')
+  useEffect(() => {
+    if (api.mode !== 'supabase') return
+    api.orders.loadMine().catch((e) => toast(messageOf(e), 'err')).finally(() => setLoading(false))
+  }, [])
   const orders = all.filter((o) => o.userId === userId)
+  if (loading && !orders.length) return <div className="rounded-3xl border border-line bg-white p-10 text-center text-mute" aria-busy="true">Carregando seus pedidos…</div>
   if (!orders.length)
     return (
       <div className="rounded-3xl border border-line bg-white">
@@ -115,10 +123,14 @@ function Addresses() {
           initial={editing === 'new' ? undefined : editing}
           recipient={user.name}
           onCancel={() => setEditing(null)}
-          onSave={(a) => {
-            saveAddress(user.id, a)
-            setEditing(null)
-            toast('Endereço salvo')
+          onSave={async (a) => {
+            try {
+              await saveAddress(a)
+              setEditing(null)
+              toast('Endereço salvo')
+            } catch (e) {
+              toast(messageOf(e), 'err')
+            }
           }}
         />
       </div>
@@ -135,9 +147,13 @@ function Addresses() {
             <button
               type="button"
               className="btn btn-sm text-err hover:bg-err-50"
-              onClick={() => {
-                removeAddress(user.id, a.id)
-                toast('Endereço removido', 'info')
+              onClick={async () => {
+                try {
+                  await removeAddress(a.id)
+                  toast('Endereço removido', 'info')
+                } catch (e) {
+                  toast(messageOf(e), 'err')
+                }
               }}
             >
               <Trash size={15} /> Remover
@@ -162,12 +178,16 @@ function Profile() {
     <form
       noValidate
       className="max-w-xl space-y-4 rounded-3xl border border-line bg-white p-5 md:p-6"
-      onSubmit={(ev) => {
+      onSubmit={async (ev) => {
         ev.preventDefault()
         setTouched(true)
         if (Object.values(errors).some(Boolean)) return
-        updateUser(user.id, f)
-        toast('Dados atualizados')
+        try {
+          await updateProfile(f)
+          toast('Dados atualizados')
+        } catch (e) {
+          toast(messageOf(e), 'err')
+        }
       }}
     >
       <Field label="Nome completo" value={f.name} onChange={(ev) => setF((s) => ({ ...s, name: ev.target.value }))} error={e('name')} />

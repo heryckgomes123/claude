@@ -1,9 +1,11 @@
 import { useState, type ReactNode } from 'react'
-import { PRODUCTS } from '../data/catalog'
+import { useProducts } from '../data/catalog'
 import { RULES, STORE, whatsappLink } from '../config/store'
 import { isEmail } from '../lib/validate'
 import { Link, navigate } from '../router'
-import { dbStore, favStore } from '../state/shop'
+import { api } from '../api'
+import { dbStore, favStore, useSessionReady, useUser } from '../state/shop'
+import { AuthForms } from './Auth'
 import { ChevronDown, Heart, Truck, Whatsapp } from '../components/Icons'
 import { Goat, SquareCompass } from '../components/ProductArt'
 import ProductCard from '../components/ProductCard'
@@ -11,7 +13,8 @@ import { Breadcrumbs, Empty, Field } from '../components/ui'
 
 export function Favorites() {
   const ids = favStore.use((s) => s.ids)
-  const items = PRODUCTS.filter((p) => ids.includes(p.id))
+  const products = useProducts()
+  const items = products.filter((p) => ids.includes(p.id))
   return (
     <div className="wrap">
       <Breadcrumbs items={[{ label: 'Início', to: '/' }, { label: 'Favoritos' }]} />
@@ -39,9 +42,34 @@ export function Favorites() {
 }
 
 export function Tracking() {
+  const user = useUser()
+  const ready = useSessionReady()
   const [id, setId] = useState('')
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
+  if (api.mode === 'supabase')
+    return (
+      <div className="wrap max-w-lg py-10">
+        <div className="mb-6 text-center">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-gold-50 text-gold-700">
+            <Truck size={26} />
+          </span>
+          <h1 className="display mt-4 text-3xl font-semibold md:text-4xl">Acompanhar pedido</h1>
+          <p className="mt-2 text-mute">Por segurança, o andamento aparece na sua conta: produção, código de rastreio e entrega.</p>
+        </div>
+        {!ready ? (
+          <p className="text-center text-mute" aria-busy="true">Carregando…</p>
+        ) : user ? (
+          <Link to="/conta" className="btn btn-primary w-full">
+            Ver meus pedidos
+          </Link>
+        ) : (
+          <div className="rounded-3xl border border-line bg-white p-6">
+            <AuthForms onDone={() => navigate('/conta')} />
+          </div>
+        )}
+      </div>
+    )
   return (
     <div className="wrap max-w-lg py-10">
       <div className="mb-6 text-center">

@@ -17,7 +17,7 @@ export default function AddressForm({
 }: {
   initial?: SavedAddress
   recipient: string
-  onSave: (a: SavedAddress) => void
+  onSave: (a: SavedAddress) => void | Promise<void>
   onCancel?: () => void
   submitLabel?: string
 }) {

@@ -1,14 +1,14 @@
 import { useMemo, useRef, useState } from 'react'
-import { PRODUCTS, categoryById } from '../data/catalog'
+import { categoryById, useProducts, type Product } from '../data/catalog'
 import { money, normalize } from '../lib/format'
 import { navigate } from '../router'
 import { Search } from './Icons'
 import ProductImage from './ProductImage'
 
-export function searchProducts(q: string) {
+export function searchProducts(q: string, products: Product[]) {
   const terms = normalize(q).split(/\s+/).filter(Boolean)
   if (!terms.length) return []
-  return PRODUCTS.map((p) => {
+  return products.map((p) => {
     const hay = normalize([p.name, p.short, categoryById(p.category)?.name, ...p.tags].join(' '))
     const score = terms.reduce((s, t) => s + (hay.includes(t) ? (normalize(p.name).includes(t) ? 3 : 1) : -10), 0)
     return { p, score }
@@ -21,7 +21,8 @@ export function searchProducts(q: string) {
 export default function SearchBox({ autoFocus, onDone }: { autoFocus?: boolean; onDone?: () => void }) {
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(false)
-  const results = useMemo(() => searchProducts(q).slice(0, 5), [q])
+  const products = useProducts()
+  const results = useMemo(() => searchProducts(q, products).slice(0, 5), [q, products])
   const box = useRef<HTMLFormElement>(null)
 
   const go = (to: string) => {

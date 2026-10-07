@@ -5,19 +5,22 @@ import { Link, navigate } from '../router'
 import { closeCart, itemColor, pixPrice, removeFromCart, setQty, uiStore, unitPrice, useCart, variantLabels, type CartItem } from '../state/shop'
 import { Bag, Trash, Truck } from './Icons'
 import { Empty, QtyStepper, Sheet } from './ui'
+import ProductArt from './ProductArt'
 import ProductImage from './ProductImage'
 
 export function CartLine({ item, compact }: { item: CartItem; compact?: boolean }) {
   const p = productById(item.productId)
-  if (!p) return null
-  const name = item.custom?.title ?? p.name
+  if (!p && !item.custom) return null
+  const name = item.custom?.title ?? p!.name
   return (
     <div className="flex gap-3 py-4">
-      <Link to={item.custom ? '/orcamento-3d' : `/p/${p.slug}`} onClick={closeCart} className="relative shrink-0">
+      <Link to={item.custom ? '/orcamento-3d' : `/p/${p!.slug}`} onClick={closeCart} className="relative shrink-0">
         {item.photo ? (
           <img src={item.photo} alt="" className="h-20 w-20 rounded-xl object-cover" />
-        ) : (
+        ) : p ? (
           <ProductImage p={p} color={itemColor(item)} className="h-20 w-20 rounded-xl" />
+        ) : (
+          <ProductArt art="servico" color={itemColor(item)} universe="3d" className="h-20 w-20 rounded-xl" />
         )}
       </Link>
       <div className="min-w-0 flex-1">

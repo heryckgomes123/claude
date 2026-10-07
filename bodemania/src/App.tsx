@@ -1,6 +1,8 @@
 import { LazyMotion, domAnimation } from 'framer-motion'
 import { useEffect, type ReactNode } from 'react'
-import { categoryById, productBySlug, type CategoryId } from './data/catalog'
+import { categoryById, type CategoryId } from './data/catalog'
+import { setPageMeta } from './lib/seo'
+import { trackPage } from './lib/analytics'
 import { match, useRoute, useScrollTop } from './router'
 import CartDrawer from './components/CartDrawer'
 import { CookieBanner, DemoRibbon, MobileTabBar, Toasts, WhatsAppFab } from './components/Chrome'
@@ -8,7 +10,7 @@ import Footer from './components/Footer'
 import Header from './components/Header'
 import Account from './pages/Account'
 import Admin from './pages/Admin'
-import AuthPage from './pages/Auth'
+import AuthPage, { ResetPasswordPage } from './pages/Auth'
 import CartPage from './pages/CartPage'
 import Catalog from './pages/Catalog'
 import Checkout from './pages/Checkout'
@@ -19,17 +21,16 @@ import OrderPage from './pages/OrderPage'
 import ProductPage from './pages/ProductPage'
 import Quote3D from './pages/Quote3D'
 
-const TITLE = 'Bodemania — Artigos maçônicos & impressão 3D'
-
 function resolve(path: string): { page: ReactNode; title?: string } {
   if (path === '/') return { page: <Home /> }
   if (path === '/loja') return { page: <Catalog />, title: 'Loja' }
   let p: Record<string, string> | null
   if ((p = match('/c/:cat', path)) && categoryById(p.cat)) return { page: <Catalog key={p.cat} category={p.cat as CategoryId} />, title: categoryById(p.cat)!.name }
-  if ((p = match('/p/:slug', path))) return { page: <ProductPage slug={p.slug} />, title: productBySlug(p.slug)?.name }
+  if ((p = match('/p/:slug', path))) return { page: <ProductPage slug={p.slug} />, title: undefined }
   if (path === '/carrinho') return { page: <CartPage />, title: 'Carrinho' }
   if (path === '/checkout') return { page: <Checkout />, title: 'Finalizar compra' }
   if ((p = match('/pedido/:id', path))) return { page: <OrderPage id={p.id} />, title: `Pedido ${p.id}` }
+  if (path === '/redefinir-senha') return { page: <ResetPasswordPage />, title: 'Nova senha' }
   if (path === '/entrar') return { page: <AuthPage />, title: 'Entrar' }
   if (path === '/conta') return { page: <Account />, title: 'Minha conta' }
   if (path === '/conta/enderecos') return { page: <Account tab="enderecos" />, title: 'Endereços' }
@@ -49,8 +50,10 @@ export default function App() {
   const { page, title } = resolve(path)
 
   useEffect(() => {
-    document.title = title ? `${title} · Bodemania` : TITLE
-  }, [title])
+    // a página de produto define o próprio título/descrição/dados estruturados
+    if (!path.startsWith('/p/')) setPageMeta({ title, path })
+    trackPage(path)
+  }, [title, path])
 
   if (path === '/admin')
     return (
