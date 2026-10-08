@@ -113,7 +113,7 @@ export const FAQ: { q: string; a: string }[] = [
     q: 'Qual o prazo de entrega?',
     a: 'É a soma do prazo de produção (aparece na página de cada produto) com o prazo dos Correios para o seu CEP. Você vê a data estimada antes de pagar, no cálculo de frete.',
   },
-  { q: 'O frete é grátis?', a: `Sim, no PAC para compras a partir de R$ ${RULES.freeShippingFrom}. Em São Paulo/SP você também pode retirar no ateliê sem custo.` },
+  { q: 'O frete é grátis?', a: `Sim, no PAC para compras a partir de R$ ${RULES.freeShippingFrom}. Em Dourados/MS você também pode retirar no ateliê sem custo.` },
   {
     q: 'Os aventais seguem o padrão do meu rito e da minha Potência?',
     a: 'Trabalhamos com os principais ritos praticados no Brasil (REAA, York, Moderno, Brasileiro e Schröder). Se a sua Potência tiver alguma particularidade, escreva nas observações do pedido ou fale com a gente antes de comprar.',
@@ -221,7 +221,7 @@ const POLICIES: Record<string, { title: string; body: ReactNode }> = {
     body: (
       <>
         <p>O prazo total é a soma do prazo de produção (informado em cada produto) com o prazo de transporte. A contagem começa após a confirmação do pagamento.</p>
-        <p>Enviamos pelos Correios (PAC e SEDEX) com código de rastreio, disponível na sua conta assim que o pedido é despachado. Em São Paulo/SP há a opção de retirada no ateliê, com hora marcada.</p>
+        <p>Enviamos pelos Correios (PAC e SEDEX) com código de rastreio, disponível na sua conta assim que o pedido é despachado. Em Dourados/MS há a opção de retirada no ateliê, com hora marcada.</p>
         <p>Serviços digitais (modelagem 3D) são entregues na sua conta e por e-mail, sem frete.</p>
         <p>Frete grátis no PAC para compras a partir de R$ {RULES.freeShippingFrom}.</p>
       </>
@@ -249,7 +249,7 @@ const POLICIES: Record<string, { title: string; body: ReactNode }> = {
         </p>
         <p>Arquivos enviados para impressão devem ser de sua autoria ou ter licença de uso. Não imprimimos armas, réplicas de armas ou itens que violem direitos de terceiros.</p>
         <p>
-          {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.city} · {STORE.email}
+          {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.address} · {STORE.email}
         </p>
       </>
     ),

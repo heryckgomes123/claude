@@ -92,7 +92,7 @@ export default function Footer() {
             </span>
           </div>
           <p>
-            © {STORE.year} {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.city}
+            © {STORE.year} {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.address}
           </p>
         </div>
       </div>

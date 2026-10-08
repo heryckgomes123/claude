@@ -43,7 +43,7 @@ export interface RawQuote {
 
 /** Tabela de contingência quando a cotação dos Correios (Melhor Envio) não está disponível. */
 export function heuristicQuote(originCep: string, destUf: string, weightKg: number): RawQuote[] {
-  const z = zone(ufFromCep(originCep) ?? 'SP', destUf)
+  const z = zone(ufFromCep(originCep) ?? 'MS', destUf)
   const extraKg = Math.max(0, Math.ceil(weightKg - 1))
   const pac = [18.9, 24.9, 32.9, 44.9][z] + extraKg * [3.5, 5, 7, 10][z]
   return [
@@ -63,8 +63,8 @@ export function buildShippingOptions(
   const sedex = raw.find((r) => r.id === 'sedex')
   if (pac) out.push({ id: 'pac', label: 'Correios PAC', detail: free ? 'Frete grátis' : 'Econômico', price: free ? 0 : round2(pac.price), days: pac.days })
   if (sedex) out.push({ id: 'sedex', label: 'Correios SEDEX', detail: 'Mais rápido', price: round2(sedex.price), days: sedex.days })
-  const originUf = ufFromCep(opts.originCep) ?? 'SP'
-  if (opts.destUf === originUf) out.push({ id: 'pickup', label: 'Retirar no ateliê', detail: 'São Paulo/SP · com hora marcada', price: 0, days: 0 })
+  const originUf = ufFromCep(opts.originCep) ?? 'MS'
+  if (opts.destUf === originUf) out.push({ id: 'pickup', label: 'Retirar no ateliê', detail: 'Dourados/MS · com hora marcada', price: 0, days: 0 })
   return out
 }
 

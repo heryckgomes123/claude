@@ -53,7 +53,7 @@
 - [ ] Instagram correto ✅
 - [x] WhatsApp correto (link wa.me corrigido com DDI 55)
 - [ ] Email de contato correto
-- [ ] Endereço da empresa (CEP de origem e cidade: hoje store.ts diz "São Paulo/SP" e o CEP é de exemplo)
+- [x] Endereço da empresa: R. Monte Alegre, 707 - Jardim Tropical, Dourados/MS, CEP 79823-030 (rodapé, termos, frete e retirada)
 - [ ] Horário de atendimento
 
 ### 1.6 Testes - Fluxo Completo

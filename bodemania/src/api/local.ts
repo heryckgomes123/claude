@@ -128,7 +128,7 @@ export const localBackend: Backend = {
         id, userId: input.user.id, createdAt: now, items, subtotal: totals.subtotal, discount: totals.discount, pixDiscount: totals.pixDiscount, shipping: totals.shipping, total: totals.total,
         coupon: input.coupon?.code,
         payment:
-          method === 'pix' ? { method, pixCode: pixPayload({ key: PIX_KEY, name: STORE.name, city: 'SAO PAULO', amount: totals.total, txid: id.replace('-', '') }) }
+          method === 'pix' ? { method, pixCode: pixPayload({ key: PIX_KEY, name: STORE.name, city: 'DOURADOS', amount: totals.total, txid: id.replace('-', '') }) }
           : method === 'card' ? { method, installments: input.card?.installments, brand: cardBrand(input.card?.number ?? ''), last4: onlyDigits(input.card?.number ?? '').slice(-4), paidAt: now }
           : { method, boletoLine: `34191.${uid().slice(0, 5)} 12345.678901 12345.678901 1 ${String(Math.round(totals.total * 100)).padStart(14, '0')}` },
         customer: { name: input.user.name, email: input.user.email, cpf: input.user.cpf, phone: input.user.phone },

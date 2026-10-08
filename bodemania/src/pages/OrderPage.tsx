@@ -364,7 +364,7 @@ export default function OrderPage({ id }: { id: string }) {
             {order.address && order.shippingOption.id !== 'pickup' ? (
               <AddressText a={order.address} />
             ) : order.shippingOption.id === 'pickup' ? (
-              <p className="text-sm text-mute">Ateliê Bodemania — São Paulo/SP. Avisaremos pelo WhatsApp quando estiver pronto, com endereço e horário.</p>
+              <p className="text-sm text-mute">Ateliê Bodemania — {STORE.address}. Avisaremos pelo WhatsApp quando estiver pronto, com endereço e horário.</p>
             ) : (
               <p className="text-sm text-mute">Os arquivos ficam disponíveis aqui e são enviados para {order.customer.email}.</p>
             )}

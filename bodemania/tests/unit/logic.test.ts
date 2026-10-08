@@ -59,6 +59,14 @@ describe('frete', () => {
     expect(free[1].price).toBeGreaterThan(0)
     expect(buildShippingOptions(raw, { originCep: '01310100', destUf: 'RJ', goods: 10, freeShippingFrom: 299, freeShippingCoupon: true })[0].price).toBe(0)
   })
+  it('origem em Dourados/MS: retirada só para MS e frete de São Paulo é de outra região', () => {
+    const ms = buildShippingOptions(heuristicQuote('79823030', 'MS', 1), { originCep: '79823030', destUf: 'MS', goods: 100, freeShippingFrom: 299, freeShippingCoupon: false })
+    expect(ms.map((o) => o.id)).toEqual(['pac', 'sedex', 'pickup'])
+    expect(ms[2].detail).toContain('Dourados/MS')
+    const sp = buildShippingOptions(heuristicQuote('79823030', 'SP', 1), { originCep: '79823030', destUf: 'SP', goods: 100, freeShippingFrom: 299, freeShippingCoupon: false })
+    expect(sp.map((o) => o.id)).toEqual(['pac', 'sedex'])
+    expect(ufFromCep('79823030')).toBe('MS')
+  })
   it('lê a resposta do Melhor Envio e ignora serviços com erro ou desconhecidos', () => {
     const raw = parseMelhorEnvio([
       { id: 1, name: 'PAC', price: '23.50', custom_price: '25.10', delivery_time: 5, custom_delivery_time: 6 },

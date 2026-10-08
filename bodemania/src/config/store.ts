@@ -17,7 +17,8 @@ export const STORE = {
   /** Troque pelos dados reais da empresa antes de publicar. */
   legalName: 'Bodemania Comércio de Artigos LTDA',
   cnpj: '06.127.667/0001-36',
-  city: 'São Paulo/SP',
+  city: 'Dourados/MS',
+  address: 'R. Monte Alegre, 707 - Jardim Tropical, Dourados/MS - CEP 79823-030',
   year: 2026,
   /** Modo demonstração: sem VITE_SUPABASE_URL, pagamentos e contas são simulados no navegador. */
   demo: BACKEND === 'local',
@@ -25,7 +26,7 @@ export const STORE = {
 
 export const WHATSAPP_NUMBER: string = waNumber(env.VITE_WHATSAPP_NUMBER ?? '5500000000000')
 export const PIX_KEY: string = env.VITE_PIX_KEY ?? 'demonstracao@bodemania.invalid'
-export const ORIGIN_CEP: string = (env.VITE_ORIGIN_CEP ?? '01310100').replace(/\D/g, '')
+export const ORIGIN_CEP: string = (env.VITE_ORIGIN_CEP ?? '79823030').replace(/\D/g, '')
 
 export const RULES = {
   /** Frete grátis (PAC) a partir deste subtotal. */

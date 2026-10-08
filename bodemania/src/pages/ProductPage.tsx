@@ -440,7 +440,7 @@ function ProductView({ slug }: { slug: string }) {
               {tab === 'entrega' && (
                 <div className="space-y-3 text-sm">
                   <p>
-                    <b>Envio:</b> Correios (PAC ou SEDEX) com código de rastreio, ou retirada no ateliê em São Paulo/SP. Frete grátis no PAC
+                    <b>Envio:</b> Correios (PAC ou SEDEX) com código de rastreio, ou retirada no ateliê em Dourados/MS. Frete grátis no PAC
                     acima de {money(RULES.freeShippingFrom)}.
                   </p>
                   <p>
