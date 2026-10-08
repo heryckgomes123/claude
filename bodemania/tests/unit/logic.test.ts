@@ -7,6 +7,7 @@ import { computeTotals, couponDiscount } from '../../supabase/functions/_shared/
 import { isCPF, isExpiryValid, luhn } from '../../supabase/functions/_shared/validate.ts'
 import { quotePrint, parseSTL, sampleSTL } from '../../supabase/functions/_shared/print3d.ts'
 import { aventalComRito } from './fakes.ts'
+import { waNumber } from '../../src/lib/format.ts'
 
 describe('preço', () => {
   it('soma opções e personalização só quando preenchida', () => {
@@ -140,5 +141,18 @@ describe('impressão 3D', () => {
     expect(quotePrint({ ...base, scale: 150 }).unit).toBeGreaterThan(one.unit)
     expect(quotePrint({ ...base, qty: 10 }).unit).toBeLessThan(one.unit)
     expect(quotePrint({ ...base, size: [300, 10, 10] }).fits).toBe(false)
+  })
+})
+
+describe('waNumber', () => {
+  it('adiciona o DDI 55 quando vem só DDD + número', () => {
+    expect(waNumber('67999113636')).toBe('5567999113636')
+    expect(waNumber('(67) 9 9911-3636')).toBe('5567999113636')
+    expect(waNumber('6733334444')).toBe('556733334444')
+    expect(waNumber('067999113636')).toBe('5567999113636')
+  })
+  it('mantém número que já tem DDI', () => {
+    expect(waNumber('5567999113636')).toBe('5567999113636')
+    expect(waNumber('+55 67 99911-3636')).toBe('5567999113636')
   })
 })

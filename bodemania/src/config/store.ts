@@ -4,6 +4,7 @@
  */
 
 import { BACKEND } from './env'
+import { waNumber } from '../lib/format'
 
 const env = import.meta.env
 
@@ -22,7 +23,7 @@ export const STORE = {
   demo: BACKEND === 'local',
 } as const
 
-export const WHATSAPP_NUMBER: string = (env.VITE_WHATSAPP_NUMBER ?? '5500000000000').replace(/\D/g, '')
+export const WHATSAPP_NUMBER: string = waNumber(env.VITE_WHATSAPP_NUMBER ?? '5500000000000')
 export const PIX_KEY: string = env.VITE_PIX_KEY ?? 'demonstracao@bodemania.invalid'
 export const ORIGIN_CEP: string = (env.VITE_ORIGIN_CEP ?? '01310100').replace(/\D/g, '')
 

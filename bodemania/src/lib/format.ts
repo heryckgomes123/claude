@@ -4,6 +4,12 @@ export const money = (value: number) => brl.format(Math.round(value * 100) / 100
 
 export const onlyDigits = (s: string) => s.replace(/\D/g, '')
 
+/** wa.me exige o DDI: "67999113636" (DDD + número) vira "5567999113636". */
+export function waNumber(s: string) {
+  const d = onlyDigits(s).replace(/^0+/, '')
+  return d.length === 10 || d.length === 11 ? '55' + d : d
+}
+
 export function formatDate(iso: string, withTime = false) {
   const d = new Date(iso)
   return d.toLocaleDateString('pt-BR', {

@@ -9,7 +9,7 @@
 ### 1.1 Supabase - Banco de Dados ✅
 - [ ] Projeto Supabase criado e projeto URL definida
 - [ ] Tabelas criadas: `products`, `orders`, `users`, `addresses`, `coupons`
-- [ ] Row Level Security (RLS) ativado em todas as tabelas
+- [x] Row Level Security (RLS) ativado em todas as tabelas (testado em Postgres 16 local)
 - [ ] Policies configuradas:
   - [ ] Users: Só usuário logado vê seus dados
   - [ ] Products: Público lê, admin escreve
@@ -33,14 +33,15 @@
 
 ### 1.3 Supabase - Edge Functions
 - [ ] `create-order` → Cria pedido, validar estoque
-- [ ] `shipping-quote` → Calcula frete com CorreOS
+- [ ] `shipping-quote` → Calcula frete com Melhor Envio (tabela de contingência sem ME_TOKEN)
 - [ ] `mp-webhook` → Recebe confirmação de pagamento
 - [ ] `admin-order` → Atualiza status (admin only)
 - [ ] Logging habilitado (erros salvos em tabela)
 - [ ] Timeout configurado (máx 60s)
 
 ### 1.4 Dados Reais - Produtos
-- [ ] Produtos importados para Supabase (SQL ou admin)
+- [x] seed.sql gerado (`npm run seed:sql`, 28 produtos, testado)
+- [ ] Produtos importados para Supabase (colar supabase/seed.sql no SQL Editor)
 - [ ] Imagens otimizadas (WebP, <200KB cada)
 - [ ] Imagens uploaded para Supabase Storage
 - [ ] Validar: nome, preço, estoque, descrição, SKU
@@ -50,9 +51,9 @@
 ### 1.5 Dados Reais - Configuração
 - [ ] CNPJ correto no store.ts ✅
 - [ ] Instagram correto ✅
-- [ ] WhatsApp correto ✅
+- [x] WhatsApp correto (link wa.me corrigido com DDI 55)
 - [ ] Email de contato correto
-- [ ] Endereço da empresa (CEP, cidade)
+- [ ] Endereço da empresa (CEP de origem e cidade: hoje store.ts diz "São Paulo/SP" e o CEP é de exemplo)
 - [ ] Horário de atendimento
 
 ### 1.6 Testes - Fluxo Completo
@@ -76,16 +77,16 @@ VITE_SITE_URL=https://seudominio.com.br
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_ANON_KEY=xxxx
 VITE_INSTAGRAM_URL=https://instagram.com/lojabodemania
-VITE_WHATSAPP_NUMBER=67999113636
+VITE_WHATSAPP_NUMBER=5567999113636   # o site adiciona o 55 se faltar
 VITE_GA_ID=G-XXXXXXXXXX
 
-# ⚠️ SECRETAS (Netlify Functions, NÃO no navegador)
-SUPABASE_SERVICE_ROLE_KEY=xxxx (não exponha!)
-MERCADO_PAGO_ACCESS_TOKEN=xxxx
-SENDGRID_API_KEY=xxxx (para emails)
+# ⚠️ SECRETAS → Supabase (npx supabase secrets set), NUNCA na Netlify
+# modelo: supabase/functions/.env.example
+MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET, RESEND_API_KEY, ME_TOKEN, ORIGIN_CEP ...
 ```
-- [ ] .env.production criado no Netlify
-- [ ] Nenhuma chave secreta no código ou .env do repo
+- [ ] Variáveis VITE_* cadastradas na Netlify
+- [ ] Segredos cadastrados no Supabase
+- [x] Nenhuma chave secreta no código ou .env do repo (supabase/functions/.env no .gitignore)
 - [ ] GitHub não tem secrets da empresa
 
 ### 2.2 Headers de Segurança (netlify.toml)
@@ -114,9 +115,10 @@ SENDGRID_API_KEY=xxxx (para emails)
     # Permissions policy
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 ```
-- [ ] netlify.toml criado na raiz do projeto
-- [ ] Headers testados com curl/browser DevTools
-- [ ] CSP validado (sem console errors)
+- [x] netlify.toml criado na raiz do projeto (bodemania/)
+- [x] Headers testados localmente em Chromium (servidor que aplica o netlify.toml)
+- [x] CSP validada: libera Supabase (inclusive wss), Mercado Pago + antifraude, ViaCEP e GA4; 14 rotas sem erro no console
+- [ ] Repetir a checagem no deploy real (curl -I / securityheaders.com)
 
 ### 2.3 CORS & Autenticação
 - [ ] Supabase: CORS apenas para domínio Netlify
@@ -140,7 +142,7 @@ SENDGRID_API_KEY=xxxx (para emails)
 - [ ] CSRF: Token incluído em formulários (se POST)
 
 ### 2.6 Performance
-- [ ] Build otimizado: `npm run build` < 1MB gzip
+- [x] Build otimizado: `npm run build` ≈ 245 KB gzip
 - [ ] Lazy loading: Pages carregam sob demanda
 - [ ] Imagens: WebP, srcset, lazy loading
 - [ ] Fonte: System font ou self-hosted
@@ -152,8 +154,8 @@ SENDGRID_API_KEY=xxxx (para emails)
 - [ ] Fluxo login → checkout → pedido criado
 - [ ] Validações frontend funcionam
 - [ ] Mensagens de erro corretas
-- [ ] Sem overflow horizontal em mobile
-- [ ] Responsivo: 320px, 640px, 1440px
+- [x] Sem overflow horizontal em mobile (14 rotas em 320px)
+- [ ] Responsivo: 640px
 
 ### 2.8 Monitoring & Logging
 - [ ] Google Analytics: Purchase events rastreados
@@ -220,16 +222,16 @@ SENDGRID_API_KEY=xxxx (para emails)
 
 | Layer | Tech | Status |
 |-------|------|--------|
-| **Frontend** | React 18 + TypeScript + Tailwind | ✅ |
+| **Frontend** | React 19 + TypeScript + Tailwind 4 | ✅ |
 | **Routing** | Custom router (hash ou history) | ✅ |
-| **State** | Nanostores | ✅ |
+| **State** | Stores próprias (src/state) | ✅ |
 | **DB** | Supabase (PostgreSQL) | 🔄 Configurar |
 | **Auth** | Supabase Auth | 🔄 Testar |
 | **Pagamento** | Mercado Pago | 🔄 Testar |
-| **Frete** | CorreOS API | 🔄 Integrar |
+| **Frete** | Melhor Envio + ViaCEP | 🔄 Configurar ME_TOKEN |
 | **Deploy** | Netlify | 🔄 Configurar |
 | **Images** | Supabase Storage | 🔄 Testar |
-| **Email** | SendGrid | 🔄 Configurar |
+| **Email** | Resend | 🔄 Configurar RESEND_API_KEY |
 | **Analytics** | Google Analytics 4 | 🔄 Configurar |
 | **Monitoring** | Sentry (opcional) | ⏳ Futura |
 

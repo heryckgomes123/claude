@@ -51,7 +51,7 @@ VITE_JWT_EXPIRY = 3600
 ❌ Cartão de crédito (delegado ao Mercado Pago)
 ❌ Chaves de API do Supabase service role
 ❌ Mercado Pago access token
-❌ SendGrid API key
+❌ Resend API key (e-mails)
 ```
 
 ### 2.2 Criptografia em trânsito
@@ -72,7 +72,7 @@ ALTER TABLE users ADD COLUMN cpf_hash TEXT;
 ### 2.4 Variáveis de ambiente
 ```
 ✅ Públicas (browser): VITE_* (Supabase ANON KEY, MP PUBLIC KEY)
-❌ Secretas: Nunca em .env do repo, apenas Netlify/functions
+❌ Secretas: Nunca em .env do repo nem na Netlify — apenas `npx supabase secrets set` (modelo: supabase/functions/.env.example)
 ❌ NUNCA no Git: .env.production.local está em .gitignore
 ```
 
@@ -240,7 +240,7 @@ https://*.netlify.app (temporário, durante testes)
 - [ ] Netlify autenticado + 2FA se possível
 - [ ] Supabase autenticado + 2FA
 - [ ] Mercado Pago credenciais seguras
-- [ ] SendGrid API key rotacionada recentemente
+- [ ] Resend API key rotacionada recentemente
 - [ ] Nenhuma variável secreta no Git
 
 ### 6.5 Testes

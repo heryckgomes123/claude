@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:db": "scripts/pg-test.sh start && TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:54329/postgres vitest run; scripts/pg-test.sh stop",
     "check:functions": "for f in create-order mp-webhook shipping-quote admin-order; do deno check supabase/functions/$f/index.ts || exit 1; done",
+    "seed:sql": "node scripts/seed-sql.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

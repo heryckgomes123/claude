@@ -9,7 +9,7 @@
 ## 🎯 RESUMO EXECUTIVO
 
 Este é um **e-commerce completo** com:
-- ✅ Frontend React 18 + TypeScript
+- ✅ Frontend React 19 + TypeScript
 - ✅ Backend Supabase (PostgreSQL)
 - ✅ Autenticação com email confirmado
 - ✅ Integração Mercado Pago
@@ -32,7 +32,7 @@ bodemania/
 │   ├── components/       # React components reutilizáveis
 │   ├── pages/           # Páginas (Home, Catalog, Checkout, Admin, etc)
 │   ├── data/            # Dados estáticos (catálogo, categorias)
-│   ├── state/           # Estado global (Nanostores)
+│   ├── state/           # Estado global (stores próprias)
 │   ├── lib/             # Utilidades (formatação, SEO, analytics)
 │   ├── config/          # Configurações (store, env)
 │   ├── styles/          # CSS global (Tailwind)
@@ -239,7 +239,7 @@ Após entrega, você pode melhorar:
 - [ ] Sentry para monitoramento de erros
 - [ ] Cloudflare para DDoS protection
 - [ ] WhatsApp Bot para atendimento
-- [ ] Email marketing (SendGrid)
+- [ ] Email marketing
 - [ ] Analytics avançado (Mixpanel)
 - [ ] A/B testing (VWO, Optimizely)
 - [ ] Recomendação de produtos (ML)

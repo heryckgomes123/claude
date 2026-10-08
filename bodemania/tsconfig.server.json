@@ -13,7 +13,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "types": ["node"]
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"]
   },
   "include": ["supabase/functions/_shared", "tests"],
   "exclude": ["supabase/functions/_shared/server"]
