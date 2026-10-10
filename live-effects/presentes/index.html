@@ -1,0 +1,1334 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Intelra · Efeitos de presentes</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  #debug { position: absolute; left: 8px; top: 8px; font: 13px/1.4 ui-monospace, Consolas, monospace; color: #cfefff;
+           background: rgba(6, 12, 30, .8); padding: 8px 10px; border-radius: 8px; white-space: pre; display: none; }
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div id="debug"></div>
+<script src="assets/items.js"></script>
+<script>
+'use strict';
+/*
+ * Efeitos de presentes do mascote Intelra para lives (OBS Browser Source, 1080x1920, fundo transparente).
+ * Uma única fonte toca o efeito certo para cada presente recebido pelo TikFinity.
+ *
+ * Parâmetros de URL (opcionais):
+ *   ?presente=rosa      efeito padrão do clique/Espaço e do modo render (ver GIFTS abaixo)
+ *   ?loop=galaxia       repete um efeito sem parar (ou ?loop=1 para o padrão)
+ *   ?autoplay=rosa      toca uma vez ao carregar (ou ?autoplay=1)
+ *   ?efeitos=rosa,fogos só esses efeitos tocam automaticamente (padrão: todos)
+ *   ?map=Nome:efeito;…  liga um nome de presente do TikFinity a um efeito (ex.: Awesome:incrivel)
+ *   ?debug=1            mostra os nomes dos últimos presentes recebidos (para descobrir nomes)
+ *   ?nome=Fulano        nome fixo na legenda (o do TikFinity substitui este)
+ *   ?legenda=0          nunca mostra a legenda
+ *   ?som=0 / ?volume=0.8
+ *   ?ws=0 / ?ws=ws://…  desliga / muda o WebSocket do TikFinity (padrão ws://localhost:21213/)
+ *   ?fila=10            máximo de efeitos esperando na fila
+ * Teclas (OBS > Interagir): Espaço/Enter/clique = efeito padrão; 1…9 = cada presente na ordem de GIFT_ORDER.
+ */
+const W = 1080, H = 1920, DUR = 5.0;
+const Q = new URLSearchParams(location.search);
+const RENDER = Q.has('render');
+const cv = document.getElementById('fx');
+cv.width = W; cv.height = H;
+const ctx = cv.getContext('2d');
+
+/* ---------- presentes ---------- */
+const GIFTS = {
+  rosa: {
+    label: 'ROSA', item: 'rose', glow: '255,60,110', eyes: 'heart', fx: 'hearts', particle: 'heartPink', petals: 'red',
+    caption: 'Obrigado pela rosa 🌹', sound: 'love', aliases: ['rose', 'rosa'],
+  },
+  'rosa-branca': {
+    label: 'ROSA BRANCA', item: 'rosewhite', glow: '210,230,255', eyes: 'heartWhite', fx: 'hearts', particle: 'heartWhite', petals: 'white',
+    caption: 'Obrigado pela rosa branca 🤍', sound: 'soft', aliases: ['white rose', 'rosa branca'],
+  },
+  'heart-me': {
+    label: 'HEART ME', item: 'heartme', glow: '255,40,80', eyes: 'heart', fx: 'hearts', particle: 'heartPink', bounce: true,
+    caption: 'Obrigado pelo Heart Me 💖', sound: 'love', aliases: ['heart me'],
+  },
+  'amo-voce': {
+    label: 'AMO VOCÊ', item: 'heartplush', glow: '255,60,120', eyes: 'heart', blush: true, fx: 'loveWave', particle: 'heartPink',
+    caption: 'Também te amo! 💗', sound: 'love', aliases: ['i love you', 'love you', 'amo voce', 'te amo'],
+  },
+  incrivel: {
+    label: 'INCRÍVEL', item: 'star', glow: '255,200,60', eyes: 'star', fx: 'stars', particle: 'starGold',
+    caption: 'Você é incrível! ✨', sound: 'sparkle', aliases: ['awesome', 'amazing', 'incrivel', 'you are awesome', 'youre awesome'],
+  },
+  tiktok: {
+    label: 'TIKTOK', item: 'note', glow: '37,244,238', eyes: 'happy', fx: 'notes', particle: 'note', dance: true,
+    caption: 'Valeu pelo TikTok! 🎵', sound: 'music', aliases: ['tiktok'],
+  },
+  fogos: {
+    label: 'FOGOS', item: 'sparkOrb', glow: '255,190,90', eyes: 'star', fx: 'fireworks', throwUp: true,
+    caption: 'Que show! 🎆', sound: 'fireworks', aliases: ['fireworks', 'firework', 'fogos de artificio', 'fogos'],
+  },
+  'mini-dino': {
+    label: 'MINI DINO', item: 'dino', glow: '110,255,120', eyes: 'happy', fx: 'rawr', particle: 'heartGreen',
+    caption: 'Rawr! Valeu pelo Mini Dino 🦖', sound: 'dino', aliases: ['mini dino', 'dino'],
+  },
+  galaxia: {
+    label: 'GALÁXIA', item: 'galaxyOrb', glow: '150,110,255', eyes: 'star', fx: 'galaxy',
+    caption: 'Uma galáxia inteira! 🌌', sound: 'galaxy', aliases: ['galaxy', 'galaxia'],
+  },
+};
+const GIFT_ORDER = ['rosa', 'rosa-branca', 'heart-me', 'amo-voce', 'incrivel', 'tiktok', 'fogos', 'mini-dino', 'galaxia'];
+const DEFAULT_GIFT = GIFTS[Q.get('presente')] ? Q.get('presente') : 'rosa';
+
+/* ---------- helpers ---------- */
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const win = (t, a, b) => Math.sin(Math.PI * seg(t, a, b));
+const DEG = 180 / Math.PI;
+const E = {
+  inQuad: t => t * t,
+  outQuad: t => 1 - (1 - t) * (1 - t),
+  inCubic: t => t * t * t,
+  outCubic: t => 1 - Math.pow(1 - t, 3),
+  inOutCubic: t => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
+  outBack: (t, s = 1.70158) => 1 + (s + 1) * Math.pow(t - 1, 3) + s * Math.pow(t - 1, 2),
+  outExpo: t => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+  outElastic: t => (t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI / 3)) + 1),
+};
+function rng(seed) {
+  return function () {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function hex2rgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+function mix(h, to, k) {
+  const a = hex2rgb(h), b = hex2rgb(to);
+  return `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], k))).join(',')})`;
+}
+function rrPath(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.quadraticCurveTo(x + w, y, x + w, y + r);
+  g.lineTo(x + w, y + h - r); g.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  g.lineTo(x + r, y + h); g.quadraticCurveTo(x, y + h, x, y + h - r);
+  g.lineTo(x, y + r); g.quadraticCurveTo(x, y, x + r, y); g.closePath();
+}
+function mkCanvas(w, h) { const c = document.createElement('canvas'); c.width = Math.ceil(w); c.height = Math.ceil(h); return c; }
+const normName = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+
+/* ---------- mascote em pixel art (voxel) ---------- */
+const PAL = {
+  K: '#0b1633', W: '#eef2f9', G: '#c2cbdb', H: '#ffffff', V: '#060c1e', U: '#1c2c52',
+  C: '#22e5ff', N: '#1d3c9c', P: '#ff3d7f', Y: '#ffd23d', L: '#6dff6a', S: '#eef6ff', T: '#fe2c55',
+};
+const CELL = 16;           // tamanho do "pixel" em unidades do mascote
+const SS = 2;              // supersampling dos sprites
+function grid(w, h) { return Array.from({ length: h }, () => Array(w).fill('.')); }
+function rr(g, x, y, w, h, ins, fill, line) {
+  const inside = (cx, cy) => {
+    if (cx < x || cx >= x + w || cy < y || cy >= y + h) return false;
+    const r = cy - y, i = Math.max(ins[r] || 0, ins[h - 1 - r] || 0);
+    return cx >= x + i && cx < x + w - i;
+  };
+  for (let cy = y; cy < y + h; cy++) for (let cx = x; cx < x + w; cx++) {
+    if (!inside(cx, cy) || !g[cy] || g[cy][cx] === undefined) continue;
+    const edge = line && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !inside(cx + dx, cy + dy));
+    g[cy][cx] = edge ? line : fill;
+  }
+}
+function put(g, cells, c) { for (const [x, y] of cells) if (g[y] && g[y][x] !== undefined) g[y][x] = c; }
+function recolor(g, from, to, y0, y1) { for (let y = y0; y < y1; y++) for (let x = 0; x < g[y].length; x++) if (g[y][x] === from) g[y][x] = to; }
+
+function headGrid() {
+  const g = grid(34, 22);
+  rr(g, 0, 8, 34, 7, [0], 'W', 'K');                 // orelhas
+  rr(g, 3, 0, 28, 22, [6, 4, 2, 1, 1], 'W', 'K');    // capacete
+  recolor(g, 'W', 'G', 17, 22);
+  put(g, [[10, 1], [11, 1], [12, 1], [13, 1], [8, 2], [9, 2], [6, 3], [7, 3], [5, 4]], 'H');
+  rr(g, 7, 5, 20, 12, [2, 1], 'V', 'K');            // visor
+  put(g, [[21, 6], [22, 6], [23, 6], [24, 7], [24, 8]], 'U');
+  return g;
+}
+function bodyGrid() {
+  const g = grid(24, 13);
+  rr(g, 1, 0, 22, 13, [2, 1], 'W', 'K');
+  recolor(g, 'W', 'G', 10, 13);
+  rr(g, 8, 4, 8, 4, [0], 'C', 'K');
+  put(g, [[4, 2], [5, 2], [3, 3]], 'H');
+  return g;
+}
+function armGrid() {
+  const g = grid(8, 13);
+  rr(g, 1, 0, 6, 8, [1], 'W', 'K');
+  rr(g, 0, 6, 8, 7, [1, 0, 0, 0, 0, 0, 1], 'N', 'K');
+  put(g, [[4, 10], [4, 11]], 'K');
+  put(g, [[2, 7], [2, 8]], '#3a64d6');
+  return g;
+}
+function antennaGrid() {
+  const g = grid(5, 10);
+  rr(g, 0, 0, 5, 5, [1], 'C', 'K');
+  for (let y = 5; y < 10; y++) g[y][2] = 'K';
+  return g;
+}
+function patternGrid(rows, color) { return rows.map(r => [...r].map(c => (c === 'X' ? color : '.'))); }
+const HEART_ROWS = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...'];
+const STAR_ROWS = ['...X...', '...X...', '..XXX..', 'XXXXXXX', '.XXXXX.', '..XXX..', '.XX.XX.', '.X...X.'];
+const NOTE_ROWS = ['...XXX', '...XXX', '...X.X', '...X..', '...X..', '.XXX..', 'XXXX..', '.XX...'];
+function renderSprite(g, cell, depthK = 0.5) {
+  const h = g.length, w = g[0].length, depth = Math.round(cell * depthK);
+  const c = mkCanvas(w * cell + depth, h * cell + depth), x2 = c.getContext('2d');
+  const col = k => PAL[k] || k;
+  for (let d = depth; d > 0; d -= 1) for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const k = g[y][x]; if (k === '.') continue;
+    x2.fillStyle = mix(col(k), '#000000', 0.62);
+    x2.fillRect(x * cell + d, y * cell + d, cell, cell);
+  }
+  const b = Math.max(1, Math.round(cell * 0.14));
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const k = g[y][x]; if (k === '.') continue;
+    const base = col(k), px = x * cell, py = y * cell;
+    x2.fillStyle = base; x2.fillRect(px, py, cell, cell);
+    x2.fillStyle = mix(base, '#ffffff', 0.32); x2.fillRect(px, py, cell, b);
+    x2.fillStyle = mix(base, '#ffffff', 0.16); x2.fillRect(px, py, b, cell);
+    x2.fillStyle = mix(base, '#000000', 0.22); x2.fillRect(px, py + cell - b, cell, b);
+    x2.fillStyle = mix(base, '#000000', 0.12); x2.fillRect(px + cell - b, py, b, cell);
+  }
+  return c;
+}
+// Expressões (células da grade da cabeça, 34x22)
+const mirror = cells => cells.concat(cells.map(([x, y]) => [33 - x, y]));
+const block = (x0, y0, w, h) => { const o = []; for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) o.push([x, y]); return o; };
+const fromRows = (rows, x0, y0) => { const o = []; rows.forEach((r, y) => [...r].forEach((c, x) => { if (c === 'X') o.push([x0 + x, y0 + y]); })); return o; };
+const HEART_EYES = mirror(fromRows(HEART_ROWS, 9, 8));
+const EXPR = {
+  logo: { c: PAL.C, cells: mirror([...block(11, 10, 3, 4), [10, 8], [11, 8], [12, 9], [13, 9]]) },
+  wide: { c: PAL.C, cells: mirror(block(10, 8, 4, 5).filter(([x, y]) => !((x === 10 || x === 13) && (y === 8 || y === 12)))).concat([[16, 14], [17, 14], [16, 15], [17, 15]]) },
+  heart: { c: PAL.P, cells: HEART_EYES },
+  heartWhite: { c: '#f2f8ff', glow: '#9fe6ff', cells: HEART_EYES },
+  star: { c: PAL.Y, glow: '#ffb000', cells: mirror(fromRows(['..X..', '.XXX.', 'XXXXX', '.XXX.', '.X.X.'], 10, 8)) },
+  happy: { c: PAL.C, cells: mirror([[10, 11], [11, 10], [12, 9], [13, 10], [14, 11], [9, 12], [15, 12], [13, 14], [14, 15], [15, 15], [16, 15]]) },
+  blink: { c: PAL.C, cells: mirror(block(11, 12, 3, 1)) },
+  blush: { c: '#ff6f9a', glow: '#ff3d7f', cells: mirror([[9, 14], [10, 14], [11, 14]]) },
+};
+function renderEyes(e, cell) {
+  const c = mkCanvas(34 * cell + cell * 2, 22 * cell + cell * 2), x2 = c.getContext('2d');
+  const o = cell;
+  x2.shadowColor = e.glow || e.c; x2.shadowBlur = cell * 1.4; x2.fillStyle = e.c;
+  for (const [x, y] of e.cells) x2.fillRect(o + x * cell, o + y * cell, cell, cell);
+  x2.shadowBlur = 0;
+  for (const [x, y] of e.cells) {
+    x2.fillStyle = e.c; x2.fillRect(o + x * cell, o + y * cell, cell, cell);
+    x2.fillStyle = mix(e.c, '#ffffff', 0.45); x2.fillRect(o + x * cell + cell * 0.2, o + y * cell + cell * 0.2, cell * 0.45, cell * 0.3);
+  }
+  return c;
+}
+function petalSprite(c0, c1, c2, rim) {
+  const c = mkCanvas(64, 80), g = c.getContext('2d');
+  const gr = g.createRadialGradient(26, 24, 2, 32, 40, 42);
+  gr.addColorStop(0, c0); gr.addColorStop(0.5, c1); gr.addColorStop(1, c2);
+  g.fillStyle = gr;
+  g.beginPath(); g.moveTo(32, 76); g.bezierCurveTo(4, 56, 2, 18, 22, 6); g.bezierCurveTo(30, 0, 40, 2, 46, 8);
+  g.bezierCurveTo(64, 26, 58, 58, 32, 76); g.fill();
+  g.strokeStyle = rim; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(10, 30); g.bezierCurveTo(14, 12, 30, 2, 46, 9); g.stroke();
+  return c;
+}
+
+/* ---------- itens desenhados em código (fogos e galáxia) ---------- */
+function makeParticles(n, seed, fn) { const R = rng(seed), a = []; for (let i = 0; i < n; i++) a.push(fn(R, i)); return a; }
+const GAL_COLORS = ['150,170,255', '200,140,255', '255,150,220', '130,220,255', '255,255,255'];
+const GALAXY = (() => {
+  const stars = makeParticles(1300, 77, (R, i) => {
+    const arm = i % 3, r = Math.pow(R(), 0.65) * (1 + (R() - 0.5) * 0.18);
+    const core = r < 0.14;
+    return {
+      r, a: arm * 2.094 + r * 3.8 + (R() - 0.5) * (0.65 - r * 0.35), s: 1.4 + R() * 3.2,
+      c: core ? 0 : 1 + Math.floor(R() * GAL_COLORS.length), tw: R() * 6.28,
+    };
+  });
+  const groups = [[], [], [], [], [], []];
+  for (const s of stars) groups[s.c].push(s);
+  const clouds = makeParticles(22, 91, (R, i) => ({ r: 0.2 + R() * 0.7, a: (i % 3) * 2.094 + 0.6 + R() * 2.4, s: 0.18 + R() * 0.22, c: ['120,90,255', '255,90,200', '60,160,255'][i % 3] }));
+  return { groups, clouds };
+})();
+function drawGalaxy(g, cx, cy, R, rot, alpha, tilt = 0.5, t = 0) {
+  if (alpha <= 0.002 || R <= 1) return;
+  g.save();
+  g.globalCompositeOperation = 'lighter';
+  const M = new DOMMatrix().translate(cx, cy).scale(1, tilt).rotate(rot * DEG);
+  g.setTransform(M);
+  for (const cl of GALAXY.clouds) {
+    const x = Math.cos(cl.a) * cl.r * R, y = Math.sin(cl.a) * cl.r * R, rad = cl.s * R;
+    const gr = g.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, `rgba(${cl.c},${0.16 * alpha})`); gr.addColorStop(1, `rgba(${cl.c},0)`);
+    g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  const k = Math.max(0.55, R / 520);
+  GALAXY.groups.forEach((grp, gi) => {
+    g.fillStyle = gi === 0 ? `rgba(255,240,210,${alpha})` : `rgba(${GAL_COLORS[gi - 1]},${0.85 * alpha})`;
+    g.beginPath();
+    for (const s of grp) {
+      const x = Math.cos(s.a) * s.r * R, y = Math.sin(s.a) * s.r * R, sz = s.s * k * (0.75 + 0.25 * Math.sin(t * 5 + s.tw));
+      g.rect(x - sz / 2, y - sz / 2, sz, sz);
+    }
+    g.fill();
+  });
+  const core = g.createRadialGradient(0, 0, 0, 0, 0, R * 0.32);
+  core.addColorStop(0, `rgba(255,250,235,${alpha})`); core.addColorStop(0.25, `rgba(255,210,170,${0.55 * alpha})`); core.addColorStop(1, 'rgba(160,120,255,0)');
+  g.fillStyle = core; g.fillRect(-R * 0.32, -R * 0.32, R * 0.64, R * 0.64);
+  g.restore();
+}
+// Galáxia dentro de uma esfera de vidro (item na mão). Coordenadas locais: pegada em (0,0).
+function drawGalaxyOrb(g, M, t, alpha = 1) {
+  const r = 108, cy = -130;
+  g.save();
+  g.setTransform(M.translate(0, cy));
+  g.globalAlpha = alpha;
+  const bg = g.createRadialGradient(-20, -30, 10, 0, 0, r);
+  bg.addColorStop(0, 'rgba(60,40,140,.75)'); bg.addColorStop(0.7, 'rgba(14,10,50,.85)'); bg.addColorStop(1, 'rgba(90,160,255,.55)');
+  g.fillStyle = bg; g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.fill();
+  g.save(); g.beginPath(); g.arc(0, 0, r - 4, 0, Math.PI * 2); g.clip();
+  const m = g.getTransform();
+  drawGalaxy(g, m.e, m.f, r * 0.95 * Math.hypot(m.a, m.b), t * 1.6, alpha, 0.55, t);
+  g.restore();
+  g.setTransform(M.translate(0, cy));
+  g.globalCompositeOperation = 'lighter';
+  g.strokeStyle = `rgba(170,220,255,${0.8 * alpha})`; g.lineWidth = 4; g.shadowColor = '#8fb8ff'; g.shadowBlur = 24;
+  g.beginPath(); g.arc(0, 0, r, 0, Math.PI * 2); g.stroke(); g.shadowBlur = 0;
+  g.fillStyle = `rgba(255,255,255,${0.35 * alpha})`;
+  g.beginPath(); g.ellipse(-38, -50, 34, 16, -0.6, 0, Math.PI * 2); g.fill();
+  g.globalCompositeOperation = 'source-over';
+  // pedestal dourado
+  g.fillStyle = '#c8962e'; rrPath(g, -46, r - 14, 92, 34, 10); g.fill();
+  g.fillStyle = '#ffd77a'; rrPath(g, -46, r - 14, 92, 9, 4); g.fill();
+  g.restore();
+}
+const SPARK_RAYS = makeParticles(40, 5, (R, i) => ({ a: i / 40 * Math.PI * 2 + (R() - 0.5) * 0.1, l: 0.55 + R() * 0.45, ph: R() * 6, c: ['255,210,90', '255,110,160', '120,230,255', '255,255,255'][i % 4] }));
+// Bola de fogos de artifício (item na mão). Coordenadas locais: pegada em (0,0).
+function drawSparkOrb(g, M, t, alpha = 1) {
+  const r = 100, cy = -125;
+  g.save();
+  g.setTransform(M.translate(0, cy));
+  g.globalCompositeOperation = 'lighter';
+  g.globalAlpha = alpha;
+  for (const s of SPARK_RAYS) {
+    const len = r * s.l * (0.7 + 0.3 * Math.sin(t * 9 + s.ph));
+    const x1 = Math.cos(s.a) * len, y1 = Math.sin(s.a) * len;
+    const gr = g.createLinearGradient(0, 0, x1, y1);
+    gr.addColorStop(0, `rgba(${s.c},0)`); gr.addColorStop(0.6, `rgba(${s.c},.9)`); gr.addColorStop(1, `rgba(${s.c},0)`);
+    g.strokeStyle = gr; g.lineWidth = 4; g.beginPath(); g.moveTo(Math.cos(s.a) * 18, Math.sin(s.a) * 18); g.lineTo(x1, y1); g.stroke();
+    g.fillStyle = `rgba(255,255,255,${0.9})`; g.fillRect(x1 - 2.5, y1 - 2.5, 5, 5);
+  }
+  const core = g.createRadialGradient(0, 0, 0, 0, 0, 60);
+  core.addColorStop(0, 'rgba(255,255,255,1)'); core.addColorStop(0.3, 'rgba(255,220,120,.8)'); core.addColorStop(1, 'rgba(255,120,60,0)');
+  g.fillStyle = core; g.fillRect(-60, -60, 120, 120);
+  g.restore();
+}
+const PROC_ITEMS = {
+  sparkOrb: { proc: drawSparkOrb, GX: 0, GY: 0, BX: 0, BY: -125, R: 110 },
+  galaxyOrb: { proc: drawGalaxyOrb, GX: 0, GY: 0, BX: 0, BY: -130, R: 112 },
+};
+
+/* ---------- assets ---------- */
+const SPR = {};
+function loadImage(src) {
+  return new Promise((res, rej) => { const img = new Image(); img.onload = () => res(img); img.onerror = () => rej(new Error('não carregou ' + src)); img.src = src; });
+}
+const ITEM_DEFS = {};
+const ready = (async () => {
+  const cell = CELL * SS;
+  SPR.head = renderSprite(headGrid(), cell);
+  SPR.body = renderSprite(bodyGrid(), cell);
+  SPR.arm = renderSprite(armGrid(), cell);
+  SPR.ant = renderSprite(antennaGrid(), cell);
+  SPR.particle = {
+    heartPink: renderSprite(patternGrid(HEART_ROWS, 'P'), 12, 0.35),
+    heartWhite: renderSprite(patternGrid(HEART_ROWS, 'S'), 12, 0.35),
+    heartGreen: renderSprite(patternGrid(HEART_ROWS, 'L'), 12, 0.35),
+    starGold: renderSprite(patternGrid(STAR_ROWS, 'Y'), 11, 0.35),
+    noteCyan: renderSprite(patternGrid(NOTE_ROWS, 'C'), 11, 0.35),
+    notePink: renderSprite(patternGrid(NOTE_ROWS, 'T'), 11, 0.35),
+  };
+  SPR.eyes = {};
+  for (const k in EXPR) SPR.eyes[k] = renderEyes(EXPR[k], cell);
+  SPR.petal = { red: petalSprite('#f2405a', '#b3122b', '#4a020d', 'rgba(255,170,180,.55)'), white: petalSprite('#ffffff', '#ece8dc', '#a9a58e', 'rgba(255,255,255,.8)') };
+  const items = window.ITEMS || {};
+  await Promise.all(Object.entries(items).map(async ([k, d]) => { ITEM_DEFS[k] = { ...d, img: await loadImage(d.src) }; }));
+  Object.assign(ITEM_DEFS, PROC_ITEMS);
+})();
+
+/* ---------- linha do tempo ---------- */
+const T = {
+  portal: 0.0, panelIn: 0.3, itemIn: 0.55, notice: 0.75, wide: 0.85, react: 1.0,
+  reach: 1.05, contact: 1.52, pullEnd: 2.15, shatter: 1.82, happy: 3.0,
+  wave: 3.05, antic: 3.8, launch: 4.05, gone: 4.55,
+  throwStart: 2.5, release: 2.64, burst: 2.92,
+};
+const BASE = { x: 330, y: 1500, sc: 0.8 };
+const PANEL = { x: 760, y: 1000, w: 440, h: 560, rot: -3 };
+const SHOULDER_R = [232, 74], SHOULDER_L = [-232, 74], HAND = 128;
+const ARM_HOLD = -150;
+
+// estado do efeito atual (muda a cada presente)
+const CUR = { key: null, gift: null, item: null, grip: null, reach: null, aim: null, holdSc: 0.8, holdRot: -8, screenSc: 1.15 };
+function setGift(key) {
+  if (CUR.key === key) return;
+  const gift = GIFTS[key], item = ITEM_DEFS[gift.item];
+  CUR.key = key; CUR.gift = gift; CUR.item = item; CUR.aim = null;
+  CUR.screenSc = item.stem ? 1.15 : 1.45;
+  if (item.stem) {
+    CUR.grip = { x: 760, y: 1222 };              // a flor "sai" pela borda de cima da janela
+    CUR.holdSc = 0.9; CUR.holdRot = -22;
+  } else {
+    CUR.grip = { x: 760 + (item.GX - item.BX) * CUR.screenSc, y: 960 + (item.GY - item.BY) * CUR.screenSc };
+    CUR.holdSc = item.proc ? 0.95 : 1.0; CUR.holdRot = -8;
+  }
+  CUR.reach = { x: CUR.grip.x - 305, y: CUR.grip.y + 16 };
+}
+
+function itemScreen(t) {
+  const p = seg(t, T.itemIn, T.itemIn + 0.45);
+  const tt = Math.min(t, T.contact);
+  return {
+    x: CUR.grip.x + Math.sin(tt * 2.1) * 6,
+    y: CUR.grip.y + Math.sin(tt * 2.7) * 8,
+    rot: (CUR.item.stem ? -6 : 0) + Math.sin(tt * 1.9) * 3,
+    sc: CUR.screenSc * E.outElastic(p),
+    sx: 0.94 + 0.06 * Math.cos(tt * 2.4),
+  };
+}
+function robotMatrix(s) {
+  return new DOMMatrix().translate(s.x, s.y).rotate(s.rot).scale(s.sc * s.sx, s.sc * s.sy);
+}
+function armAim(M, shoulder, wx, wy) {
+  const inv = M.inverse(), p = inv.transformPoint(new DOMPoint(wx, wy));
+  const dx = p.x - shoulder[0], dy = p.y - shoulder[1];
+  return { ang: Math.atan2(-dx, dy) * DEG, len: Math.hypot(dx, dy) / HAND };
+}
+function contactAim() {
+  if (!CUR.aim) { const c = robotState(T.contact); CUR.aim = { ang: c.armR, len: c.armRS }; }
+  return CUR.aim;
+}
+function robotState(t) {
+  const gift = CUR.gift;
+  const s = { x: BASE.x, y: BASE.y, sc: BASE.sc, sx: 1, sy: 1, rot: 0, head: 0, armL: 10, armR: -10, armRS: 1, armLS: 1, expr: 'logo', diss: 1, visible: t >= 0.05 && t < T.gone + 0.2 };
+  // entrada
+  const pin = seg(t, 0.08, 0.7);
+  s.y += 140 * (1 - E.outBack(pin));
+  s.sc *= 0.65 + 0.35 * E.outBack(pin);
+  s.diss = seg(t, 0.08, 0.62);
+  // flutuação
+  s.y += Math.sin(t * 3.4) * 9;
+  s.rot += Math.sin(t * 2.2) * 1.5;
+  s.armL += Math.sin(t * 3.4 + 1) * 4;
+  s.armR -= Math.sin(t * 3.4 + 1) * 4;
+  // percebe o presente
+  s.head += 7 * E.outCubic(seg(t, T.notice, T.notice + 0.25));
+  // alcança
+  s.armR += 18 * win(t, 0.9, 1.1);
+  const r = E.inOutCubic(seg(t, T.reach, T.contact));
+  const back = E.inOutCubic(seg(t, T.contact + 0.05, T.pullEnd));
+  const lean = r * (1 - back);
+  s.x += (CUR.reach.x - BASE.x) * lean; s.y += (CUR.reach.y - BASE.y) * lean; s.rot += 9 * lean; s.sc *= 1 + 0.16 * lean;
+  s.rot -= 6 * win(t, T.contact + 0.05, T.pullEnd + 0.15);
+  // segurando
+  const holding = t >= T.pullEnd && t < T.antic;
+  const ht = t - T.pullEnd;
+  if (t >= T.pullEnd) {
+    s.rot += 4 * Math.sin(ht * 4.2) * (1 - seg(t, T.antic - 0.2, T.antic));
+    s.head = lerp(7, 10, E.outCubic(seg(t, T.pullEnd, T.pullEnd + 0.3))) + 2 * Math.sin(ht * 4.2 + 0.6);
+    const bounce = win(t, T.pullEnd, T.pullEnd + 0.3);
+    s.sy *= 1 - 0.06 * bounce; s.sx *= 1 + 0.05 * bounce;
+  }
+  // dança (TikTok)
+  const beat = ht * 2.2 * Math.PI * 2;
+  const danceK = gift.dance ? seg(t, T.pullEnd, T.pullEnd + 0.2) * (1 - seg(t, T.antic - 0.15, T.antic)) : 0;
+  if (danceK > 0) {
+    s.head += 10 * Math.sin(beat) * danceK;
+    s.y -= 16 * Math.abs(Math.sin(beat)) * danceK;
+    s.rot += 6 * Math.sin(beat) * danceK;
+  }
+  // tchauzinho com o braço esquerdo
+  const wv = seg(t, T.wave, T.wave + 0.2) * (1 - seg(t, T.antic - 0.1, T.antic + 0.1));
+  s.armL = lerp(s.armL, 150 + 22 * Math.sin((t - T.wave) * 19), E.outCubic(wv));
+  if (danceK > 0 && t < T.wave) s.armL = lerp(s.armL, 120 + 35 * Math.sin(beat), danceK);
+  // braço direito: mira no presente e depois traz para perto
+  const target = itemScreen(T.contact);
+  const aim = t === T.contact ? armAim(robotMatrix(s), SHOULDER_R, target.x, target.y) : contactAim();
+  if (t < T.contact + 0.05) {
+    s.armR = lerp(s.armR, aim.ang, r);
+    s.armRS = lerp(1, aim.len, r);
+  } else {
+    const k = E.inOutCubic(seg(t, T.contact + 0.05, T.pullEnd));
+    s.armR = lerp(aim.ang, ARM_HOLD + 3 * Math.sin(ht * 4.2) + (danceK ? 10 * Math.sin(beat + 1) * danceK : 0), k);
+    s.armRS = lerp(aim.len, 1, E.outCubic(seg(t, T.contact + 0.05, T.pullEnd)));
+  }
+  // fogos: arremessa para cima
+  if (gift.throwUp) {
+    const wind = win(t, T.throwStart, T.release) * 0.6, fling = E.outCubic(seg(t, T.throwStart + 0.06, T.release + 0.05));
+    s.armR += 25 * wind - 30 * fling * (1 - seg(t, T.release + 0.2, T.release + 0.5));
+    s.sy *= 1 + 0.06 * win(t, T.release - 0.05, T.release + 0.25);
+  }
+  // antecipação e decolagem
+  const a = Math.sin(Math.PI * 0.5 * seg(t, T.antic, T.launch)) * (1 - seg(t, T.launch, T.launch + 0.08));
+  s.sy *= 1 - 0.12 * a; s.sx *= 1 + 0.09 * a; s.y += 28 * a;
+  s.armL = lerp(s.armL, 30, seg(t, T.antic, T.launch));
+  const u = E.inCubic(seg(t, T.launch, T.gone));
+  s.x += 1250 * u; s.y -= 1450 * u; s.rot += 28 * u;
+  if (t > T.launch) { const st = Math.min(1, (t - T.launch) / 0.12); s.sy *= 1 + 0.18 * st; s.sx *= 1 - 0.12 * st; }
+  // expressões
+  if (t < T.wide) s.expr = (t > 0.68 && t < 0.74) ? 'blink' : 'logo';
+  else if (t < T.react) s.expr = 'wide';
+  else if (t < T.happy) s.expr = (t > 2.62 && t < 2.68) ? 'blink' : gift.eyes;
+  else if (t < T.antic) s.expr = 'happy';
+  else s.expr = 'logo';
+  if (gift.fx === 'rawr' && t > 2.55 && t < 2.85) s.expr = 'wide';
+  if (gift.throwUp && t > T.release && t < T.burst) s.expr = 'wide';
+  s.blush = gift.blush && t >= T.react && t < T.antic;
+  s.holding = holding;
+  return s;
+}
+function handWorld(s) {
+  const M = robotMatrix(s).translate(SHOULDER_R[0], SHOULDER_R[1]).rotate(s.armR).scale(s.armRS);
+  return M.transformPoint(new DOMPoint(0, HAND));
+}
+function itemTransform(t, s) {
+  if (t < T.contact) { const r = itemScreen(t); return { ...r, clip: !!CUR.item.stem }; }
+  const r0 = itemScreen(T.contact), h = handWorld(s);
+  const k = E.inOutCubic(seg(t, T.contact, T.pullEnd));
+  const ht = t - T.pullEnd;
+  let rot = lerp(r0.rot, CUR.holdRot + 3 * Math.sin(ht * 4.2), k) + s.rot * 0.5 * k;
+  let sc = lerp(r0.sc, CUR.holdSc, k) * Math.min(1, s.sc / BASE.sc), sy = 1;
+  const g = CUR.gift;
+  if (g.bounce && t > T.pullEnd) { const b = Math.abs(Math.sin(ht * 2.2 * Math.PI)); sy = 1 + 0.08 * b; sc *= 1 - 0.03 * b; }
+  if (g.dance && t > T.pullEnd) rot += 6 * Math.sin(ht * 2.2 * Math.PI * 2) - 4 * s.rot * 0.5;
+  if (g.fx === 'rawr') rot += 9 * Math.sin(t * 70) * win(t, 2.55, 2.95);
+  const out = { x: h.x, y: h.y, rot, sc, sx: 1, sy, clip: false, alpha: 1 };
+  if (g.throwUp && t >= T.release) {
+    // voa da mão até o ponto da explosão
+    const sAt = robotState(T.release), h0 = handWorld(sAt);
+    const f = E.outCubic(seg(t, T.release, T.burst));
+    out.x = lerp(h0.x, BURSTS[0].x, f); out.y = lerp(h0.y, BURSTS[0].y + 125 * 0.5, f) - 120 * Math.sin(Math.PI * f) * 0.4;
+    out.sc = lerp(CUR.holdSc, 0.5, f); out.rot = rot + 360 * f;
+    out.alpha = t < T.burst ? 1 : 0;
+  }
+  return out;
+}
+
+/* ---------- desenho ---------- */
+function drawImg(g, M, img, ox, oy, k = 1 / SS) {
+  g.setTransform(M.translate(-ox, -oy).scale(k));
+  g.drawImage(img, 0, 0);
+}
+function itemCenter(r) {
+  const it = CUR.item;
+  return new DOMMatrix().translate(r.x, r.y).rotate(r.rot).scale(r.sc).transformPoint(new DOMPoint(it.BX - it.GX, it.BY - it.GY));
+}
+function drawItem(g, r, t) {
+  if (r.sc <= 0.001 || r.alpha === 0) return;
+  const it = CUR.item, gl = CUR.gift.glow;
+  const M = new DOMMatrix().translate(r.x, r.y).rotate(r.rot).scale(r.sc * r.sx, r.sc * (r.sy || 1));
+  g.save();
+  if (r.clip) {
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.beginPath(); g.rect(0, 0, W, PANEL.y + PANEL.h / 2 - 8); g.clip();
+  }
+  // brilho atrás do item
+  const cx = it.BX - it.GX, cy = it.BY - it.GY, rad = it.R * 2.3;
+  g.setTransform(M);
+  g.globalCompositeOperation = 'lighter';
+  const glow = g.createRadialGradient(cx, cy, 10, cx, cy, rad);
+  glow.addColorStop(0, `rgba(${gl},.34)`); glow.addColorStop(1, `rgba(${gl},0)`);
+  g.fillStyle = glow; g.fillRect(cx - rad, cy - rad, rad * 2, rad * 2);
+  g.globalCompositeOperation = 'source-over';
+  if (it.proc) it.proc(g, M, t);
+  else { g.setTransform(M); g.drawImage(it.img, -it.GX, -it.GY, it.W, it.H); }
+  g.restore();
+}
+function drawRobot(g, s, t, itemCb) {
+  const M = robotMatrix(s);
+  g.globalCompositeOperation = 'source-over';
+  // propulsor
+  g.setTransform(M);
+  const fl = 0.85 + 0.15 * Math.sin(t * 47) + (t > T.antic ? 0.6 * seg(t, T.antic, T.launch) : 0);
+  const jg = g.createRadialGradient(0, 260, 4, 0, 260, 150 * fl);
+  jg.addColorStop(0, 'rgba(200,250,255,.9)'); jg.addColorStop(0.25, 'rgba(34,229,255,.55)'); jg.addColorStop(1, 'rgba(34,229,255,0)');
+  g.fillStyle = jg; g.beginPath(); g.ellipse(0, 268, 150 * fl, 70 * fl, 0, 0, Math.PI * 2); g.fill();
+  // braço esquerdo
+  drawImg(g, M.translate(SHOULDER_L[0], SHOULDER_L[1]).rotate(s.armL).scale(s.armLS), SPR.arm, 64, 24);
+  // corpo
+  drawImg(g, M, SPR.body, 192, -30);
+  // tela do peito
+  g.setTransform(M);
+  const love = s.expr === 'heart' ? 1 : 0;
+  g.globalCompositeOperation = love ? 'source-over' : 'lighter';
+  g.fillStyle = love ? `rgba(255,61,127,${0.7 + 0.2 * Math.sin(t * 12)})` : `rgba(34,229,255,${0.25 + 0.2 * Math.sin(t * 6)})`;
+  g.shadowColor = love ? '#ff3d7f' : '#22e5ff'; g.shadowBlur = 30;
+  g.fillRect(-192 + 9 * CELL, 30 + 5 * CELL, 6 * CELL, 2 * CELL);
+  g.shadowBlur = 0; g.globalCompositeOperation = 'source-over';
+  // cabeça
+  const HM = M.translate(0, 30).rotate(s.head).translate(0, -30);
+  drawImg(g, HM.translate(-112, -310 - 9 * CELL + 2 * CELL), SPR.ant, 0, 0);
+  g.setTransform(HM.translate(-112 + 2.5 * CELL, -310 - 9 * CELL + 2.5 * CELL));
+  g.globalCompositeOperation = 'lighter';
+  const ag = g.createRadialGradient(0, 0, 2, 0, 0, 70);
+  ag.addColorStop(0, `rgba(34,229,255,${0.5 + 0.3 * Math.sin(t * 9)})`); ag.addColorStop(1, 'rgba(34,229,255,0)');
+  g.fillStyle = ag; g.fillRect(-70, -70, 140, 140);
+  g.globalCompositeOperation = 'source-over';
+  drawImg(g, HM, SPR.head, 272, 310);
+  // olhos
+  const pulse = (s.expr === 'heart' || s.expr === 'heartWhite' || s.expr === 'star') ? 1 + 0.06 * Math.sin(t * 14) : 1;
+  const eyeM = HM.translate(-272 + 17 * CELL, -310 + 11 * CELL).scale(pulse).translate(-17 * CELL, -11 * CELL);
+  g.globalCompositeOperation = 'lighter';
+  drawImg(g, eyeM, SPR.eyes[s.expr], CELL, CELL);
+  if (s.blush) { g.globalAlpha = 0.85; drawImg(g, HM.translate(-272, -310), SPR.eyes.blush, CELL, CELL); g.globalAlpha = 1; }
+  g.globalCompositeOperation = 'source-over';
+  if (itemCb) itemCb(g);
+  // braço direito (na frente do item)
+  drawImg(g, M.translate(SHOULDER_R[0], SHOULDER_R[1]).rotate(s.armR).scale(s.armRS), SPR.arm, 64, 24);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+const RL = mkCanvas(W, H), rl = RL.getContext('2d');
+const DISS = (() => {
+  const R = rng(7), out = [];
+  for (let y = -470; y < 300; y += 26) for (let x = -320; x < 320; x += 26) {
+    const vy = 1 - (y + 470) / 770;
+    out.push({ x, y, th: 0.55 * R() + 0.45 * vy });
+  }
+  return out;
+})();
+function renderRobotLayer(t, s, withItem) {
+  rl.setTransform(1, 0, 0, 1, 0, 0);
+  rl.clearRect(0, 0, W, H);
+  drawRobot(rl, s, t, withItem ? g => drawItem(g, itemTransform(t, s), t) : null);
+  if (s.diss < 1) {
+    rl.setTransform(robotMatrix(s));
+    rl.globalCompositeOperation = 'destination-in';
+    rl.beginPath();
+    for (const b of DISS) if (b.th < s.diss) rl.rect(b.x, b.y, 27, 27);
+    rl.fillStyle = '#000'; rl.fill();
+    rl.globalCompositeOperation = 'source-over';
+    rl.setTransform(1, 0, 0, 1, 0, 0);
+  }
+}
+
+/* ---------- partículas e efeitos ---------- */
+const PORTAL_SPARKS = makeParticles(42, 11, R => ({ t0: 0.04 + R() * 0.4, ang: R() * Math.PI * 2, v: 350 + R() * 750, life: 0.45 + R() * 0.45, size: 6 + R() * 12, spin: (R() - 0.5) * 12, white: R() < 0.35 }));
+const SHARDS = makeParticles(64, 23, R => ({ ux: R() - 0.5, uy: R() - 0.5, vx: (R() - 0.5) * 900, vy: -200 - R() * 700, size: 10 + R() * 22, spin: (R() - 0.5) * 14, life: 0.6 + R() * 0.5, delay: R() * 0.12 }));
+const FLOATERS = makeParticles(14, 31, (R, i) => ({ t0: T.pullEnd + 0.08 + i * 0.11, dx: (R() - 0.5) * 200, rise: 230 + R() * 180, wob: 20 + R() * 25, ph: R() * 6, size: 0.6 + R() * 0.7, life: 1.0 + R() * 0.3, alt: i % 2 }));
+const PETALS = makeParticles(4, 41, (R, i) => ({ t0: T.contact + 0.08 + i * 0.07, dx: -60 + R() * 200, fall: 380 + R() * 260, sway: 30 + R() * 40, ph: R() * 6, spin: (R() - 0.5) * 5, size: 0.45 + R() * 0.35, life: 1.6 + R() * 0.5 }));
+const GLINTS = makeParticles(9, 53, R => ({ ox: (R() - 0.5) * 320, oy: (R() - 0.5) * 260, t0: T.itemIn + 0.1 + R() * 0.8, life: 0.4 + R() * 0.4, size: 18 + R() * 26 }));
+const HOLD_GLINTS = makeParticles(12, 59, R => ({ ox: (R() - 0.5) * 240, oy: (R() - 0.5) * 220, t0: T.pullEnd + R() * 1.6, life: 0.35 + R() * 0.35, size: 14 + R() * 18 }));
+const STAR_BURST = makeParticles(26, 61, (R, i) => ({ a: i / 26 * Math.PI * 2 + (R() - 0.5) * 0.2, v: 260 + R() * 320, size: 0.5 + R() * 0.6, spin: (R() - 0.5) * 6 }));
+const TRAIL = makeParticles(46, 67, R => ({ t0: T.launch + R() * 0.45, dx: (R() - 0.5) * 120, dy: (R() - 0.5) * 120, vx: (R() - 0.5) * 140, vy: 60 + R() * 160, life: 0.3 + R() * 0.35, size: 5 + R() * 10, white: R() < 0.4 }));
+const BURSTS = [
+  { t0: T.burst, x: 560, y: 520, pal: ['255,210,90', '255,120,60', '255,255,255'], n: 130, v: 900 },
+  { t0: T.burst + 0.3, x: 260, y: 780, pal: ['80,220,255', '170,120,255', '255,255,255'], n: 110, v: 700 },
+  { t0: T.burst + 0.55, x: 850, y: 430, pal: ['255,90,170', '255,190,230', '255,255,255'], n: 110, v: 760 },
+  { t0: T.burst + 0.8, x: 600, y: 260, pal: ['120,255,140', '255,240,120', '255,255,255'], n: 100, v: 640 },
+];
+BURSTS.forEach((b, bi) => { b.p = makeParticles(b.n, 101 + bi, (R, i) => ({ a: i / b.n * Math.PI * 2 + (R() - 0.5) * 0.08, v: b.v * (0.55 + R() * 0.45), c: b.pal[i % b.pal.length], tw: R() * 6, life: 1.0 + R() * 0.5 })); });
+
+function star(g, x, y, r, a, color = '255,255,255') {
+  if (a <= 0 || r <= 0) return;
+  g.setTransform(1, 0, 0, 1, x, y);
+  const gr = g.createRadialGradient(0, 0, 0, 0, 0, r);
+  gr.addColorStop(0, `rgba(${color},${a})`); gr.addColorStop(0.15, `rgba(${color},${a * 0.5})`); gr.addColorStop(1, `rgba(${color},0)`);
+  g.fillStyle = gr;
+  g.beginPath();
+  g.moveTo(0, -r); g.quadraticCurveTo(0, 0, r, 0); g.quadraticCurveTo(0, 0, 0, r); g.quadraticCurveTo(0, 0, -r, 0); g.quadraticCurveTo(0, 0, 0, -r);
+  g.fill();
+  g.beginPath(); g.arc(0, 0, r * 0.12, 0, Math.PI * 2); g.fillStyle = `rgba(255,255,255,${a})`; g.fill();
+}
+function flare(g, x, y, len, a, color = '34,229,255') {
+  if (a <= 0.003) return;
+  g.setTransform(1, 0, 0, 1, x, y);
+  const gr = g.createLinearGradient(-len, 0, len, 0);
+  gr.addColorStop(0, `rgba(${color},0)`); gr.addColorStop(0.5, `rgba(${color},${a})`); gr.addColorStop(1, `rgba(${color},0)`);
+  g.fillStyle = gr;
+  g.beginPath(); g.ellipse(0, 0, len, 5 + 6 * a, 0, 0, Math.PI * 2); g.fill();
+  g.fillStyle = `rgba(255,255,255,${a * 0.9})`;
+  g.beginPath(); g.ellipse(0, 0, len * 0.35, 2, 0, 0, Math.PI * 2); g.fill();
+  const rg = g.createRadialGradient(0, 0, 0, 0, 0, 90);
+  rg.addColorStop(0, `rgba(255,255,255,${a})`); rg.addColorStop(0.3, `rgba(${color},${a * 0.5})`); rg.addColorStop(1, `rgba(${color},0)`);
+  g.fillStyle = rg; g.fillRect(-90, -90, 180, 180);
+}
+
+function drawPortal(g, t) {
+  const k = E.outExpo(seg(t, 0.0, 0.35)) * (1 - E.inCubic(seg(t, 0.7, 1.05)));
+  if (k <= 0.001) return;
+  const cx = BASE.x, cy = BASE.y - 90, R = 330 * k;
+  g.globalCompositeOperation = 'lighter';
+  g.setTransform(1, 0, 0, 1, cx, cy);
+  const inner = g.createRadialGradient(0, 0, 0, 0, 0, R);
+  inner.addColorStop(0, 'rgba(30,120,255,0)'); inner.addColorStop(0.7, `rgba(30,140,255,${0.18 * k})`); inner.addColorStop(1, `rgba(34,229,255,${0.45 * k})`);
+  g.fillStyle = inner; g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.fill();
+  g.shadowColor = '#22e5ff'; g.shadowBlur = 40;
+  g.strokeStyle = `rgba(160,245,255,${0.95 * k})`; g.lineWidth = 10 * k + 2;
+  g.beginPath(); g.arc(0, 0, R, 0, Math.PI * 2); g.stroke();
+  g.shadowBlur = 0;
+  for (let i = 0; i < 3; i++) {
+    g.strokeStyle = `rgba(34,229,255,${0.7 * k})`; g.lineWidth = 4;
+    const a0 = t * (5 + i * 2) * (i % 2 ? -1 : 1) + i * 2;
+    g.beginPath(); g.arc(0, 0, R * (0.78 - i * 0.14), a0, a0 + 1.6 + i * 0.4); g.stroke();
+  }
+  for (let i = 0; i < 28; i++) {
+    const a = i / 28 * Math.PI * 2 + t * 2.5, rr2 = R * 1.08 + Math.sin(i * 3 + t * 20) * 6;
+    g.fillStyle = `rgba(200,250,255,${0.8 * k})`;
+    g.fillRect(Math.cos(a) * rr2 - 4, Math.sin(a) * rr2 - 4, 8, 8);
+  }
+  g.globalCompositeOperation = 'source-over';
+  g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawPortalSparks(g, t) {
+  g.globalCompositeOperation = 'lighter';
+  g.shadowColor = '#22e5ff'; g.shadowBlur = 14;
+  for (const p of PORTAL_SPARKS) {
+    const lt = (t - p.t0) / p.life; if (lt < 0 || lt > 1) continue;
+    const d = p.v * p.life * E.outCubic(lt) * 0.6;
+    g.setTransform(1, 0, 0, 1, BASE.x + Math.cos(p.ang) * (120 + d), BASE.y - 90 + Math.sin(p.ang) * (120 + d)); g.rotate(p.spin * lt);
+    g.fillStyle = p.white ? `rgba(255,255,255,${1 - lt})` : `rgba(34,229,255,${1 - lt})`;
+    const sz = p.size * (1 - lt * 0.5);
+    g.fillRect(-sz / 2, -sz / 2, sz, sz);
+  }
+  g.shadowBlur = 0; g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function panelState(t) {
+  if (t < T.panelIn) return null;
+  const pop = E.outBack(seg(t, T.panelIn, T.panelIn + 0.35));
+  let sx = 0.72 + 0.28 * pop, sy = sx, a = seg(t, T.panelIn, T.panelIn + 0.12);
+  if (t < T.panelIn + 0.32) a *= (Math.floor(t * 45) % 3 === 0) ? 0.35 : 1;
+  const c = seg(t, T.shatter, T.shatter + 0.28);
+  if (c > 0) {
+    if (c < 0.55) { sy *= lerp(1, 0.02, E.inCubic(c / 0.55)); sx *= 1 + 0.06 * c; }
+    else { sy *= 0.02; sx *= lerp(1.03, 0, E.inCubic((c - 0.55) / 0.45)); }
+    if (c >= 1) return null;
+  }
+  const hit = t > T.contact ? Math.exp(-(t - T.contact) * 9) : 0;
+  return { sx, sy, a, dx: Math.sin(t * 95) * 14 * hit, dy: Math.cos(t * 80) * 6 * hit, glow: 1 + 1.5 * hit + 2 * c };
+}
+function drawPanel(g, t) {
+  const p = panelState(t); if (!p) return;
+  const { w, h } = PANEL;
+  g.save();
+  g.setTransform(new DOMMatrix().translate(PANEL.x + p.dx, PANEL.y + p.dy).rotate(PANEL.rot).scale(p.sx, p.sy));
+  g.globalAlpha = p.a;
+  const gf = g.createLinearGradient(-w / 2, -h / 2, w / 2, h / 2);
+  gf.addColorStop(0, 'rgba(120,200,255,.22)'); gf.addColorStop(0.5, 'rgba(40,90,190,.12)'); gf.addColorStop(1, 'rgba(90,60,220,.2)');
+  rrPath(g, -w / 2, -h / 2, w, h, 26); g.fillStyle = gf; g.fill();
+  g.save(); g.clip();
+  g.globalCompositeOperation = 'lighter';
+  g.strokeStyle = 'rgba(34,229,255,.07)'; g.lineWidth = 1;
+  for (let x = -w / 2; x < w / 2; x += 28) { g.beginPath(); g.moveTo(x, -h / 2); g.lineTo(x, h / 2); g.stroke(); }
+  for (let y = -h / 2; y < h / 2; y += 28) { g.beginPath(); g.moveTo(-w / 2, y); g.lineTo(w / 2, y); g.stroke(); }
+  const sw = ((t - T.panelIn) * 900) % 1600 - 600;
+  const sg = g.createLinearGradient(sw - 120, 0, sw + 120, 0);
+  sg.addColorStop(0, 'rgba(255,255,255,0)'); sg.addColorStop(0.5, 'rgba(255,255,255,.16)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+  g.setTransform(g.getTransform().rotate(25));
+  g.fillStyle = sg; g.fillRect(sw - 120, -h, 240, h * 2);
+  g.restore();
+  g.globalCompositeOperation = 'lighter';
+  g.fillStyle = 'rgba(34,229,255,.10)'; g.fillRect(-w / 2 + 2, -h / 2 + 2, w - 4, 44);
+  g.strokeStyle = 'rgba(34,229,255,.35)'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(-w / 2, -h / 2 + 46); g.lineTo(w / 2, -h / 2 + 46); g.stroke();
+  ['#ff5f8f', '#ffd25f', '#3dffd0'].forEach((c, i) => { g.fillStyle = c; g.beginPath(); g.arc(-w / 2 + 28 + i * 22, -h / 2 + 23, 6.5, 0, Math.PI * 2); g.fill(); });
+  g.font = '600 17px ui-monospace, "Cascadia Mono", Consolas, monospace';
+  g.fillStyle = 'rgba(200,245,255,.85)'; g.textAlign = 'right'; g.textBaseline = 'middle';
+  g.fillText('INTELRA · ' + CUR.gift.label, w / 2 - 22, -h / 2 + 24);
+  g.shadowColor = '#22e5ff'; g.shadowBlur = 22 * p.glow;
+  rrPath(g, -w / 2, -h / 2, w, h, 26);
+  g.strokeStyle = `rgba(120,240,255,${Math.min(1, 0.75 * p.glow)})`; g.lineWidth = 3; g.stroke();
+  g.shadowBlur = 0;
+  g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 4;
+  const cL = 34, ox = w / 2 + 12, oy = h / 2 + 12;
+  [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx2, sy2]) => {
+    g.beginPath(); g.moveTo(sx2 * ox, sy2 * (oy - cL)); g.lineTo(sx2 * ox, sy2 * oy); g.lineTo(sx2 * (ox - cL), sy2 * oy); g.stroke();
+  });
+  g.restore();
+}
+function drawRipples(g, t, cx, cy) {
+  const lt = t - T.contact; if (lt < 0 || lt > 0.9) return;
+  g.globalCompositeOperation = 'lighter';
+  const fa = Math.exp(-lt * 10);
+  g.setTransform(1, 0, 0, 1, cx, cy);
+  const fg = g.createRadialGradient(0, 0, 0, 0, 0, 260);
+  fg.addColorStop(0, `rgba(255,255,255,${fa})`); fg.addColorStop(0.2, `rgba(140,240,255,${0.6 * fa})`); fg.addColorStop(1, 'rgba(34,229,255,0)');
+  g.fillStyle = fg; g.fillRect(-260, -260, 520, 520);
+  for (let i = 0; i < 4; i++) {
+    const rt = (lt - i * 0.08) / 0.7; if (rt < 0 || rt > 1) continue;
+    const R = 30 + 330 * E.outCubic(rt), a = (1 - rt) * 0.8;
+    for (const [c, off] of [['255,60,120', -4], ['60,255,200', 0], ['80,140,255', 4]]) {
+      g.strokeStyle = `rgba(${c},${a})`; g.lineWidth = 6 * (1 - rt) + 1;
+      g.beginPath(); g.ellipse(off, 0, R, R * 0.92, 0, 0, Math.PI * 2); g.stroke();
+    }
+  }
+  g.globalCompositeOperation = 'source-over';
+  g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawShards(g, t) {
+  const t0 = T.shatter + 0.12;
+  if (t < t0) return;
+  g.globalCompositeOperation = 'lighter';
+  for (const p of SHARDS) {
+    const lt = t - t0 - p.delay; if (lt < 0 || lt > p.life) continue;
+    const a = 1 - lt / p.life;
+    g.setTransform(1, 0, 0, 1, PANEL.x + p.ux * PANEL.w + p.vx * lt, PANEL.y + p.uy * PANEL.h * 0.15 + p.vy * lt + 1100 * lt * lt); g.rotate(p.spin * lt);
+    g.fillStyle = `rgba(140,220,255,${0.22 * a})`; g.strokeStyle = `rgba(160,245,255,${0.9 * a})`; g.lineWidth = 2;
+    g.fillRect(-p.size / 2, -p.size / 2, p.size, p.size); g.strokeRect(-p.size / 2, -p.size / 2, p.size, p.size);
+  }
+  g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawPetals(g, t, origin, sprite) {
+  for (const p of PETALS) {
+    const lt = t - p.t0; if (lt < 0 || lt > p.life) continue;
+    const k = lt / p.life;
+    g.setTransform(1, 0, 0, 1, origin.x + p.dx * k + Math.sin(lt * 3 + p.ph) * p.sway, origin.y + p.fall * (k * k * 0.6 + k * 0.4));
+    g.rotate(p.ph + p.spin * lt); g.scale(p.size * (0.6 + 0.4 * Math.abs(Math.cos(lt * 4 + p.ph))), p.size);
+    g.globalAlpha = Math.min(1, (1 - k) * 2);
+    g.drawImage(sprite, -32, -40);
+  }
+  g.globalAlpha = 1; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+const GLOW_OF = { heartPink: '#ff3d7f', heartWhite: '#9fe6ff', heartGreen: '#3dff6a', starGold: '#ffb000', noteCyan: '#22e5ff', notePink: '#fe2c55' };
+function drawFloaters(g, t, origin, kind) {
+  for (const p of FLOATERS) {
+    const lt = t - p.t0; if (lt < 0 || lt > p.life) continue;
+    const k = lt / p.life;
+    const spr = kind === 'note' ? (p.alt ? 'notePink' : 'noteCyan') : kind;
+    const sc = p.size * E.outBack(seg(k, 0, 0.25)) * (1 - 0.3 * k);
+    g.setTransform(1, 0, 0, 1, origin.x + p.dx + Math.sin(lt * 5 + p.ph) * p.wob, origin.y - p.rise * E.outCubic(k));
+    g.rotate(kind === 'note' ? 0.3 * Math.sin(lt * 8 + p.ph) : 0);
+    g.scale(sc, sc);
+    g.globalAlpha = 1 - seg(k, 0.6, 1);
+    g.shadowColor = GLOW_OF[spr]; g.shadowBlur = 24;
+    const img = SPR.particle[spr];
+    g.drawImage(img, -img.width / 2, -img.height / 2);
+  }
+  g.shadowBlur = 0; g.globalAlpha = 1; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawGlints(g, t, list, origin, color) {
+  g.globalCompositeOperation = 'lighter';
+  for (const p of list) {
+    const lt = (t - p.t0) / p.life; if (lt < 0 || lt > 1) continue;
+    star(g, origin.x + p.ox, origin.y + p.oy, p.size * Math.sin(Math.PI * lt), Math.sin(Math.PI * lt), color);
+  }
+  g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawStarBurst(g, t, origin) {
+  const lt = t - T.pullEnd; if (lt < 0 || lt > 0.9) return;
+  const img = SPR.particle.starGold;
+  g.shadowColor = '#ffb000'; g.shadowBlur = 20;
+  for (const p of STAR_BURST) {
+    const d = p.v * E.outCubic(lt / 0.9);
+    g.setTransform(1, 0, 0, 1, origin.x + Math.cos(p.a) * d, origin.y + Math.sin(p.a) * d);
+    g.rotate(p.spin * lt); g.scale(p.size * (1 - lt / 0.9), p.size * (1 - lt / 0.9));
+    g.drawImage(img, -img.width / 2, -img.height / 2);
+  }
+  g.shadowBlur = 0; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function heartPath(g, s) {
+  g.beginPath();
+  g.moveTo(0, 0.38 * s);
+  g.bezierCurveTo(-0.12 * s, 0.27 * s, -0.5 * s, 0.05 * s, -0.5 * s, -0.2 * s);
+  g.bezierCurveTo(-0.5 * s, -0.46 * s, -0.16 * s, -0.56 * s, 0, -0.3 * s);
+  g.bezierCurveTo(0.16 * s, -0.56 * s, 0.5 * s, -0.46 * s, 0.5 * s, -0.2 * s);
+  g.bezierCurveTo(0.5 * s, 0.05 * s, 0.12 * s, 0.27 * s, 0, 0.38 * s);
+  g.closePath();
+}
+function drawLoveWaves(g, t, origin) {
+  g.globalCompositeOperation = 'lighter';
+  for (const t0 of [T.pullEnd + 0.1, T.pullEnd + 0.55, T.pullEnd + 1.0]) {
+    const lt = (t - t0) / 0.9; if (lt < 0 || lt > 1) continue;
+    const size = 160 + 760 * E.outCubic(lt), a = 0.85 * (1 - lt);
+    g.setTransform(1, 0, 0, 1, origin.x, origin.y);
+    g.shadowColor = '#ff3d7f'; g.shadowBlur = 30;
+    g.strokeStyle = `rgba(255,90,150,${a})`; g.lineWidth = 12 * (1 - lt) + 2;
+    heartPath(g, size); g.stroke();
+    g.shadowBlur = 0;
+    g.strokeStyle = `rgba(255,220,235,${a})`; g.lineWidth = 3 * (1 - lt) + 1;
+    heartPath(g, size); g.stroke();
+  }
+  g.shadowBlur = 0; g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawBeatRings(g, t, origin) {
+  if (t < T.pullEnd || t > T.antic) return;
+  g.globalCompositeOperation = 'lighter';
+  const period = 1 / 2.2;
+  for (let i = 0; i < 2; i++) {
+    const lt = ((t - T.pullEnd) / period - i * 0.5) % 1; if (lt < 0) continue;
+    const R = 60 + 220 * E.outCubic(lt), a = 0.55 * (1 - lt);
+    g.setTransform(1, 0, 0, 1, origin.x, origin.y);
+    g.lineWidth = 5;
+    g.strokeStyle = `rgba(37,244,238,${a})`; g.beginPath(); g.arc(-4, -3, R, 0, Math.PI * 2); g.stroke();
+    g.strokeStyle = `rgba(254,44,85,${a})`; g.beginPath(); g.arc(4, 3, R, 0, Math.PI * 2); g.stroke();
+  }
+  g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawRawr(g, t, origin) {
+  const k = E.outBack(seg(t, 2.55, 2.75)) * (1 - seg(t, 3.35, 3.5));
+  if (k <= 0) return;
+  const x = origin.x + 230, y = origin.y - 120;
+  g.save();
+  g.setTransform(new DOMMatrix().translate(x, y).rotate(8 + 3 * Math.sin(t * 40) * win(t, 2.55, 2.95)).scale(k, k));
+  // balão em pixel
+  g.fillStyle = '#ffffff'; g.strokeStyle = '#0b1633'; g.lineWidth = 8;
+  rrPath(g, -150, -70, 300, 120, 20); g.fill(); g.stroke();
+  g.beginPath(); g.moveTo(-90, 46); g.lineTo(-130, 100); g.lineTo(-50, 46); g.closePath(); g.fill(); g.stroke();
+  g.fillRect(-86, 38, 32, 14);
+  g.font = '900 72px "Segoe UI", system-ui, sans-serif';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillStyle = '#2fae2a'; g.fillText('RAWR!', 3, -7);
+  g.fillStyle = '#58e04a'; g.fillText('RAWR!', 0, -10);
+  g.restore();
+}
+function drawFireworks(g, t) {
+  g.globalCompositeOperation = 'lighter';
+  for (const b of BURSTS) {
+    const lt = t - b.t0; if (lt < 0 || lt > 1.6) continue;
+    // clarão
+    const fa = Math.exp(-lt * 9);
+    g.setTransform(1, 0, 0, 1, b.x, b.y);
+    const fg = g.createRadialGradient(0, 0, 0, 0, 0, 220);
+    fg.addColorStop(0, `rgba(255,255,255,${fa})`); fg.addColorStop(0.3, `rgba(${b.pal[0]},${0.5 * fa})`); fg.addColorStop(1, `rgba(${b.pal[0]},0)`);
+    g.fillStyle = fg; g.fillRect(-220, -220, 440, 440);
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.lineCap = 'round';
+    for (const p of b.p) {
+      if (lt > p.life) continue;
+      const k = lt / p.life, drag = 2.2;
+      const pos = tt => { const d = p.v * (1 - Math.exp(-drag * tt)) / drag; return [b.x + Math.cos(p.a) * d, b.y + Math.sin(p.a) * d + 160 * tt * tt]; };
+      const [x1, y1] = pos(lt), [x0, y0] = pos(Math.max(0, lt - 0.07));
+      let a = 1 - k;
+      if (k > 0.6) a *= 0.5 + 0.5 * Math.sin(lt * 40 + p.tw);
+      g.strokeStyle = `rgba(${p.c},${a * 0.35})`; g.lineWidth = 14 * (1 - k * 0.6);
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+      g.strokeStyle = `rgba(${p.c},${a})`; g.lineWidth = 5 * (1 - k * 0.6);
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+      g.fillStyle = `rgba(255,255,255,${a})`; g.fillRect(x1 - 3, y1 - 3, 6, 6);
+    }
+  }
+  g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawThrowTrail(g, t, s) {
+  if (t < T.release || t > T.burst + 0.1) return;
+  g.globalCompositeOperation = 'lighter';
+  g.lineCap = 'round';
+  let prev = null;
+  for (let i = 0; i <= 12; i++) {
+    const tt = Math.max(T.release, Math.min(T.burst, t) - i * 0.02);
+    const c = itemCenter(itemTransform(tt, robotState(tt)));
+    if (prev) {
+      const k = 1 - i / 12;
+      g.strokeStyle = `rgba(255,210,120,${0.8 * k})`; g.lineWidth = 16 * k;
+      g.beginPath(); g.moveTo(prev.x, prev.y); g.lineTo(c.x, c.y); g.stroke();
+    }
+    prev = c;
+  }
+  g.globalCompositeOperation = 'source-over';
+}
+function galaxyBig(t) {
+  const grow = E.outCubic(seg(t, 2.35, 2.85)), shrink = E.inCubic(seg(t, 3.55, 3.88));
+  return { R: 720 * grow * (1 - shrink), a: Math.min(1, grow * 1.2) * (1 - shrink * 0.6), shrink };
+}
+function drawTrail(g, t) {
+  if (t < T.launch) return;
+  g.globalCompositeOperation = 'lighter';
+  const pts = [];
+  for (let i = 0; i <= 14; i++) {
+    const tt = Math.max(T.launch, t - i * 0.022);
+    pts.push(robotMatrix(robotState(tt)).transformPoint(new DOMPoint(0, -60)));
+  }
+  const fade = 1 - seg(t, T.gone, T.gone + 0.25);
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.lineCap = 'round'; g.lineJoin = 'round';
+  for (let pass = 0; pass < 2; pass++) {
+    for (let i = 0; i < pts.length - 1; i++) {
+      const k = 1 - i / pts.length;
+      g.strokeStyle = pass ? `rgba(255,255,255,${0.85 * k * fade})` : `rgba(34,229,255,${0.5 * k * fade})`;
+      g.lineWidth = (pass ? 14 : 60) * k;
+      g.beginPath(); g.moveTo(pts[i].x, pts[i].y); g.lineTo(pts[i + 1].x, pts[i + 1].y); g.stroke();
+    }
+  }
+  for (const p of TRAIL) {
+    const lt = t - p.t0; if (lt < 0 || lt > p.life) continue;
+    const o = robotMatrix(robotState(p.t0)).transformPoint(new DOMPoint(0, 0));
+    const k = lt / p.life;
+    g.setTransform(1, 0, 0, 1, o.x + p.dx + p.vx * lt, o.y + p.dy + p.vy * lt);
+    g.fillStyle = p.white ? `rgba(255,255,255,${1 - k})` : `rgba(34,229,255,${1 - k})`;
+    const sz = p.size * (1 - k);
+    g.fillRect(-sz / 2, -sz / 2, sz, sz);
+  }
+  g.globalCompositeOperation = 'source-over'; g.setTransform(1, 0, 0, 1, 0, 0);
+}
+function drawCaption(g, t, info) {
+  if (!info || !info.nome) return;
+  const a = E.outCubic(seg(t, 2.3, 2.6)) * (1 - seg(t, 4.1, 4.4));
+  if (a <= 0) return;
+  const y = 1745 + 30 * (1 - a);
+  g.save();
+  g.globalAlpha = a;
+  g.setTransform(1, 0, 0, 1, W / 2, y);
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  const name = '@' + info.nome.replace(/^@/, '').slice(0, 24) + (info.count > 1 ? `  x${info.count}` : '');
+  g.font = '800 58px "Segoe UI", system-ui, -apple-system, sans-serif';
+  const tw = Math.max(g.measureText(name).width, 440) + 90;
+  rrPath(g, -tw / 2, -78, tw, 150, 34);
+  g.fillStyle = 'rgba(6,12,30,.72)'; g.fill();
+  g.shadowColor = '#22e5ff'; g.shadowBlur = 24; g.strokeStyle = 'rgba(34,229,255,.85)'; g.lineWidth = 3; g.stroke();
+  g.shadowBlur = 0;
+  g.font = '600 32px "Segoe UI", system-ui, -apple-system, sans-serif';
+  g.fillStyle = '#cfefff'; g.fillText(CUR.gift.caption, 0, -34);
+  g.font = '800 58px "Segoe UI", system-ui, -apple-system, sans-serif';
+  const gr = g.createLinearGradient(-tw / 2, 0, tw / 2, 0);
+  gr.addColorStop(0, '#ffffff'); gr.addColorStop(1, '#22e5ff');
+  g.fillStyle = gr; g.fillText(name, 0, 24);
+  g.restore();
+}
+
+function draw(t, info) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+  ctx.clearRect(0, 0, W, H);
+  if (t < 0 || t >= DUR) return;
+  const gift = CUR.gift;
+  const s = robotState(t);
+  // galáxia gigante atrás de tudo
+  if (gift.fx === 'galaxy') {
+    const gb = galaxyBig(t);
+    if (gb.R > 1) {
+      const orb = itemCenter(itemTransform(t, s));
+      const cx = lerp(560, orb.x, gb.shrink), cy = lerp(860, orb.y, gb.shrink);
+      drawGalaxy(ctx, cx, cy, gb.R, t * 0.9, gb.a, 0.62, t);
+    }
+  }
+  drawPortal(ctx, t);
+  drawPanel(ctx, t);
+  const held = t >= T.contact;
+  if (!held) {
+    const r = itemTransform(t, s);
+    drawItem(ctx, r, t);
+    drawGlints(ctx, t, GLINTS, itemCenter(r), '255,230,240');
+  }
+  drawShards(ctx, t);
+  if (gift.fx === 'fireworks') drawFireworks(ctx, t);
+  const thrown = gift.throwUp && t >= T.release;
+  if (s.visible) {
+    if (t > T.launch) {
+      for (let k = 5; k >= 1; k--) {
+        const tt = t - k * 0.016;
+        renderRobotLayer(tt, robotState(tt), !thrown);
+        ctx.globalAlpha = 0.16 * (6 - k) / 5;
+        ctx.drawImage(RL, 0, 0);
+      }
+      ctx.globalAlpha = 1;
+    }
+    renderRobotLayer(t, s, held && !thrown);
+    ctx.drawImage(RL, 0, 0);
+    if (s.diss < 1) {
+      ctx.setTransform(robotMatrix(s));
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.fillStyle = 'rgba(120,240,255,.85)';
+      ctx.beginPath();
+      for (const b of DISS) if (b.th >= s.diss && b.th < s.diss + 0.09) ctx.rect(b.x + 3, b.y + 3, 21, 21);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
+  }
+  if (thrown) {
+    drawThrowTrail(ctx, t, s);
+    drawItem(ctx, itemTransform(t, s), t);
+  }
+  drawPortalSparks(ctx, t);
+  if (held) {
+    const c = itemScreen(T.contact);
+    drawRipples(ctx, t, c.x, c.y);
+    ctx.globalCompositeOperation = 'lighter';
+    flare(ctx, c.x, c.y, 380, Math.exp(-(t - T.contact) * 7));
+    ctx.globalCompositeOperation = 'source-over';
+    if (gift.petals) drawPetals(ctx, t, { x: c.x, y: c.y - 330 }, SPR.petal[gift.petals]);
+    if (t < T.antic + 0.3) {
+      const center = itemCenter(itemTransform(t, s));
+      if (gift.fx === 'stars') drawStarBurst(ctx, t, center);
+      if (gift.fx === 'loveWave') drawLoveWaves(ctx, t, center);
+      if (gift.fx === 'notes') drawBeatRings(ctx, t, center);
+      if (gift.fx === 'rawr') drawRawr(ctx, t, center);
+      if (gift.particle) drawFloaters(ctx, t, { x: center.x - 30, y: center.y - 60 }, gift.particle);
+      if (!thrown) drawGlints(ctx, t, HOLD_GLINTS, center, gift.fx === 'stars' ? '255,220,120' : '255,220,235');
+    }
+  }
+  drawTrail(ctx, t);
+  if (t > T.launch && t < T.launch + 0.5) {
+    ctx.globalCompositeOperation = 'lighter';
+    const o = robotMatrix(robotState(T.launch)).transformPoint(new DOMPoint(0, 0));
+    flare(ctx, o.x, o.y + 120, 320, 0.9 * Math.exp(-(t - T.launch) * 8));
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  drawCaption(ctx, t, info);
+  // garante que o último quadro termine 100% transparente
+  const endFade = 1 - seg(t, 4.72, 4.94);
+  if (endFade < 1) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'destination-in';
+    ctx.fillStyle = `rgba(0,0,0,${endFade})`;
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
+
+/* ---------- som (WebAudio sintetizado) ---------- */
+function scheduleAudio(ac, dest, t0, gift) {
+  const out = ac.createGain(); out.gain.value = 0.9;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.15;
+  out.connect(comp); comp.connect(dest);
+  const R = rng(99);
+  const nb = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate), nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = R() * 2 - 1;
+  const panned = pan => { if (!pan || !ac.createStereoPanner) return out; const p = ac.createStereoPanner(); p.pan.value = pan; p.connect(out); return p; };
+  function noise(at, dur, f0, f1, q, gain, type = 'bandpass', pan = 0) {
+    const s = ac.createBufferSource(); s.buffer = nb;
+    const f = ac.createBiquadFilter(); f.type = type; f.Q.value = q;
+    f.frequency.setValueAtTime(f0, t0 + at); f.frequency.exponentialRampToValueAtTime(f1, t0 + at + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0 + at);
+    g.gain.exponentialRampToValueAtTime(gain, t0 + at + dur * 0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
+    s.connect(f); f.connect(g); g.connect(panned(pan));
+    s.start(t0 + at, R() * 0.5); s.stop(t0 + at + dur + 0.05);
+  }
+  function tone(at, dur, f0, f1, type, gain, attack = 0.005, pan = 0) {
+    const o = ac.createOscillator(); o.type = type;
+    o.frequency.setValueAtTime(f0, t0 + at);
+    if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(f1, t0 + at + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t0 + at);
+    g.gain.linearRampToValueAtTime(gain, t0 + at + attack);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + dur);
+    o.connect(g); g.connect(panned(pan));
+    o.start(t0 + at); o.stop(t0 + at + dur + 0.05);
+  }
+  function boom(at, gain = 0.6, pan = 0) {
+    tone(at, 0.6, 120, 40, 'sine', gain, 0.003, pan);
+    noise(at, 0.7, 900, 120, 0.7, gain * 0.8, 'lowpass', pan);
+    for (let i = 0; i < 10; i++) noise(at + 0.25 + R() * 0.6, 0.04, 5000, 3000, 2, 0.12, 'highpass', pan + (R() - 0.5) * 0.4);
+  }
+  const PE = T.pullEnd;
+  // ---- base comum a todos os presentes ----
+  noise(0.0, 0.75, 250, 2600, 1.2, 0.45, 'bandpass', -0.4);
+  tone(0.0, 0.7, 70, 210, 'sine', 0.5, 0.06);
+  tone(0.04, 0.55, 140, 420, 'triangle', 0.12, 0.05);
+  for (let i = 0; i < 6; i++) tone(0.14 + i * 0.065, 0.05, 700 + i * 170, 700 + i * 170, 'square', 0.035, 0.002, -0.3);
+  noise(0.3, 0.16, 3000, 7000, 3, 0.18, 'highpass', 0.4);
+  tone(0.3, 0.12, 1800, 2400, 'square', 0.03, 0.002, 0.4);
+  tone(0.55, 0.22, 480, 1350, 'sine', 0.32, 0.004, 0.35);
+  noise(0.55, 0.1, 5000, 9000, 1, 0.16, 'highpass', 0.35);
+  [2093, 2637, 3136, 4186].forEach((f, i) => tone(0.66 + i * 0.055, 0.45, f, f, 'sine', 0.06, 0.003, 0.4));
+  tone(0.85, 0.09, 1100, 1800, 'square', 0.045, 0.002);
+  tone(1.0, 0.28, 520, 980, 'triangle', 0.14, 0.004);
+  noise(1.05, 0.48, 400, 3200, 2, 0.32, 'bandpass', 0.3);
+  tone(T.contact, 1.3, 2600, 2600, 'sine', 0.22, 0.002, 0.35);
+  tone(T.contact, 1.0, 3900, 3880, 'sine', 0.12, 0.002, 0.35);
+  tone(T.contact, 0.8, 5200, 5150, 'sine', 0.07, 0.002, 0.35);
+  tone(T.contact, 0.35, 150, 55, 'sine', 0.55, 0.003);
+  noise(T.contact, 0.3, 1800, 500, 0.8, 0.35);
+  noise(T.contact + 0.05, 0.6, 4500, 450, 1.4, 0.42, 'bandpass', 0.2);
+  for (let i = 0; i < 16; i++) { const f = 3000 + R() * 4500; tone(T.shatter + 0.1 + R() * 0.35, 0.12 + R() * 0.2, f, f * 0.97, 'sine', 0.045, 0.001, 0.2 + R() * 0.5); }
+  noise(T.shatter + 0.1, 0.4, 7000, 3000, 1, 0.2, 'highpass', 0.4);
+  tone(PE, 0.1, 660, 990, 'square', 0.06, 0.002);
+  tone(PE + 0.11, 0.13, 990, 1320, 'square', 0.06, 0.002);
+  tone(T.happy, 0.08, 880, 1760, 'square', 0.05, 0.002);
+  tone(T.happy + 0.1, 0.08, 1760, 1320, 'square', 0.05, 0.002);
+  tone(T.happy + 0.2, 0.14, 1320, 1980, 'square', 0.05, 0.002);
+  tone(T.antic, 0.3, 180, 620, 'sawtooth', 0.05, 0.02);
+  noise(T.launch, 0.6, 450, 6500, 1.5, 0.5, 'bandpass', 0.6);
+  tone(T.launch, 0.5, 260, 1700, 'sine', 0.22, 0.01, 0.6);
+  [3136, 2637, 2093, 3520].forEach((f, i) => tone(T.launch + 0.35 + i * 0.07, 0.32, f, f, 'sine', 0.045, 0.003, 0.7));
+  // ---- trilha de cada presente ----
+  const snd = gift.sound;
+  if (snd === 'love') {
+    [1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone(PE + 0.18 + i * 0.09, 0.7, f, f, 'triangle', 0.09, 0.004));
+    for (let i = 0; i < 6; i++) tone(PE + 0.25 + i * 0.14, 0.12, 1500 + (i % 3) * 300, 1900 + (i % 3) * 300, 'sine', 0.05, 0.003, -0.2);
+  } else if (snd === 'soft') {
+    [1318.5, 1568, 1975.5, 2637].forEach((f, i) => { tone(PE + 0.15 + i * 0.16, 1.4, f, f, 'sine', 0.1, 0.004); tone(PE + 0.15 + i * 0.16, 0.9, f * 2, f * 2, 'sine', 0.025, 0.004); });
+    for (let i = 0; i < 8; i++) tone(PE + 0.4 + R() * 1.2, 0.5, 3000 + R() * 2000, 3000 + R() * 2000, 'sine', 0.025, 0.01, (R() - 0.5));
+  } else if (snd === 'sparkle') {
+    [523.25, 659.25, 783.99].forEach((f, i) => tone(PE + 0.12 + i * 0.1, 0.25, f, f, 'triangle', 0.12, 0.004));
+    [1046.5, 1318.5, 1568].forEach(f => tone(PE + 0.45, 0.9, f, f, 'triangle', 0.08, 0.004));
+    for (let i = 0; i < 10; i++) tone(PE + 0.05 + i * 0.05, 0.3, 2500 + i * 250, 2500 + i * 250, 'sine', 0.04, 0.002, (i % 2 ? 0.3 : -0.3));
+  } else if (snd === 'music') {
+    const bpm = 1 / 2.2 / 2, mel = [784, 988, 1175, 988, 1319, 1175, 988, 784, 880, 1047, 1319, 1175];
+    mel.forEach((f, i) => tone(PE + 0.05 + i * bpm, bpm * 0.9, f, f, 'square', 0.045, 0.003));
+    for (let i = 0; i < 4; i++) { tone(PE + i * bpm * 2, 0.18, 150, 50, 'sine', 0.45, 0.002); noise(PE + bpm + i * bpm * 2, 0.08, 6000, 4000, 1, 0.1, 'highpass'); }
+  } else if (snd === 'fireworks') {
+    tone(T.release, T.burst - T.release, 700, 2200, 'sine', 0.1, 0.02);
+    noise(T.release, T.burst - T.release, 2000, 6000, 3, 0.12, 'bandpass');
+    BURSTS.forEach((b, i) => boom(b.t0, i ? 0.4 : 0.6, (b.x - 540) / 600));
+  } else if (snd === 'dino') {
+    const o = ac.createOscillator(), f = ac.createBiquadFilter(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(320, t0 + 2.55); o.frequency.exponentialRampToValueAtTime(170, t0 + 3.05);
+    lfo.frequency.value = 28; lg.gain.value = 25; lfo.connect(lg); lg.connect(o.frequency);
+    f.type = 'lowpass'; f.frequency.value = 1400; f.Q.value = 6;
+    g.gain.setValueAtTime(0.0001, t0 + 2.55); g.gain.linearRampToValueAtTime(0.22, t0 + 2.6); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 3.1);
+    o.connect(f); f.connect(g); g.connect(out);
+    o.start(t0 + 2.55); o.stop(t0 + 3.15); lfo.start(t0 + 2.55); lfo.stop(t0 + 3.15);
+    noise(2.55, 0.5, 600, 300, 2, 0.15, 'bandpass');
+    [1200, 1500, 1300, 1700].forEach((fq, i) => tone(3.2 + i * 0.07, 0.06, fq, fq * 1.2, 'square', 0.04, 0.002));
+  } else if (snd === 'galaxy') {
+    noise(2.3, 0.7, 200, 4000, 1.2, 0.35, 'bandpass', -0.3);
+    [110, 164.8, 220, 246.9, 329.6].forEach((f, i) => { tone(2.35, 1.6, f, f, i % 2 ? 'triangle' : 'sine', 0.08, 0.35); tone(2.35, 1.6, f * 1.005, f * 1.005, 'sine', 0.05, 0.4, i % 2 ? 0.4 : -0.4); });
+    for (let i = 0; i < 14; i++) tone(2.5 + R() * 1.1, 0.6, 2000 + R() * 3000, 2000 + R() * 3000, 'sine', 0.03, 0.05, (R() - 0.5) * 1.4);
+    noise(3.5, 0.4, 4000, 300, 1.2, 0.3, 'bandpass', 0.2);
+  }
+}
+async function renderAudioWav(gift) {
+  const sr = 48000, oac = new OfflineAudioContext(2, Math.ceil(sr * DUR), sr);
+  scheduleAudio(oac, oac.destination, 0, gift);
+  const buf = await oac.startRendering();
+  const n = buf.length, L = buf.getChannelData(0), Rr = buf.getChannelData(1);
+  const ab = new ArrayBuffer(44 + n * 4), v = new DataView(ab);
+  const ws = (o, s) => [...s].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+  ws(0, 'RIFF'); v.setUint32(4, 36 + n * 4, true); ws(8, 'WAVE'); ws(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 2, true); v.setUint32(24, sr, true);
+  v.setUint32(28, sr * 4, true); v.setUint16(32, 4, true); v.setUint16(34, 16, true); ws(36, 'data'); v.setUint32(40, n * 4, true);
+  for (let i = 0, o = 44; i < n; i++, o += 4) {
+    v.setInt16(o, clamp(L[i], -1, 1) * 32767, true);
+    v.setInt16(o + 2, clamp(Rr[i], -1, 1) * 32767, true);
+  }
+  let bin = ''; const u8 = new Uint8Array(ab);
+  for (let i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+/* ---------- player ao vivo ---------- */
+const SOUND = Q.get('som') !== '0';
+const VOLUME = clamp(parseFloat(Q.get('volume') || '0.8'));
+const CAPTION = Q.get('legenda') !== '0';
+const MAXQ = parseInt(Q.get('fila') || '10', 10);
+const ENABLED = Q.get('efeitos') ? Q.get('efeitos').split(',').map(s => s.trim()).filter(k => GIFTS[k]) : GIFT_ORDER;
+const CUSTOM_MAP = {};
+(Q.get('map') || '').split(';').forEach(pair => { const i = pair.lastIndexOf(':'); if (i > 0) { const k = pair.slice(i + 1).trim(); if (GIFTS[k]) CUSTOM_MAP[normName(pair.slice(0, i))] = k; } });
+// descobre o efeito de um presente pelo nome (exato primeiro, depois o apelido mais longo que bate no início)
+function giftKeyFor(name) {
+  const n = normName(name);
+  if (!n) return null;
+  if (CUSTOM_MAP[n]) return CUSTOM_MAP[n];
+  let best = null, bestLen = 0;
+  for (const k of GIFT_ORDER) for (const a of GIFTS[k].aliases) {
+    if (n === a) return k;
+    if (n.startsWith(a + ' ') && a.length > bestLen) { best = k; bestLen = a.length; }
+  }
+  return best;
+}
+const queue = [];
+let playing = null, ac = null;
+const dbg = document.getElementById('debug'), dbgLines = [];
+if (Q.get('debug') === '1') dbg.style.display = 'block';
+function debugLog(line) { dbgLines.unshift(line); dbgLines.length = Math.min(dbgLines.length, 8); dbg.textContent = 'TikFinity — últimos presentes\n' + dbgLines.join('\n'); }
+
+function enqueue(key, info = {}) {
+  if (!GIFTS[key] || queue.length >= MAXQ) return;
+  queue.push({ key, nome: CAPTION ? (info.nome ?? Q.get('nome') ?? '') : '', count: info.count || 1 });
+  if (!playing) next();
+}
+function next() {
+  const item = queue.shift();
+  if (!item) { playing = null; draw(-1); return; }
+  setGift(item.key);
+  playing = { item, start: performance.now() };
+  if (SOUND) {
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      if (ac.state === 'suspended') ac.resume();
+      const g = ac.createGain(); g.gain.value = VOLUME; g.connect(ac.destination);
+      scheduleAudio(ac, g, ac.currentTime + 0.02, CUR.gift);
+    } catch (e) { /* sem áudio */ }
+  }
+  requestAnimationFrame(tick);
+}
+const LOOP = Q.get('loop');
+function tick(now) {
+  if (!playing) return;
+  const t = (now - playing.start) / 1000;
+  if (t >= DUR) {
+    draw(-1);
+    if (LOOP) setTimeout(() => enqueue(GIFTS[LOOP] ? LOOP : DEFAULT_GIFT), 700);
+    next();
+    return;
+  }
+  draw(t, playing.item);
+  requestAnimationFrame(tick);
+}
+// Integração automática com o TikFinity (WebSocket local)
+function connectTikFinity() {
+  const url = Q.get('ws') || 'ws://localhost:21213/';
+  if (url === '0') return;
+  let ws;
+  try { ws = new WebSocket(url); } catch (e) { setTimeout(connectTikFinity, 5000); return; }
+  ws.onopen = () => debugLog('(conectado ao TikFinity)');
+  ws.onmessage = ev => {
+    let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+    const type = String(msg.event || msg.type || '').toLowerCase();
+    if (type !== 'gift') return;
+    const d = msg.data || msg;
+    const name = d.giftName || (d.gift && d.gift.name) || '';
+    const key = giftKeyFor(name) || CUSTOM_MAP[normName(String(d.giftId))];
+    debugLog(`${name} (id ${d.giftId ?? '?'}) → ${key || 'sem efeito'}`);
+    if (!key || !ENABLED.includes(key)) return;
+    // presentes em sequência (combo): toca uma vez quando o combo termina
+    if (d.giftType === 1 && d.repeatEnd === false) return;
+    enqueue(key, { nome: d.nickname || d.uniqueId || '', count: d.repeatCount || 1 });
+  };
+  ws.onclose = () => setTimeout(connectTikFinity, 3000);
+  ws.onerror = () => { try { ws.close(); } catch (e) { /* noop */ } };
+}
+
+ready.then(() => {
+  setGift(DEFAULT_GIFT);
+  if (RENDER) {
+    window.FX = {
+      DUR, W, H, GIFTS: GIFT_ORDER,
+      setGift(k) { setGift(k); return CUR.key; },
+      frame(t, nome) { draw(t, nome ? { nome, count: 1 } : null); return cv.toDataURL('image/png'); },
+      sheet(times, cols, scale, bg = '#1b2233') {
+        const rows = Math.ceil(times.length / cols), sw = W * scale, sh = H * scale;
+        const c = mkCanvas(cols * sw, rows * sh), g = c.getContext('2d');
+        g.fillStyle = bg; g.fillRect(0, 0, c.width, c.height);
+        times.forEach((t, i) => {
+          draw(t, null);
+          const x = (i % cols) * sw, y = Math.floor(i / cols) * sh;
+          g.drawImage(cv, x, y, sw, sh);
+          g.fillStyle = '#fff'; g.font = '22px monospace'; g.fillText(t.toFixed(2) + 's', x + 10, y + 28);
+          g.strokeStyle = '#444'; g.strokeRect(x, y, sw, sh);
+        });
+        return c.toDataURL('image/png');
+      },
+      audio() { return renderAudioWav(CUR.gift); },
+      giftKeyFor,
+    };
+    document.title = 'ready';
+    return;
+  }
+  addEventListener('keydown', e => {
+    if (e.code === 'Space' || e.code === 'Enter') enqueue(DEFAULT_GIFT);
+    const n = parseInt(e.key, 10);
+    if (n >= 1 && n <= GIFT_ORDER.length) enqueue(GIFT_ORDER[n - 1]);
+  });
+  addEventListener('pointerdown', () => enqueue(DEFAULT_GIFT));
+  connectTikFinity();
+  if (LOOP) enqueue(GIFTS[LOOP] ? LOOP : DEFAULT_GIFT);
+  else if (Q.get('autoplay')) enqueue(GIFTS[Q.get('autoplay')] ? Q.get('autoplay') : DEFAULT_GIFT);
+}).catch(e => { document.title = 'erro'; console.error(e); });
+</script>
+</body>
+</html>
