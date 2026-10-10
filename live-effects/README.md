@@ -11,17 +11,21 @@ O mascote da Intelra reage aos presentes da live com um efeito cinematográfico 
 
 ## Presentes
 
-| Tecla | Efeito (`?presente=`) | Presente no TikTok | O que muda |
-| --- | --- | --- | --- |
-| 1 | `rosa` | Rosa | Rosa vermelha 3D, olhos de coração, corações e pétalas caindo |
-| 2 | `rosa-branca` | Rosa branca | Rosa branca 3D, olhos de coração brancos, corações brancos, som de sinos |
-| 3 | `heart-me` | Heart Me | Coração de óculos escuros que pulsa na mão |
-| 4 | `amo-voce` | Amo você | Coração de pelúcia, bochechas coradas, ondas de coração |
-| 5 | `incrivel` | Incrível | Estrela dourada, olhos de estrela, explosão de estrelas e fanfarra |
-| 6 | `tiktok` | TikTok | Nota musical ciano/rosa, o mascote dança com uma musiquinha 8-bit |
-| 7 | `fogos` | Fogos de artifício | Bola de faíscas arremessada para cima, 4 explosões de fogos |
-| 8 | `mini-dino` | Mini dino | Dino de brinquedo 3D que dá um "RAWR!" |
-| 9 | `galaxia` | Galáxia | Galáxia numa esfera de vidro que se expande pela tela |
+| Tecla | Efeito (`?presente=`) | Presente no TikTok | O que muda | Status |
+| --- | --- | --- | --- | --- |
+| 1 | `rosa` | Rosa | Rosa vermelha 3D, olhos de coração, corações e pétalas caindo | ✅ liberado |
+| 2 | `rosa-branca` | Rosa branca | Rosa branca 3D, olhos de coração brancos, corações brancos, som de sinos | ✅ liberado |
+| 3 | `heart-me` | Heart Me | Coração de óculos escuros que pulsa na mão | ✅ liberado |
+| 4 | `amo-voce` | Amo você | Coração de pelúcia, bochechas coradas, ondas de coração | 🧪 em teste |
+| 5 | `incrivel` | Incrível | Estrela dourada, olhos de estrela, explosão de estrelas e fanfarra | 🧪 em teste |
+| 6 | `tiktok` | TikTok | Nota musical ciano/rosa, o mascote dança com uma musiquinha 8-bit | 🧪 em teste |
+| 7 | `fogos` | Fogos de artifício | Bola de faíscas arremessada para cima, 4 explosões de fogos | 🧪 em teste |
+| 8 | `mini-dino` | Mini dino | Dino de brinquedo 3D que dá um "RAWR!" | 🧪 em teste |
+| 9 | `galaxia` | Galáxia | Galáxia numa esfera de vidro que se expande pela tela | 🧪 em teste |
+
+**Liberados** têm vídeo em `videos/` e tocam automaticamente na Fonte de navegador.
+**Em teste** já funcionam na página (teclas 4–9 em "Interagir"), mas só tocam sozinhos com
+`?efeitos=todos`. Os vídeos deles saem quando forem aprovados (`node tools/render.cjs galaxia …`).
 
 Os presentes interativos (Piscadinha, Palmas, Bastão brilhante etc.) ainda não têm efeito.
 
@@ -29,8 +33,8 @@ Os presentes interativos (Piscadinha, Palmas, Bastão brilhante etc.) ainda não
 
 | Pasta / arquivo | Para que serve |
 | --- | --- |
-| `videos/<efeito>.webm` | Um vídeo por presente: 1080×1920, 30 fps, **com transparência (alpha)** e som. Para o TikFinity ou uma "Fonte de mídia" do OBS. |
-| `videos/preview-todos.mp4` | Todos os efeitos em sequência, sobre fundo escuro, só para assistir. Segue a ordem da tabela. |
+| `videos/<efeito>.webm` | Um vídeo por presente liberado (`rosa`, `rosa-branca`, `heart-me`): 1080×1920, 30 fps, **com transparência (alpha)** e som. Para o TikFinity ou uma "Fonte de mídia" do OBS. |
+| `videos/preview-todos.mp4` | Os efeitos liberados em sequência, sobre fundo escuro, só para assistir. |
 | `presentes/index.html` | **Uma única Fonte de navegador** que toca o efeito certo para cada presente, com o nome de quem mandou. |
 | `presentes/assets/` | Objetos 3D dos presentes (PNG transparentes) usados pela página. Mantenha esta pasta junto do `index.html`. |
 
@@ -56,7 +60,7 @@ não cobrir seu rosto por muito tempo. A galáxia e os fogos ocupam mais espaço
 5. Coloque a fonte **acima** da câmera.
 
 Com o **TikFinity aberto e conectado à live**, a página se liga sozinha ao WebSocket local
-(`ws://localhost:21213/`). Cada presente da tabela toca o efeito dele, com a legenda
+(`ws://localhost:21213/`). Cada presente liberado toca o efeito dele, com a legenda
 "… @nome". Combos (várias rosas seguidas) tocam uma vez quando o combo termina, mostrando `x10`.
 Presentes chegando juntos entram numa fila. Presentes sem efeito são ignorados.
 
@@ -88,7 +92,7 @@ Fireworks/Fogos de artifício, Mini Dino, Galaxy/Galáxia.
 | `loop=galaxia` | Repete um efeito sem parar (para posicionar/testar). |
 | `autoplay=fogos` | Toca uma vez ao carregar. |
 | `presente=tiktok` | Efeito tocado pelo Espaço/clique. |
-| `efeitos=rosa,fogos` | Só esses efeitos tocam automaticamente. |
+| `efeitos=rosa,fogos` | Só esses efeitos tocam automaticamente. Padrão: os liberados. `efeitos=todos` inclui os em teste. |
 | `map=Nome:efeito;…` | Liga um nome de presente do TikFinity a um efeito. |
 | `debug=1` | Mostra os nomes dos últimos presentes recebidos. |
 | `nome=Fulano` | Nome fixo na legenda (útil em testes). |

@@ -25,7 +25,8 @@
  *   ?presente=rosa      efeito padrão do clique/Espaço e do modo render (ver GIFTS abaixo)
  *   ?loop=galaxia       repete um efeito sem parar (ou ?loop=1 para o padrão)
  *   ?autoplay=rosa      toca uma vez ao carregar (ou ?autoplay=1)
- *   ?efeitos=rosa,fogos só esses efeitos tocam automaticamente (padrão: todos)
+ *   ?efeitos=rosa,fogos só esses efeitos tocam automaticamente (padrão: rosa, rosa-branca, heart-me;
+ *                       ?efeitos=todos libera também os que ainda estão em teste)
  *   ?map=Nome:efeito;…  liga um nome de presente do TikFinity a um efeito (ex.: Awesome:incrivel)
  *   ?debug=1            mostra os nomes dos últimos presentes recebidos (para descobrir nomes)
  *   ?nome=Fulano        nome fixo na legenda (o do TikFinity substitui este)
@@ -1215,7 +1216,10 @@ const SOUND = Q.get('som') !== '0';
 const VOLUME = clamp(parseFloat(Q.get('volume') || '0.8'));
 const CAPTION = Q.get('legenda') !== '0';
 const MAXQ = parseInt(Q.get('fila') || '10', 10);
-const ENABLED = Q.get('efeitos') ? Q.get('efeitos').split(',').map(s => s.trim()).filter(k => GIFTS[k]) : GIFT_ORDER;
+// Liberados por enquanto; os demais efeitos já existem e entram com ?efeitos=todos (ou uma lista).
+const READY = ['rosa', 'rosa-branca', 'heart-me'];
+const EF = Q.get('efeitos');
+const ENABLED = EF === 'todos' ? GIFT_ORDER : EF ? EF.split(',').map(s => s.trim()).filter(k => GIFTS[k]) : READY;
 const CUSTOM_MAP = {};
 (Q.get('map') || '').split(';').forEach(pair => { const i = pair.lastIndexOf(':'); if (i > 0) { const k = pair.slice(i + 1).trim(); if (GIFTS[k]) CUSTOM_MAP[normName(pair.slice(0, i))] = k; } });
 // descobre o efeito de um presente pelo nome (exato primeiro, depois o apelido mais longo que bate no início)
