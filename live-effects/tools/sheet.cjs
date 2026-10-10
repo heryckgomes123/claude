@@ -1,16 +1,19 @@
-// Gera uma folha de contato (PNG) com quadros do efeito, para revisão visual.
+// Folha de contato (PNG) de um efeito, para revisão visual.
+// Uso: node tools/sheet.cjs <presente> <saida.png> <t1,t2,...> [colunas=4] [escala=0.25]
 const { chromium } = require('playwright');
-const path = require('path'), fs = require('fs');
+const fs = require('fs'), path = require('path');
+const { serve } = require('./serve.cjs');
 (async () => {
-  const [html, out, timesArg, cols = '4', scale = '0.25', extra = ''] = process.argv.slice(2);
+  const [gift, out, timesArg, cols = '4', scale = '0.25'] = process.argv.slice(2);
+  const { url, close } = await serve(path.join(__dirname, '..'));
   const browser = await chromium.launch();
   const page = await browser.newPage();
-  page.on('console', m => console.log('[page]', m.text()));
   page.on('pageerror', e => console.log('[pageerror]', e.message));
-  await page.goto('file://' + path.resolve(html) + '?render=1' + extra);
-  await page.waitForFunction(() => document.title === 'ready', null, { timeout: 20000 });
+  page.on('console', m => m.type() === 'error' && console.log('[console]', m.text()));
+  await page.goto(`${url}/presentes/index.html?render=1&presente=${gift}`);
+  await page.waitForFunction(() => document.title === 'ready' || document.title === 'erro', null, { timeout: 30000 });
   const times = timesArg.split(',').map(Number);
-  const url = await page.evaluate(([t, c, s]) => FX.sheet(t, c, s), [times, +cols, +scale]);
-  fs.writeFileSync(out, Buffer.from(url.split(',')[1], 'base64'));
-  await browser.close();
+  const data = await page.evaluate(([t, c, s]) => FX.sheet(t, c, s), [times, +cols, +scale]);
+  fs.writeFileSync(out, Buffer.from(data.split(',')[1], 'base64'));
+  await browser.close(); close();
 })();

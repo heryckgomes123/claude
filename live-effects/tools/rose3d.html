@@ -29,7 +29,7 @@ renderer.setPixelRatio(1);
 renderer.setSize(OUT_W * SS, OUT_H * SS);
 renderer.setClearColor(0x000000, 0);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = Q.has('white') ? 0.98 : 1.05;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -41,7 +41,9 @@ if (Q.has('close')) { camera.position.set(0, 1.9, 7.5); camera.lookAt(0, 0.35, 0
 else { camera.position.set(0, 2.95, 21.4); camera.lookAt(0, -1.6, 0); }
 
 /* ---------- pétala ---------- */
-const cDark = new THREE.Color('#3a0009'), cMid = new THREE.Color('#a8102a'), cHi = new THREE.Color('#e3324c'), cRim = new THREE.Color('#ff6d80');
+const WHITE = Q.has('white');
+const cDark = new THREE.Color(WHITE ? '#8f9474' : '#3a0009'), cMid = new THREE.Color(WHITE ? '#e6e1cf' : '#a8102a');
+const cHi = new THREE.Color(WHITE ? '#f7f3e8' : '#e3324c'), cRim = new THREE.Color(WHITE ? '#ffffff' : '#ff6d80');
 function petalGeometry(p) {
   const NU = 28, NV = 36, pos = [], col = [], idx = [];
   const spine = [];
@@ -77,7 +79,7 @@ function petalGeometry(p) {
     c.copy(cDark).lerp(cMid, smooth(0.0, 0.55, v));
     c.lerp(cHi, smooth(0.6, 1.0, v) * (0.35 + 0.65 * p.o));
     c.lerp(cRim, smooth(0.93, 1.0, v) * 0.35 * p.o);
-    c.multiplyScalar(lerp(0.55, 1.0, p.o) * p.tone);
+    c.multiplyScalar(lerp(WHITE ? 0.78 : 0.55, 1.0, p.o) * (WHITE ? 0.97 + (p.tone - 0.99) * 0.4 : p.tone));
     col.push(c.r, c.g, c.b);
   }
   for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) {
@@ -93,7 +95,7 @@ function petalGeometry(p) {
 }
 const petalMat = new THREE.MeshPhysicalMaterial({
   vertexColors: true, roughness: 0.58, metalness: 0, side: THREE.DoubleSide,
-  sheen: 1, sheenColor: new THREE.Color('#ff5068'), sheenRoughness: 0.5,
+  sheen: 1, sheenColor: new THREE.Color(WHITE ? '#fffaf0' : '#ff5068'), sheenRoughness: 0.5,
 });
 
 const head = new THREE.Group();
@@ -210,15 +212,15 @@ addLeafCluster(0.22, 0.45, 0.5, 1.45);
 addLeafCluster(0.46, Math.PI - 0.35, 0.42, 1.35);
 
 /* ---------- luzes ---------- */
-scene.add(new THREE.HemisphereLight('#ffe8ee', '#2a1020', 0.75));
+scene.add(WHITE ? new THREE.HemisphereLight('#fff7ee', '#5a4c40', 1.0) : new THREE.HemisphereLight('#ffe8ee', '#2a1020', 0.75));
 const key = new THREE.DirectionalLight('#fff0e4', 3.2);
 key.position.set(-3, 5, 4.5); key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
 Object.assign(key.shadow.camera, { left: -1.6, right: 1.6, top: 1.6, bottom: -1.6, near: 0.5, far: 20 });
 key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
 scene.add(key);
-const rim = new THREE.DirectionalLight('#9fe9ff', 1.3); rim.position.set(4, 2.5, -4); scene.add(rim);
-const rim2 = new THREE.DirectionalLight('#ff8fa6', 1.2); rim2.position.set(-4, 1, -3); scene.add(rim2);
+const rim = new THREE.DirectionalLight(WHITE ? '#e4f6ff' : '#9fe9ff', WHITE ? 0.9 : 1.3); rim.position.set(4, 2.5, -4); scene.add(rim);
+const rim2 = new THREE.DirectionalLight(WHITE ? '#fff0dc' : '#ff8fa6', WHITE ? 0.8 : 1.2); rim2.position.set(-4, 1, -3); scene.add(rim2);
 const fill = new THREE.DirectionalLight('#b8d0ff', 0.55); fill.position.set(3, -1, 5); scene.add(fill);
 
 renderer.render(scene, camera);
@@ -232,7 +234,7 @@ function rowCenter(y) { let s = 0, n = 0; for (let x = 0; x < OUT_W; x++) { cons
 let minY = OUT_H, maxY = 0, minX = OUT_W, maxX = 0;
 for (let y = 0; y < OUT_H * 0.45; y++) for (let x = 0; x < OUT_W; x++) {
   const k = (y * OUT_W + x) * 4;
-  if (px[k + 3] > 128 && px[k] > px[k + 1] * 1.4) { minY = Math.min(minY, y); maxY = Math.max(maxY, y); minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
+  if (px[k + 3] > 128 && px[k + 1] < px[k] * 1.08) { minY = Math.min(minY, y); maxY = Math.max(maxY, y); minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
 }
 window.RESULT = {
   png: out.toDataURL('image/png'),

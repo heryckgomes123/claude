@@ -1,66 +1,99 @@
 # Efeitos de live — Intelra
 
-## 🌹 Rosa (`rosa-intelra/`)
+O mascote da Intelra reage aos presentes da live com um efeito cinematográfico de **5 segundos**,
+**fundo transparente** e **som**. Todos seguem o mesmo roteiro:
 
-Quando alguém manda uma **Rosa** na live, o mascote da Intelra sai de um portal, vê a rosa numa
-janela holográfica, voa até ela, **puxa a rosa para fora da tela** (com ondas no vidro e a janela se
-desfazendo em pixels), fica com olhos de coração e depois dá tchau e sai voando. Dura **5 segundos**,
-tem **fundo transparente** e já vem **com som**.
+1. Um portal se abre e o mascote é montado pixel por pixel.
+2. O presente aparece numa janela holográfica de vidro.
+3. O mascote voa até a janela, **puxa o presente para fora da tela** (com ondas no vidro) e a janela
+   se desfaz em pixels.
+4. Ele reage ao presente, dá tchau e sai voando.
 
-| Arquivo | Para que serve |
+## Presentes
+
+| Tecla | Efeito (`?presente=`) | Presente no TikTok | O que muda |
+| --- | --- | --- | --- |
+| 1 | `rosa` | Rosa | Rosa vermelha 3D, olhos de coração, corações e pétalas caindo |
+| 2 | `rosa-branca` | Rosa branca | Rosa branca 3D, olhos de coração brancos, corações brancos, som de sinos |
+| 3 | `heart-me` | Heart Me | Coração de óculos escuros que pulsa na mão |
+| 4 | `amo-voce` | Amo você | Coração de pelúcia, bochechas coradas, ondas de coração |
+| 5 | `incrivel` | Incrível | Estrela dourada, olhos de estrela, explosão de estrelas e fanfarra |
+| 6 | `tiktok` | TikTok | Nota musical ciano/rosa, o mascote dança com uma musiquinha 8-bit |
+| 7 | `fogos` | Fogos de artifício | Bola de faíscas arremessada para cima, 4 explosões de fogos |
+| 8 | `mini-dino` | Mini dino | Dino de brinquedo 3D que dá um "RAWR!" |
+| 9 | `galaxia` | Galáxia | Galáxia numa esfera de vidro que se expande pela tela |
+
+Os presentes interativos (Piscadinha, Palmas, Bastão brilhante etc.) ainda não têm efeito.
+
+## Arquivos
+
+| Pasta / arquivo | Para que serve |
 | --- | --- |
-| `rosa-intelra.webm` | Vídeo 1080×1920, 60 fps, **com transparência (alpha)** e som. Use no TikFinity, Streamer.bot ou numa "Fonte de mídia" do OBS. |
-| `index.html` | O mesmo efeito como **Fonte de navegador** do OBS. Mostra o nome de quem mandou e pode tocar sozinho via TikFinity. |
-| `rosa-intelra-preview.mp4` | Só para assistir (fundo escuro, sem transparência). |
-| `rose.png` | A rosa 3D realista usada no efeito (fundo transparente). |
+| `videos/<efeito>.webm` | Um vídeo por presente: 1080×1920, 30 fps, **com transparência (alpha)** e som. Para o TikFinity ou uma "Fonte de mídia" do OBS. |
+| `videos/preview-todos.mp4` | Todos os efeitos em sequência, sobre fundo escuro, só para assistir. Segue a ordem da tabela. |
+| `presentes/index.html` | **Uma única Fonte de navegador** que toca o efeito certo para cada presente, com o nome de quem mandou. |
+| `presentes/assets/` | Objetos 3D dos presentes (PNG transparentes) usados pela página. Mantenha esta pasta junto do `index.html`. |
 
-O canvas é vertical, 1080×1920. O mascote fica no canto inferior esquerdo e a rosa à direita, para
-não cobrir o seu rosto por muito tempo.
+O canvas é vertical, 1080×1920. O mascote fica no canto inferior esquerdo e a janela à direita, para
+não cobrir seu rosto por muito tempo. A galáxia e os fogos ocupam mais espaço da tela, de propósito.
 
 ---
 
-### Opção A — TikFinity + vídeo (mais simples)
+### Opção A — TikFinity + vídeos (mais simples)
 
 1. No TikFinity, vá em **Actions & Events → Create new action**.
-2. Marque **Play video** e envie o arquivo `rosa-intelra.webm`.
-3. Em **Events**, crie um evento **Gift → Rose** que dispara essa ação.
-4. Adicione no OBS a **URL de overlay** do TikFinity (Fonte de navegador, 1080×1920) **acima** da sua câmera.
+2. Marque **Play video** e envie o `.webm` do presente (ex.: `videos/galaxia.webm`).
+3. Em **Events**, crie um evento **Gift → (o presente)** que dispara essa ação.
+4. Repita para cada presente.
+5. Adicione no OBS a **URL de overlay** do TikFinity (Fonte de navegador, 1080×1920) **acima** da câmera.
 
-O WebM mantém a transparência, então só aparecem o mascote, a rosa e os efeitos.
-
-### Opção B — Fonte de navegador com o nome de quem mandou (automático)
+### Opção B — uma Fonte de navegador para todos os presentes (com o nome)
 
 1. OBS → **Fontes → + → Navegador**.
-2. Marque **Arquivo local** e escolha `rosa-intelra/index.html`.
-3. Largura **1080**, altura **1920**. Deixe o CSS personalizado padrão (fundo transparente).
-4. Marque **Controlar áudio via OBS** para o som aparecer no mixer.
+2. Marque **Arquivo local** e escolha `presentes/index.html`.
+3. Largura **1080**, altura **1920**. Deixe o CSS padrão (fundo transparente).
+4. Marque **Controlar áudio via OBS**.
 5. Coloque a fonte **acima** da câmera.
 
-Com o **TikFinity aberto e conectado à sua live**, a página se liga sozinha no WebSocket local do
-TikFinity (`ws://localhost:21213/`). Toda Rosa toca o efeito com a legenda
-**"Obrigado pela rosa 🌹 @nome"**. Combos (várias rosas seguidas) tocam uma vez só quando o combo
-termina, mostrando `x10`, `x50` etc. Se chegarem várias rosas ao mesmo tempo, elas entram numa fila.
+Com o **TikFinity aberto e conectado à live**, a página se liga sozinha ao WebSocket local
+(`ws://localhost:21213/`). Cada presente da tabela toca o efeito dele, com a legenda
+"… @nome". Combos (várias rosas seguidas) tocam uma vez quando o combo termina, mostrando `x10`.
+Presentes chegando juntos entram numa fila. Presentes sem efeito são ignorados.
 
-> O que foi testado: o efeito, a fila, os disparos manuais e a detecção de presentes, com um
-> servidor que imita os eventos do TikFinity (`event: "gift"`, `giftName`, `nickname`, `repeatEnd`).
-> O que não foi testado: uma live de verdade. Antes de entrar ao vivo, teste com um presente real ou
-> com o simulador de eventos do TikFinity. Se não disparar, use a Opção A.
+**Testar no OBS:** clique com o botão direito na fonte → **Interagir** e aperte as teclas
+**1 a 9** (uma por presente, na ordem da tabela). **Espaço** ou um clique tocam a rosa.
+Para posicionar, use `index.html?loop=galaxia`.
 
-**Testar no OBS:** clique com o botão direito na fonte → **Interagir** → clique na tela ou aperte
-**Espaço**. Você também pode adicionar `?loop=1` no fim do caminho para o efeito ficar repetindo
-enquanto posiciona.
+#### Se algum presente não disparar
 
-#### Parâmetros (adicione no fim do caminho/URL, ex.: `index.html?volume=0.6&fila=5`)
+O TikFinity pode mandar o nome do presente em inglês ou com outro texto. Os nomes reconhecidos já
+incluem: Rose/Rosa, White Rose/Rosa branca, Heart Me, I Love You/Amo você, Awesome/Incrível, TikTok,
+Fireworks/Fogos de artifício, Mini Dino, Galaxy/Galáxia.
+
+1. Abra a fonte com `?debug=1` (ex.: `index.html?debug=1`).
+2. Mande ou simule o presente. O canto da tela mostra o **nome exato** que chegou e se ele foi
+   ligado a algum efeito.
+3. Ligue o nome manualmente com `?map=Nome Exato:efeito`, ex.: `index.html?map=You're Awesome:incrivel`.
+   Para ligar vários, separe com `;`.
+
+> O que foi testado: os efeitos, a fila, as teclas e o reconhecimento dos nomes, com um servidor que
+> imita os eventos do TikFinity.
+> O que não foi testado: uma live de verdade. Antes de entrar ao vivo, faça um teste com o simulador
+> de eventos do TikFinity. Se não disparar, use a Opção A.
+
+#### Parâmetros (no fim do caminho, ex.: `index.html?volume=0.6&efeitos=rosa,galaxia`)
 
 | Parâmetro | O que faz |
 | --- | --- |
-| `loop=1` | Repete sem parar (para posicionar/testar). |
-| `autoplay=1` | Toca uma vez ao carregar. Junto com "Atualizar navegador quando a cena ficar ativa", serve para disparar mostrando/ocultando a fonte (Streamer.bot, Macro etc.). |
+| `loop=galaxia` | Repete um efeito sem parar (para posicionar/testar). |
+| `autoplay=fogos` | Toca uma vez ao carregar. |
+| `presente=tiktok` | Efeito tocado pelo Espaço/clique. |
+| `efeitos=rosa,fogos` | Só esses efeitos tocam automaticamente. |
+| `map=Nome:efeito;…` | Liga um nome de presente do TikFinity a um efeito. |
+| `debug=1` | Mostra os nomes dos últimos presentes recebidos. |
 | `nome=Fulano` | Nome fixo na legenda (útil em testes). |
 | `legenda=0` | Nunca mostra a legenda. |
 | `som=0` / `volume=0.6` | Sem som / volume de 0 a 1. |
-| `presente=Rose,Rosa` | Nome(s) do presente que dispara. |
-| `giftId=5655` | Dispara pelo ID do presente em vez do nome. |
 | `fila=10` | Máximo de efeitos esperando na fila. |
 | `ws=0` | Desliga a conexão com o TikFinity. |
 
@@ -68,15 +101,16 @@ enquanto posiciona.
 
 ### Regenerar (opcional, para desenvolvedores)
 
-Requer Node 18+, ffmpeg (com libvpx-vp9 e libopus) e Playwright com Chromium.
+Requer Node 18+, ffmpeg (libvpx-vp9, libopus, libx264) e Playwright com Chromium.
 
 ```bash
 cd live-effects/tools
 npm install
-node rose3d.cjs     # gera a rosa 3D (three.js) e embute no index.html
-node render.cjs     # exporta rosa-intelra.webm + preview (use --prores para .mov ProRes 4444)
-node sheet.cjs ../rosa-intelra/index.html folha.png 0.5,1.5,2.5,3.5 4 0.25   # folha de contato
+node items.cjs                 # objetos 3D (three.js) -> presentes/assets/*.png + items.js
+node render.cjs                # todos os vídeos + preview (ou: node render.cjs galaxia fogos)
+node sheet.cjs galaxia folha.png 0.5,1.5,2.5,3.5 4 0.25   # folha de contato para revisar
 ```
 
-A animação inteira é desenhada em código (`draw(t)` em `index.html`). A linha do tempo fica no objeto
-`T`, as posições ficam em `BASE`, `REACH` e `PANEL`, e o som é sintetizado em `scheduleAudio()`.
+Cada efeito é uma entrada em `GIFTS` no `presentes/index.html` (objeto, cor do brilho, olhos,
+partículas, legenda e som). A linha do tempo comum fica em `T`, as posições em `BASE` e `PANEL`,
+e o som é sintetizado em `scheduleAudio()`.

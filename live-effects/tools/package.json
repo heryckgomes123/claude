@@ -1,11 +1,11 @@
 {
   "name": "intelra-live-effects-tools",
   "private": true,
-  "description": "Ferramentas para regenerar a rosa 3D e exportar o efeito em vídeo",
+  "description": "Ferramentas para gerar os objetos 3D dos presentes e exportar os efeitos em vídeo",
   "scripts": {
-    "rosa3d": "node rose3d.cjs",
+    "itens": "node items.cjs",
     "render": "node render.cjs",
-    "folha": "node sheet.cjs ../rosa-intelra/index.html folha.png 0.2,0.7,1.2,1.52,1.9,2.6,3.3,4.2 4 0.25"
+    "folha": "node sheet.cjs rosa folha.png 0.2,0.7,1.2,1.52,1.9,2.6,3.3,4.2 4 0.25"
   },
   "dependencies": {
     "three": "0.170.0"
