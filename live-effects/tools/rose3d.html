@@ -1,0 +1,246 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>rose3d</title>
+<style>html,body{margin:0;background:#1b2233}canvas{display:block}</style></head>
+<body>
+<script type="module">
+// Rosa 3D procedural (three.js). Renderizada uma vez para um PNG transparente
+// que o efeito usa como sprite. Rodar com: node tools/rose3d.cjs
+import * as THREE from './node_modules/three/build/three.module.js';
+
+const OUT_W = 800, OUT_H = 1520, SS = 2;
+const Q = new URLSearchParams(location.search);
+
+function rng(seed) {
+  return () => {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const R = rng(+(Q.get('seed') || 5));
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1);
+renderer.setSize(OUT_W * SS, OUT_H * SS);
+renderer.setClearColor(0x000000, 0);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(17, OUT_W / OUT_H, 0.1, 100);
+if (Q.has('close')) { camera.position.set(0, 1.9, 7.5); camera.lookAt(0, 0.35, 0); }
+else { camera.position.set(0, 2.95, 21.4); camera.lookAt(0, -1.6, 0); }
+
+/* ---------- pétala ---------- */
+const cDark = new THREE.Color('#3a0009'), cMid = new THREE.Color('#a8102a'), cHi = new THREE.Color('#e3324c'), cRim = new THREE.Color('#ff6d80');
+function petalGeometry(p) {
+  const NU = 28, NV = 36, pos = [], col = [], idx = [];
+  const spine = [];
+  let r = p.r0, h = p.h0;
+  for (let j = 0; j <= 200; j++) {
+    const v = j / 200;
+    const a = p.lean + p.bend * v + p.reflex * smooth(0.5, 1, v);
+    spine.push({ r, h, a });
+    const ds = p.L / 200;
+    r += Math.sin(a) * ds; h += Math.cos(a) * ds;
+  }
+  const sp = v => spine[Math.round(clamp(v) * 200)];
+  const er = new THREE.Vector3(Math.cos(p.th), 0, Math.sin(p.th));
+  const et = new THREE.Vector3(-Math.sin(p.th), 0, Math.cos(p.th));
+  const ey = new THREE.Vector3(0, 1, 0);
+  const c = new THREE.Color();
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) {
+    const u = -1 + 2 * i / NU, v0 = j / NV;
+    const v = v0 * (1 - p.tipRound * u * u);
+    const hw = p.W * (0.1 + 0.9 * Math.sqrt(Math.max(0, 1 - Math.pow((v - 0.66) / 0.66, 2))));
+    const X = u * hw;
+    const phi = X / p.Rc;
+    const lat = p.Rc * Math.sin(phi);
+    let zin = p.Rc * (1 - Math.cos(phi));
+    zin -= p.curl * Math.pow(Math.abs(u), 2.5) * smooth(0.45, 1, v);
+    zin -= p.rimRoll * smooth(0.82, 1, v) * (1 - 0.4 * Math.abs(u));
+    zin += 0.012 * Math.sin(u * 7 + p.seed) * v + 0.008 * Math.sin(v * 11 + p.seed * 2);
+    const s = sp(v);
+    const N = er.clone().multiplyScalar(Math.cos(s.a)).addScaledVector(ey, -Math.sin(s.a));
+    const P = er.clone().multiplyScalar(s.r).addScaledVector(ey, s.h).addScaledVector(et, lat).addScaledVector(N, -zin);
+    pos.push(P.x, P.y, P.z);
+    // cor: escuro na base, vermelho no meio, borda mais clara
+    c.copy(cDark).lerp(cMid, smooth(0.0, 0.55, v));
+    c.lerp(cHi, smooth(0.6, 1.0, v) * (0.35 + 0.65 * p.o));
+    c.lerp(cRim, smooth(0.93, 1.0, v) * 0.35 * p.o);
+    c.multiplyScalar(lerp(0.55, 1.0, p.o) * p.tone);
+    col.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) {
+    const a = j * (NU + 1) + i, b = a + 1, d = a + NU + 1, e = d + 1;
+    idx.push(a, d, b, b, d, e);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+const petalMat = new THREE.MeshPhysicalMaterial({
+  vertexColors: true, roughness: 0.58, metalness: 0, side: THREE.DoubleSide,
+  sheen: 1, sheenColor: new THREE.Color('#ff5068'), sheenRoughness: 0.5,
+});
+
+const head = new THREE.Group();
+scene.add(head);
+const NP = 30;
+for (let i = 0; i < NP; i++) {
+  const o = i / (NP - 1);
+  const p = {
+    o, seed: R() * 10, tone: 0.9 + R() * 0.18,
+    th: i * 2.39996 + (R() - 0.5) * 0.25,
+    L: lerp(0.4, 1.12, Math.pow(o, 0.75)) * (0.95 + R() * 0.1),
+    W: lerp(0.3, 0.68, Math.pow(o, 0.85)),
+    r0: lerp(0.015, 0.15, o),
+    h0: lerp(0.36, 0.0, Math.pow(o, 0.8)),
+    lean: lerp(-0.1, 0.62, Math.pow(o, 1.5)),
+    bend: lerp(-0.55, 0.12, o),
+    reflex: lerp(0.0, 1.45, Math.pow(o, 2.4)),
+    Rc: lerp(0.24, 0.78, Math.pow(o, 1.1)),
+    curl: lerp(0.0, 0.16, Math.pow(o, 1.4)),
+    rimRoll: lerp(0.008, 0.09, o),
+    tipRound: lerp(0.3, 0.16, o),
+  };
+  const m = new THREE.Mesh(petalGeometry(p), petalMat);
+  m.castShadow = true; m.receiveShadow = true;
+  head.add(m);
+}
+// sépalas
+const greenDark = new THREE.Color('#183d12'), green = new THREE.Color('#3f7c2a');
+function sepalGeometry(th) {
+  const NU = 8, NV = 24, pos = [], col = [], idx = [];
+  const er = new THREE.Vector3(Math.cos(th), 0, Math.sin(th)), ey = new THREE.Vector3(0, 1, 0), et = new THREE.Vector3(-Math.sin(th), 0, Math.cos(th));
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) {
+    const u = -1 + 2 * i / NU, v = j / NV;
+    const w = 0.09 * Math.pow(Math.sin(Math.PI * Math.min(1, 0.15 + v)), 0.7) * (1 - v * 0.85);
+    const a = 1.25 + 1.2 * v;          // aponta para fora e para baixo
+    const L = 0.62;
+    const r = 0.1 + Math.sin(a) * L * v * 0.9, h = 0.02 + (Math.cos(a) * L * v) * 0.9 - 0.05 * v;
+    const P = er.clone().multiplyScalar(r).addScaledVector(ey, h).addScaledVector(et, u * w).addScaledVector(ey, -0.02 * Math.abs(u));
+    pos.push(P.x, P.y, P.z);
+    const c = greenDark.clone().lerp(green, 0.4 + 0.6 * (1 - Math.abs(u)) * (1 - v * 0.5));
+    col.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) { const a = j * (NU + 1) + i, b = a + 1, d = a + NU + 1, e = d + 1; idx.push(a, d, b, b, d, e); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+const greenMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.5, side: THREE.DoubleSide, sheen: 0.4, sheenColor: new THREE.Color('#bfffa0') });
+for (let i = 0; i < 5; i++) {
+  const m = new THREE.Mesh(sepalGeometry(i / 5 * Math.PI * 2 + 0.4), greenMat);
+  m.castShadow = true; m.receiveShadow = true; head.add(m);
+}
+const recept = new THREE.Mesh(new THREE.SphereGeometry(0.14, 32, 24), new THREE.MeshPhysicalMaterial({ color: '#2f6420', roughness: 0.45 }));
+recept.scale.set(1, 0.85, 1); recept.position.y = 0.0; recept.castShadow = true; head.add(recept);
+head.rotation.x = 0.22;
+head.rotation.z = -0.06;
+
+/* ---------- caule, folhas e espinhos ---------- */
+const stemCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(0, 0.0, 0), new THREE.Vector3(0.03, -0.9, 0.02), new THREE.Vector3(-0.04, -2.0, 0.0),
+  new THREE.Vector3(0.02, -3.2, -0.02), new THREE.Vector3(0.0, -4.6, 0.0),
+]);
+const stemMat = new THREE.MeshPhysicalMaterial({ color: '#356d22', roughness: 0.42, clearcoat: 0.3, clearcoatRoughness: 0.5 });
+const stem = new THREE.Mesh(new THREE.TubeGeometry(stemCurve, 120, 0.04, 16, false), stemMat);
+stem.castShadow = true; stem.receiveShadow = true; scene.add(stem);
+const thornMat = new THREE.MeshPhysicalMaterial({ color: '#5e2a17', roughness: 0.5 });
+[[0.18, 0.4], [0.33, 2.6], [0.52, 4.4], [0.7, 1.4], [0.86, 3.6]].forEach(([t, ang]) => {
+  const p = stemCurve.getPointAt(t);
+  const th = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.12, 12), thornMat);
+  th.position.copy(p);
+  th.position.x += Math.cos(ang) * 0.05; th.position.z += Math.sin(ang) * 0.05;
+  th.rotation.z = -Math.cos(ang) * 1.2; th.rotation.x = Math.sin(ang) * 1.2;
+  th.castShadow = true; scene.add(th);
+});
+const leafDark = new THREE.Color('#153a10'), leafMid = new THREE.Color('#2f6b22'), leafLight = new THREE.Color('#6fae48');
+function leafGeometry(len, wid, seed) {
+  const NU = 36, NV = 60, pos = [], col = [], idx = [];
+  for (let j = 0; j <= NV; j++) for (let i = 0; i <= NU; i++) {
+    const u = -1 + 2 * i / NU, v = j / NV;
+    const saw = 1 - 0.05 * Math.pow((v * 13 + (u > 0 ? 0.5 : 0)) % 1, 2);
+    const hw = wid * Math.pow(Math.sin(Math.PI * Math.min(0.999, v)), 0.75) * (1 - 0.35 * v) * saw;
+    const x = v * len, y = u * hw;
+    const hs = wid * Math.pow(Math.sin(Math.PI * Math.min(0.999, v)), 0.75) * (1 - 0.35 * v);
+    const z = 0.18 * Math.sin(Math.PI * v) * len * 0.5 - Math.abs(u) * hs * 0.3 + 0.006 * Math.sin(v * 20 + seed);
+    pos.push(x, z, y);
+    const lat = Math.abs(Math.sin((v * 8 - Math.abs(u) * 1.2) * Math.PI));
+    const vein = Math.exp(-Math.pow(u * 16, 2)) + 0.12 * Math.pow(1 - lat, 16) * (1 - Math.abs(u));
+    const c = leafDark.clone().lerp(leafMid, 0.5 + 0.5 * (1 - Math.abs(u))).lerp(leafLight, clamp(vein) * 0.55);
+    col.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < NV; j++) for (let i = 0; i < NU; i++) { const a = j * (NU + 1) + i, b = a + 1, d = a + NU + 1, e = d + 1; idx.push(a, d, b, b, d, e); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  g.setIndex(idx); g.computeVertexNormals();
+  return g;
+}
+const leafMat = new THREE.MeshPhysicalMaterial({ vertexColors: true, roughness: 0.38, side: THREE.DoubleSide, clearcoat: 0.45, clearcoatRoughness: 0.35 });
+function addLeafCluster(t, yaw, pitch, scale) {
+  const base = stemCurve.getPointAt(t);
+  const grp = new THREE.Group(); grp.position.copy(base); grp.rotation.set(0, yaw, pitch); scene.add(grp);
+  const pet = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.018, 0.5 * scale, 8), stemMat);
+  pet.rotation.z = -Math.PI / 2; pet.position.x = 0.25 * scale; grp.add(pet);
+  const mk = (x, ry, s) => {
+    const m = new THREE.Mesh(leafGeometry(0.62 * s * scale, 0.2 * s * scale, x * 9), leafMat);
+    m.position.x = x * scale; m.rotation.y = ry; m.castShadow = true; m.receiveShadow = true; grp.add(m);
+  };
+  mk(0.48, 0, 1.0);          // folíolo terminal
+  mk(0.26, 1.05, 0.72); mk(0.26, -1.05, 0.72);
+}
+addLeafCluster(0.22, 0.45, 0.5, 1.45);
+addLeafCluster(0.46, Math.PI - 0.35, 0.42, 1.35);
+
+/* ---------- luzes ---------- */
+scene.add(new THREE.HemisphereLight('#ffe8ee', '#2a1020', 0.75));
+const key = new THREE.DirectionalLight('#fff0e4', 3.2);
+key.position.set(-3, 5, 4.5); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, { left: -1.6, right: 1.6, top: 1.6, bottom: -1.6, near: 0.5, far: 20 });
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02;
+scene.add(key);
+const rim = new THREE.DirectionalLight('#9fe9ff', 1.3); rim.position.set(4, 2.5, -4); scene.add(rim);
+const rim2 = new THREE.DirectionalLight('#ff8fa6', 1.2); rim2.position.set(-4, 1, -3); scene.add(rim2);
+const fill = new THREE.DirectionalLight('#b8d0ff', 0.55); fill.position.set(3, -1, 5); scene.add(fill);
+
+renderer.render(scene, camera);
+
+// reduz (supersampling) e mede pontos de referência
+const out = document.createElement('canvas'); out.width = OUT_W; out.height = OUT_H;
+const g = out.getContext('2d'); g.imageSmoothingQuality = 'high';
+g.drawImage(renderer.domElement, 0, 0, OUT_W, OUT_H);
+const px = g.getImageData(0, 0, OUT_W, OUT_H).data;
+function rowCenter(y) { let s = 0, n = 0; for (let x = 0; x < OUT_W; x++) { const k = (y * OUT_W + x) * 4; if (px[k + 3] > 200 && px[k + 1] > px[k]) { s += x; n++; } } return n ? s / n : null; }
+let minY = OUT_H, maxY = 0, minX = OUT_W, maxX = 0;
+for (let y = 0; y < OUT_H * 0.45; y++) for (let x = 0; x < OUT_W; x++) {
+  const k = (y * OUT_W + x) * 4;
+  if (px[k + 3] > 128 && px[k] > px[k + 1] * 1.4) { minY = Math.min(minY, y); maxY = Math.max(maxY, y); minX = Math.min(minX, x); maxX = Math.max(maxX, x); }
+}
+window.RESULT = {
+  png: out.toDataURL('image/png'),
+  stemX1120: rowCenter(1120), stemX1100: rowCenter(1100), stemX1140: rowCenter(1140),
+  bloom: { minX, maxX, minY, maxY },
+};
+if (Q.has('show')) { document.body.innerHTML = ''; document.body.appendChild(out); }
+document.title = 'done';
+</script>
+</body>
+</html>
