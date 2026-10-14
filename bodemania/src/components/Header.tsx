@@ -139,7 +139,7 @@ export default function Header() {
             <ChevronLeft size={20} /> <span className="hidden xs:inline">Voltar ao</span> carrinho
           </Link>
           <Link to="/" aria-label="Bodemania — início">
-            <Mark size={34} />
+            <Mark size={42} />
           </Link>
           <div className="flex items-center gap-4 justify-self-end">
             <span className="hidden items-center gap-2 text-xs font-medium text-mute md:flex">
