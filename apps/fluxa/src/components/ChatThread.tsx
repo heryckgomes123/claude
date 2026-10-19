@@ -80,7 +80,7 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
               type="button"
               disabled={!onQuickReply}
               onClick={() => onQuickReply?.(last, q)}
-              className="rounded-full border border-gold-500/60 px-3 py-1 text-[12.5px] text-gold-200 transition enabled:hover:bg-gold/10 disabled:opacity-60"
+              className="rounded-full border border-brand-500/60 px-3 py-1 text-[12.5px] text-brand-200 transition enabled:hover:bg-brand/10 disabled:opacity-60"
             >
               {q.label}
             </button>
@@ -93,7 +93,7 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
 }
 
 function bubbleTone(m: ChatMessage, perspective: Props['perspective']): string {
-  if (m.from === 'contact') return perspective === 'contact' ? 'bg-gradient-to-br from-gold-300 to-gold-500 text-ink-950' : 'bg-ink-800 text-bone'
+  if (m.from === 'contact') return perspective === 'contact' ? 'bg-gradient-to-br from-brand-300 to-brand-500 text-ink-950' : 'bg-ink-800 text-bone'
   if (m.from === 'agent') return 'bg-info/15 text-bone border border-info/25'
-  return perspective === 'contact' ? 'bg-ink-800 text-bone' : 'bg-gold/12 text-bone border border-gold-600/30'
+  return perspective === 'contact' ? 'bg-ink-800 text-bone' : 'bg-brand/12 text-bone border border-brand-600/30'
 }

@@ -17,7 +17,7 @@ export function SegmentEditor({ segment, onChange, tags }: { segment: Segment; o
                 type="button"
                 aria-pressed={on}
                 onClick={() => onChange({ ...segment, channels: on ? segment.channels.filter((x) => x !== c) : [...segment.channels, c] })}
-                className={`rounded-full border px-2.5 py-1 text-[12px] transition ${on ? 'border-gold-500/60 bg-gold/10 text-gold-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
+                className={`rounded-full border px-2.5 py-1 text-[12px] transition ${on ? 'border-brand-500/60 bg-brand/10 text-brand-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
               >
                 {CHANNEL_LABEL[c]}
               </button>

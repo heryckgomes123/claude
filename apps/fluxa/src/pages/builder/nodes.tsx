@@ -59,7 +59,7 @@ function Shell({ node, selected, children }: { node: FlowNode; selected: boolean
         </span>
         <span className="text-[12.5px] font-semibold">{meta.label}</span>
         {nodeIssues.length > 0 && (
-          <span className={`ml-auto ${hasError ? 'text-danger' : 'text-gold-300'}`} title={nodeIssues.map((i) => i.text).join('\n')}>
+          <span className={`ml-auto ${hasError ? 'text-danger' : 'text-brand-300'}`} title={nodeIssues.map((i) => i.text).join('\n')}>
             <Icon name="alert" size={14} />
           </span>
         )}
@@ -126,7 +126,7 @@ function Body({ node }: { node: FlowNode }) {
         <>
           <p className="text-bone/90">{clip(d.prompt)}</p>
           <p className="mt-2 text-[11.5px]">
-            Salva em <code className="rounded bg-ink-800 px-1 text-gold-200">{d.field || '—'}</code> · {INPUT_LABEL[d.inputType]}
+            Salva em <code className="rounded bg-ink-800 px-1 text-brand-200">{d.field || '—'}</code> · {INPUT_LABEL[d.inputType]}
           </p>
         </>
       )

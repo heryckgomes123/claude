@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatNumber } from '../lib/util'
 
-const SERIES = 'var(--color-gold)'
+const SERIES = 'var(--color-brand)'
 
 function niceMax(value: number): number {
   if (value <= 5) return 5

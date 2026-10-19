@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import mark from './assets/mark.webp'
+import wordmark from './assets/logo-wordmark.png'
 import { Icon, type IconName } from './components/Icon'
 import { Toaster } from './components/ui'
 import { navigate, useRoute } from './lib/router'
@@ -30,14 +30,9 @@ const NAV: { path: string; label: string; icon: IconName }[] = [
 
 function Brand() {
   return (
-    <a href="#/painel" className="flex items-center gap-2.5 px-2">
-      <img src={mark} alt="" className="size-9 object-contain drop-shadow-[0_0_14px_rgba(226,174,58,.35)]" />
-      <span className="leading-none">
-        <span className="block font-poster text-[19px] uppercase tracking-wider">
-          Intelra <span className="gold-text">Fluxa</span>
-        </span>
-        <span className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-mute-600">Automação de conversas</span>
-      </span>
+    <a href="#/painel" className="flex flex-col gap-1.5 px-2" aria-label="INTELRA Fluxa — início">
+      <img src={wordmark} alt="Intelra Fluxa" className="h-9 w-auto" />
+      <span className="text-[10px] uppercase tracking-[0.18em] text-mute-600">Automação de conversas</span>
     </a>
   )
 }
@@ -59,7 +54,7 @@ function Notifications() {
         className="relative grid size-9 place-items-center rounded-xl border border-ink-700 bg-ink-850 text-mute transition hover:text-bone"
       >
         <Icon name="bell" size={17} />
-        {unread > 0 && <span className="absolute -right-1 -top-1 grid min-w-[18px] place-items-center rounded-full bg-gold-300 px-1 text-[10px] font-bold text-ink-950">{unread}</span>}
+        {unread > 0 && <span className="absolute -right-1 -top-1 grid min-w-[18px] place-items-center rounded-full bg-brand-300 px-1 text-[10px] font-bold text-ink-950">{unread}</span>}
       </button>
       {open && (
         <>
@@ -78,7 +73,7 @@ function Notifications() {
                   }}
                   className={`block w-full border-b border-ink-850 px-4 py-3 text-left text-[13px] transition hover:bg-ink-850 ${n.read ? 'text-mute' : 'text-bone'}`}
                 >
-                  {!n.read && <span className="mr-2 inline-block size-1.5 rounded-full bg-gold-300 align-middle" />}
+                  {!n.read && <span className="mr-2 inline-block size-1.5 rounded-full bg-brand-300 align-middle" />}
                   {n.text}
                   <span className="mt-1 block text-[11px] text-mute-600">{timeAgo(n.ts)}</span>
                 </button>
@@ -107,13 +102,13 @@ function Sidebar({ current, onNavigate }: { current: string; onNavigate?: () => 
             href={`#/${item.path}`}
             onClick={onNavigate}
             aria-current={active ? 'page' : undefined}
-            className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition ${active ? 'bg-gradient-to-r from-gold/15 to-transparent text-bone shadow-[inset_2px_0_0_var(--color-gold-300)]' : 'text-mute hover:bg-ink-850 hover:text-bone'}`}
+            className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] transition ${active ? 'bg-gradient-to-r from-brand/15 to-transparent text-bone shadow-[inset_2px_0_0_var(--color-brand-300)]' : 'text-mute hover:bg-ink-850 hover:text-bone'}`}
           >
-            <span className={active ? 'text-gold-300' : 'text-mute-600 group-hover:text-mute'}>
+            <span className={active ? 'text-brand-300' : 'text-mute-600 group-hover:text-mute'}>
               <Icon name={item.icon} size={18} />
             </span>
             {item.label}
-            {item.path === 'inbox' && unread > 0 && <span className="ml-auto rounded-full bg-gold-300 px-1.5 text-[11px] font-bold text-ink-950">{unread}</span>}
+            {item.path === 'inbox' && unread > 0 && <span className="ml-auto rounded-full bg-brand-300 px-1.5 text-[11px] font-bold text-ink-950">{unread}</span>}
           </a>
         )
       })}

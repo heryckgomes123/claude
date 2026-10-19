@@ -104,7 +104,7 @@ export function Dashboard() {
         <section className="card overflow-hidden lg:col-span-2">
           <div className="flex items-center justify-between px-5 pt-5">
             <h2 className="text-[15px] font-semibold">Automações com mais execuções</h2>
-            <a href="#/automacoes" className="text-[12px] text-gold-300 hover:underline">
+            <a href="#/automacoes" className="text-[12px] text-brand-300 hover:underline">
               Ver todas
             </a>
           </div>
@@ -140,7 +140,7 @@ export function Dashboard() {
         <section className="card p-5">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-[15px] font-semibold">Conversas recentes</h2>
-            <a href="#/inbox" className="text-[12px] text-gold-300 hover:underline">
+            <a href="#/inbox" className="text-[12px] text-brand-300 hover:underline">
               Abrir inbox
             </a>
           </div>
@@ -159,7 +159,7 @@ export function Dashboard() {
                     </span>
                     <span className="flex flex-col items-end gap-1 text-[11px] text-mute-600">
                       {timeAgo(c.lastActivityAt)}
-                      {c.unread > 0 && <span className="rounded-full bg-gold-300 px-1.5 font-bold text-ink-950">{c.unread}</span>}
+                      {c.unread > 0 && <span className="rounded-full bg-brand-300 px-1.5 font-bold text-ink-950">{c.unread}</span>}
                     </span>
                   </a>
                 </li>

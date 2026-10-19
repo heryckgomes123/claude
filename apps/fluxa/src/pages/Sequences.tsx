@@ -68,7 +68,7 @@ function Editor({ initial, onClose }: { initial: Sequence; onClose: () => void }
               const set = (patch: Partial<typeof step>) => setQ({ ...q, steps: q.steps.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
               return (
                 <li key={step.id} className="relative rounded-2xl border border-ink-800 bg-ink-900 p-3">
-                  <span className="absolute -left-[29px] top-4 grid size-4 place-items-center rounded-full border border-gold-500 bg-ink-950 text-[9px] font-bold text-gold-200">{i + 1}</span>
+                  <span className="absolute -left-[29px] top-4 grid size-4 place-items-center rounded-full border border-brand-500 bg-ink-950 text-[9px] font-bold text-brand-200">{i + 1}</span>
                   <div className="mb-2 flex flex-wrap items-center gap-2 text-[12.5px] text-mute">
                     <Icon name="clock" size={14} />
                     {i === 0 ? 'Depois da inscrição, esperar' : 'Depois do passo anterior, esperar'}

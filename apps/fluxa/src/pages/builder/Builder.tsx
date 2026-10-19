@@ -287,14 +287,14 @@ function Canvas({ automation }: { automation: Automation }) {
               onPaneClick={() => setSelectedId(null)}
               colorMode="dark"
               fitView
-              fitViewOptions={{ padding: 0.2, minZoom: 0.55, maxZoom: 1 }}
+              fitViewOptions={{ padding: { top: 0.15, right: 0.12, bottom: 0.15, left: 0.2 }, minZoom: 0.2, maxZoom: 1 }}
               minZoom={0.2}
               maxZoom={1.6}
               deleteKeyCode={['Backspace', 'Delete']}
               defaultEdgeOptions={{ type: 'default' }}
               proOptions={{ hideAttribution: false }}
             >
-              <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#2a2823" />
+              <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#1a3a5c" />
               <Controls showInteractive={false} position="bottom-left" />
               <MiniMap pannable zoomable position="bottom-right" className="!hidden md:!block" nodeColor={(n) => NODE_META[n.type as NodeKind]?.color ?? '#555'} nodeStrokeWidth={0} />
             </ReactFlow>
@@ -358,7 +358,7 @@ function Canvas({ automation }: { automation: Automation }) {
                                 }}
                                 className="flex w-full gap-2 rounded-xl border border-ink-800 p-3 text-left text-[12.5px] transition enabled:hover:border-ink-600"
                               >
-                                <span className={issue.level === 'error' ? 'text-danger' : 'text-gold-300'}>
+                                <span className={issue.level === 'error' ? 'text-danger' : 'text-brand-300'}>
                                   <Icon name="alert" size={15} />
                                 </span>
                                 <span>{issue.text}</span>

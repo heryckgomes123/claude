@@ -22,9 +22,9 @@ export function TemplateGallery({ open, onClose }: { open: boolean; onClose: () 
       <button
         type="button"
         onClick={() => create()}
-        className="mb-4 flex w-full items-center gap-4 rounded-2xl border border-dashed border-gold-600/50 bg-gold/5 p-4 text-left transition hover:bg-gold/10"
+        className="mb-4 flex w-full items-center gap-4 rounded-2xl border border-dashed border-brand-600/50 bg-brand/5 p-4 text-left transition hover:bg-brand/10"
       >
-        <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold-300">
+        <span className="grid size-10 place-items-center rounded-xl bg-brand/15 text-brand-300">
           <Icon name="plus" />
         </span>
         <span>
@@ -35,9 +35,9 @@ export function TemplateGallery({ open, onClose }: { open: boolean; onClose: () 
       <p className="label">Modelos prontos</p>
       <div className="grid gap-3 sm:grid-cols-2">
         {TEMPLATES.map((t) => (
-          <button key={t.id} type="button" onClick={() => create(t)} className="card group p-4 text-left transition hover:border-gold-600/60">
-            <Badge tone={t.category === 'IA' ? 'neon' : 'gold'}>{t.category}</Badge>
-            <span className="mt-3 block font-semibold group-hover:text-gold-200">{t.name}</span>
+          <button key={t.id} type="button" onClick={() => create(t)} className="card group p-4 text-left transition hover:border-brand-600/60">
+            <Badge tone={t.category === 'IA' ? 'neon' : 'brand'}>{t.category}</Badge>
+            <span className="mt-3 block font-semibold group-hover:text-brand-200">{t.name}</span>
             <span className="mt-1 block text-[13px] text-mute">{t.description}</span>
           </button>
         ))}
@@ -131,7 +131,7 @@ export function Automations({ gallery = false }: { gallery?: boolean }) {
                 <div className="flex min-w-0 flex-1 items-start gap-3">
                   <Toggle checked={a.active} onChange={(v) => toggle(a.id, v)} label={a.active ? 'Pausar automação' : 'Ativar automação'} />
                   <div className="min-w-0">
-                    <h2 className="flex flex-wrap items-center gap-2 font-semibold group-hover:text-gold-200">
+                    <h2 className="flex flex-wrap items-center gap-2 font-semibold group-hover:text-brand-200">
                       {a.name}
                       {errors > 0 && <Badge tone="danger">{errors} erro(s)</Badge>}
                     </h2>
@@ -139,7 +139,7 @@ export function Automations({ gallery = false }: { gallery?: boolean }) {
                       {a.triggers.length === 0 && <span className="text-[12px] text-mute-600">Sem gatilho</span>}
                       {a.triggers.map((t) => (
                         <span key={t.id} className="inline-flex max-w-full items-center gap-1 truncate rounded-md border border-ink-700 bg-ink-900 px-2 py-0.5 text-[12px] text-mute" title={describeTrigger(t)}>
-                          <span className="text-gold-300">{TRIGGER_META[t.type].label}:</span>
+                          <span className="text-brand-300">{TRIGGER_META[t.type].label}:</span>
                           <span className="truncate">{describeTrigger(t)}</span>
                         </span>
                       ))}

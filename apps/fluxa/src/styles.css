@@ -1,36 +1,42 @@
 @import '@fontsource-variable/geist/wght.css';
 @import '@fontsource-variable/geist-mono/wght.css';
-@import '@fontsource/anton/latin-400.css';
 @import '@xyflow/react/dist/style.css';
 @import 'tailwindcss';
 
 /* Tokens da marca INTELRA (os mesmos da landing page). */
 @theme {
-  --color-ink-950: #070707;
-  --color-ink-900: #0e0d0c;
-  --color-ink-850: #141311;
-  --color-ink-800: #1b1a17;
-  --color-ink-700: #2a2823;
-  --color-ink-600: #3a372f;
-  --color-bone: #f4f0e6;
-  --color-mute: #a39e93;
-  --color-mute-600: #6d685f;
+  /* Azul-marinho da marca e derivados (fundo, superfícies, bordas). */
+  --color-ink-950: #051120;
+  --color-ink-900: #081b2e;
+  --color-ink-850: #0c2238;
+  --color-ink-800: #112c47;
+  --color-ink-700: #1a3a5c;
+  --color-ink-600: #2a5378;
+  --color-bone: #f5f8fc;
+  --color-mute: #9aafc4;
+  --color-mute-600: #5f7892;
 
-  --color-gold-100: #fff1c2;
-  --color-gold-200: #ffe08a;
-  --color-gold-300: #f7c948;
-  --color-gold: #e2ae3a;
-  --color-gold-500: #c9982e;
-  --color-gold-600: #a87a1f;
-  --color-gold-700: #7a5412;
+  /* Ciano da marca: ação principal, série de gráficos, destaques. */
+  --color-brand-100: #d9f9ff;
+  --color-brand-200: #8ceefb;
+  --color-brand-300: #33dcf2;
+  --color-brand: #00cbe6;
+  --color-brand-500: #00a8c4;
+  --color-brand-600: #00849a;
+  --color-brand-700: #00566a;
 
+  /* Violeta de apoio: nós de IA e elementos secundários. */
+  --color-violet: #7855f5;
+  --color-violet-300: #a896ff;
+
+  /* Cores de estado, reservadas para status. */
   --color-neon: #3cff8f;
   --color-danger: #ff6b6b;
   --color-info: #7cc4ff;
 
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
-  --font-poster: 'Anton', 'Impact', 'Arial Narrow Bold', sans-serif;
+  --font-poster: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
 @layer base {
@@ -52,11 +58,11 @@
     font-size: 14px;
   }
   ::selection {
-    background: var(--color-gold-300);
+    background: var(--color-brand-300);
     color: var(--color-ink-950);
   }
   :focus-visible {
-    outline: 2px solid var(--color-gold-300);
+    outline: 2px solid var(--color-brand-300);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -89,7 +95,7 @@
     transition: border-color 0.15s;
   }
   .field:focus {
-    border-color: var(--color-gold-500);
+    border-color: var(--color-brand-500);
   }
   .field::placeholder {
     color: var(--color-mute-600);
@@ -120,8 +126,12 @@
     border: 1px solid var(--color-ink-700);
     background: linear-gradient(180deg, var(--color-ink-850), var(--color-ink-900));
   }
-  .gold-text {
-    background: linear-gradient(100deg, var(--color-gold-200), var(--color-gold) 45%, var(--color-gold-600));
+  .font-poster {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+  .brand-text {
+    background: linear-gradient(100deg, var(--color-brand-200), var(--color-brand) 45%, var(--color-brand-600));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -131,12 +141,12 @@
 /* React Flow no tema da marca. */
 .react-flow {
   --xy-background-color: var(--color-ink-950);
-  --xy-edge-stroke: #57524a;
-  --xy-edge-stroke-selected: var(--color-gold-300);
+  --xy-edge-stroke: #2a5378;
+  --xy-edge-stroke-selected: var(--color-brand-300);
   --xy-edge-stroke-width: 1.6;
-  --xy-connectionline-stroke: var(--color-gold-300);
+  --xy-connectionline-stroke: var(--color-brand-300);
   --xy-handle-background-color: var(--color-ink-950);
-  --xy-handle-border-color: var(--color-gold-500);
+  --xy-handle-border-color: var(--color-brand-500);
   --xy-controls-button-background-color: var(--color-ink-850);
   --xy-controls-button-background-color-hover: var(--color-ink-700);
   --xy-controls-button-color: var(--color-bone);
@@ -144,8 +154,8 @@
   --xy-minimap-background-color: var(--color-ink-900);
   --xy-minimap-mask-background-color: rgba(7, 7, 7, 0.7);
   --xy-minimap-node-background-color: var(--color-ink-600);
-  --xy-selection-background-color: rgba(247, 201, 72, 0.08);
-  --xy-selection-border: 1px dashed var(--color-gold-500);
+  --xy-selection-background-color: rgba(0, 203, 230, 0.08);
+  --xy-selection-border: 1px dashed var(--color-brand-500);
 }
 .react-flow .react-flow__handle {
   width: 11px;

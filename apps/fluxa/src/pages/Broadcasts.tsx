@@ -155,7 +155,7 @@ function Editor({ initial, onClose }: { initial: Broadcast; onClose: () => void 
             <div className="font-poster text-[34px] leading-none">{formatNumber(reach.eligible.length)}</div>
             <p className="mt-1 text-[12px] text-mute">contatos recebem a mensagem</p>
             {reach.outsideWindow.length > 0 && (
-              <p className="mt-3 flex gap-1.5 text-[12px] text-gold-200">
+              <p className="mt-3 flex gap-1.5 text-[12px] text-brand-200">
                 <Icon name="clock" size={14} className="mt-0.5 shrink-0" />
                 {reach.outsideWindow.length} ficam de fora: estão há mais de 24 h sem falar com você no Instagram, Messenger ou WhatsApp, onde a Meta não permite mensagem livre.
               </p>

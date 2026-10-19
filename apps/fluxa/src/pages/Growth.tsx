@@ -16,7 +16,7 @@ function QrImage({ value, size = 168 }: { value: string; size?: number }) {
   const [src, setSrc] = useState('')
   useEffect(() => {
     let alive = true
-    QRCode.toDataURL(value, { margin: 1, width: size * 2, color: { dark: '#070707', light: '#f4f0e6' } })
+    QRCode.toDataURL(value, { margin: 1, width: size * 2, color: { dark: '#051120', light: '#f5f8fc' } })
       .then((url) => alive && setSrc(url))
       .catch(() => setSrc(''))
     return () => {
@@ -147,8 +147,8 @@ export function Growth() {
         }
       />
       {settings.handles.whatsapp.replace(/\D/g, '') === '5500000000000' && (
-        <div className="mb-4 flex items-start gap-2 rounded-2xl border border-gold-600/40 bg-gold/5 px-4 py-3 text-[13px] text-gold-100">
-          <Icon name="alert" size={16} className="mt-0.5 shrink-0 text-gold-300" />
+        <div className="mb-4 flex items-start gap-2 rounded-2xl border border-brand-600/40 bg-brand/5 px-4 py-3 text-[13px] text-brand-100">
+          <Icon name="alert" size={16} className="mt-0.5 shrink-0 text-brand-300" />
           <span>
             Os links usam contas de exemplo. Configure seu @ do Instagram, número de WhatsApp, página do Messenger e bot do Telegram em{' '}
             <a href="#/configuracoes" className="underline">
@@ -171,7 +171,7 @@ export function Growth() {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="font-semibold">{tool.name}</h2>
-                      <Badge tone="gold">{TYPE_LABEL[tool.type]}</Badge>
+                      <Badge tone="brand">{TYPE_LABEL[tool.type]}</Badge>
                     </div>
                     <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-mute">
                       <ChannelIcon channel={tool.channel} /> {CHANNEL_LABEL[tool.channel]} → {automation ? automation.name : <span className="text-danger">automação removida</span>}
@@ -192,14 +192,14 @@ export function Growth() {
                   )}
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex items-center gap-1.5 rounded-xl border border-ink-700 bg-ink-950 py-1 pl-3 pr-1">
-                      <code className="min-w-0 flex-1 truncate text-[12px] text-gold-200">{link}</code>
+                      <code className="min-w-0 flex-1 truncate text-[12px] text-brand-200">{link}</code>
                       <IconButton icon="copy" label="Copiar link" onClick={() => copyText(link, 'Link copiado!')} />
                     </div>
                     {tool.type === 'button' && (
                       <div className="rounded-xl border border-ink-700 bg-ink-950 p-3">
                         <div className="mb-2 flex items-center justify-between text-[11.5px] text-mute-600">
                           HTML para colar no site
-                          <button type="button" className="text-gold-300 hover:underline" onClick={() => copyText(buttonSnippet(tool, settings), 'Código copiado!')}>
+                          <button type="button" className="text-brand-300 hover:underline" onClick={() => copyText(buttonSnippet(tool, settings), 'Código copiado!')}>
                             Copiar
                           </button>
                         </div>

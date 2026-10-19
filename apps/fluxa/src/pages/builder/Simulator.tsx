@@ -100,7 +100,7 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(226,174,58,.06),transparent_60%)]">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(0,203,230,.06),transparent_60%)]">
         <ChatThread
           messages={contact?.messages ?? []}
           perspective="contact"
@@ -141,7 +141,7 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
           }}
         >
           <input className="field" value={text} onChange={(e) => setText(e.target.value)} placeholder={MODES.find((m) => m.id === mode)!.placeholder} aria-label="Mensagem de teste" />
-          <button type="submit" disabled={!text.trim() || busy} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold-300 text-ink-950 transition disabled:opacity-40">
+          <button type="submit" disabled={!text.trim() || busy} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-300 text-ink-950 transition disabled:opacity-40">
             <Icon name="send" size={16} />
           </button>
         </form>
@@ -167,7 +167,7 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
                     .join(' · ')
                 : '—'}
             </div>
-            {contact.botPaused && <div className="text-gold-300">Conversa transferida para o time (automação pausada).</div>}
+            {contact.botPaused && <div className="text-brand-300">Conversa transferida para o time (automação pausada).</div>}
           </div>
         )}
       </div>

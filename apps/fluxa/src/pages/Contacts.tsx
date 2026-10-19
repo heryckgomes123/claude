@@ -178,7 +178,7 @@ export function Contacts() {
       </div>
 
       {ids.length > 0 && (
-        <div className="pop-in mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-gold-600/40 bg-gold/5 px-4 py-2.5 text-[13px]">
+        <div className="pop-in mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-brand-600/40 bg-brand/5 px-4 py-2.5 text-[13px]">
           <b>{ids.length} selecionado(s)</b>
           <input className="field !h-8 !w-40 !py-0" list="bulk-tags" placeholder="tag" value={bulkTag} onChange={(e) => setBulkTag(e.target.value)} aria-label="Tag para aplicar" />
           <datalist id="bulk-tags">
@@ -219,7 +219,7 @@ export function Contacts() {
             <thead>
               <tr className="border-b border-ink-800 text-left text-[11px] uppercase tracking-wider text-mute-600">
                 <th className="w-10 px-4 py-3">
-                  <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Selecionar todos" className="accent-[var(--color-gold)]" />
+                  <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Selecionar todos" className="accent-[var(--color-brand)]" />
                 </th>
                 <th className="py-3 pr-3 font-medium">Contato</th>
                 <th className="px-3 py-3 font-medium">Canal</th>
@@ -244,7 +244,7 @@ export function Contacts() {
                           setSelected(next)
                         }}
                         aria-label={`Selecionar ${fullName(c)}`}
-                        className="accent-[var(--color-gold)]"
+                        className="accent-[var(--color-brand)]"
                       />
                     </td>
                     <td className="py-3 pr-3">
@@ -275,7 +275,7 @@ export function Contacts() {
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right">
-                      <Badge tone={t === 'quente' ? 'gold' : t === 'morno' ? 'info' : 'default'}>
+                      <Badge tone={t === 'quente' ? 'brand' : t === 'morno' ? 'info' : 'default'}>
                         {c.score} · {t}
                       </Badge>
                     </td>

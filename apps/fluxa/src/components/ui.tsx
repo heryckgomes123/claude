@@ -7,7 +7,7 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const VARIANTS: Record<Variant, string> = {
   primary:
-    'bg-gradient-to-b from-gold-300 to-gold-500 text-ink-950 font-semibold shadow-[0_0_0_1px_rgba(247,201,72,.35),0_8px_24px_-10px_rgba(226,174,58,.7)] hover:from-gold-200 hover:to-gold',
+    'bg-gradient-to-b from-brand-300 to-brand-500 text-ink-950 font-semibold shadow-[0_0_0_1px_rgba(0,203,230,.35),0_8px_24px_-10px_rgba(0,203,230,.6)] hover:from-brand-200 hover:to-brand',
   secondary: 'border border-ink-700 bg-ink-850 text-bone hover:border-ink-600 hover:bg-ink-800',
   ghost: 'text-mute hover:bg-ink-800 hover:text-bone',
   danger: 'border border-danger/30 bg-danger/10 text-danger hover:bg-danger/20',
@@ -48,10 +48,10 @@ export function IconButton({ icon, label, className = '', ...props }: ButtonHTML
   )
 }
 
-export function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: 'default' | 'gold' | 'neon' | 'danger' | 'info'; className?: string }) {
+export function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: 'default' | 'brand' | 'neon' | 'danger' | 'info'; className?: string }) {
   const tones = {
     default: 'border-ink-700 bg-ink-800 text-mute',
-    gold: 'border-gold-600/40 bg-gold/10 text-gold-200',
+    brand: 'border-brand-600/40 bg-brand/10 text-brand-200',
     neon: 'border-neon/30 bg-neon/10 text-neon',
     danger: 'border-danger/30 bg-danger/10 text-danger',
     info: 'border-info/30 bg-info/10 text-info',
@@ -91,7 +91,7 @@ export const CHANNEL_COLOR: Record<Channel, string> = {
   whatsapp: '#3cff8f',
   messenger: '#7cc4ff',
   telegram: '#5fb8ff',
-  web: '#f7c948',
+  web: '#00cbe6',
 }
 
 export function ChannelIcon({ channel, size = 14 }: { channel: Channel; size?: number }) {
@@ -126,7 +126,7 @@ export function Avatar({ name, hue, size = 36, isTest = false }: { name: string;
         width: size,
         height: size,
         fontSize: size * 0.36,
-        background: isTest ? 'linear-gradient(135deg,#ffe08a,#c9982e)' : `linear-gradient(135deg, hsl(${hue} 70% 72%), hsl(${(hue + 40) % 360} 55% 52%))`,
+        background: isTest ? 'linear-gradient(135deg,#8ceefb,#00a8c4)' : `linear-gradient(135deg, hsl(${hue} 70% 72%), hsl(${(hue + 40) % 360} 55% 52%))`,
       }}
     >
       {isTest ? <Icon name="bot" size={size * 0.5} /> : initials || '?'}
@@ -138,7 +138,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-poster text-[28px] uppercase leading-none tracking-wide sm:text-[34px]">{title}</h1>
+        <h1 className="font-poster text-[28px] leading-none sm:text-[34px]">{title}</h1>
         {subtitle && <p className="mt-2 max-w-2xl text-[13px] text-mute">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -149,7 +149,7 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 export function Empty({ icon, title, text, action }: { icon: IconName; title: string; text: string; action?: ReactNode }) {
   return (
     <div className="card flex flex-col items-center px-6 py-14 text-center">
-      <span className="mb-4 grid size-12 place-items-center rounded-2xl border border-gold-600/30 bg-gold/10 text-gold-300">
+      <span className="mb-4 grid size-12 place-items-center rounded-2xl border border-brand-600/30 bg-brand/10 text-brand-300">
         <Icon name={icon} size={22} />
       </span>
       <h3 className="text-base font-semibold">{title}</h3>
@@ -187,8 +187,8 @@ export function Modal({ open, onClose, title, children, footer, wide = false }: 
   )
 }
 
-export function Stat({ label, value, hint, icon, tone = 'gold' }: { label: string; value: string; hint?: string; icon: IconName; tone?: 'gold' | 'neon' | 'info' }) {
-  const color = tone === 'neon' ? 'text-neon' : tone === 'info' ? 'text-info' : 'text-gold-300'
+export function Stat({ label, value, hint, icon, tone = 'brand' }: { label: string; value: string; hint?: string; icon: IconName; tone?: 'brand' | 'neon' | 'info' }) {
+  const color = tone === 'neon' ? 'text-neon' : tone === 'info' ? 'text-info' : 'text-brand-300'
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between">
@@ -197,7 +197,7 @@ export function Stat({ label, value, hint, icon, tone = 'gold' }: { label: strin
           <Icon name={icon} size={16} />
         </span>
       </div>
-      <div className="mt-3 font-poster text-[30px] leading-none tracking-wide">{value}</div>
+      <div className="mt-3 font-poster text-[30px] leading-none">{value}</div>
       {hint && <div className="mt-2 text-[12px] text-mute-600">{hint}</div>}
     </div>
   )

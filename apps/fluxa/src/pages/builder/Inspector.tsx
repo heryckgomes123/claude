@@ -52,7 +52,7 @@ function VariableHint({ onInsert }: { onInsert: (v: string) => void }) {
     <div className="flex flex-wrap items-center gap-1 text-[11px] text-mute-600">
       Variáveis:
       {VARIABLES.map((v) => (
-        <button key={v} type="button" onClick={() => onInsert(v)} className="rounded bg-ink-800 px-1.5 py-0.5 font-mono text-gold-200 hover:bg-ink-700">
+        <button key={v} type="button" onClick={() => onInsert(v)} className="rounded bg-ink-800 px-1.5 py-0.5 font-mono text-brand-200 hover:bg-ink-700">
           {v}
         </button>
       ))}
@@ -493,7 +493,7 @@ function SplitResults({ automation, node }: { automation: Automation; node: Flow
         return (
           <div key={v.id} className="grid grid-cols-[60px_1fr_auto] items-center gap-2 text-[12px]">
             <span className="truncate text-mute">{v.label}</span>
-            <span className="h-2 rounded-r bg-gold" style={{ width: `${Math.max(2, (n / total) * 100)}%` }} />
+            <span className="h-2 rounded-r bg-brand" style={{ width: `${Math.max(2, (n / total) * 100)}%` }} />
             <span className="tabular-nums">{n}</span>
           </div>
         )

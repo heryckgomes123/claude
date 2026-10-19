@@ -80,7 +80,7 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
                     type="button"
                     aria-pressed={on}
                     onClick={() => set(t.id, { channels: on ? t.channels.filter((x) => x !== c) : [...t.channels, c] })}
-                    className={`rounded-full border px-2.5 py-1 text-[11.5px] transition ${on ? 'border-gold-500/60 bg-gold/10 text-gold-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
+                    className={`rounded-full border px-2.5 py-1 text-[11.5px] transition ${on ? 'border-brand-500/60 bg-brand/10 text-brand-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
                   >
                     {CHANNEL_LABEL[c]}
                   </button>

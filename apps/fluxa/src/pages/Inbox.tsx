@@ -54,7 +54,7 @@ function ContactList({ selectedId }: { selectedId?: string }) {
             <li key={c.id}>
               <a
                 href={`#/inbox/${c.id}`}
-                className={`flex gap-3 border-b border-ink-850 px-3 py-3 transition ${selectedId === c.id ? 'bg-ink-850 shadow-[inset_2px_0_0_var(--color-gold-300)]' : 'hover:bg-ink-900'}`}
+                className={`flex gap-3 border-b border-ink-850 px-3 py-3 transition ${selectedId === c.id ? 'bg-ink-850 shadow-[inset_2px_0_0_var(--color-brand-300)]' : 'hover:bg-ink-900'}`}
               >
                 <Avatar name={fullName(c)} hue={c.avatarHue} isTest={c.isTest} />
                 <span className="min-w-0 flex-1">
@@ -68,8 +68,8 @@ function ContactList({ selectedId }: { selectedId?: string }) {
                       {last?.from === 'bot' ? '🤖 ' : last?.from === 'agent' ? 'Você: ' : ''}
                       {last?.text ?? ''}
                     </span>
-                    {c.botPaused && <Icon name="hand" size={12} className="text-gold-300" />}
-                    {c.unread > 0 && <span className="ml-auto shrink-0 rounded-full bg-gold-300 px-1.5 text-[10.5px] font-bold text-ink-950">{c.unread}</span>}
+                    {c.botPaused && <Icon name="hand" size={12} className="text-brand-300" />}
+                    {c.unread > 0 && <span className="ml-auto shrink-0 rounded-full bg-brand-300 px-1.5 text-[10.5px] font-bold text-ink-950">{c.unread}</span>}
                   </span>
                 </span>
               </a>
@@ -149,7 +149,7 @@ function Conversation({ contact }: { contact: Contact }) {
       </div>
 
       {!open && !asContact && (
-        <div className="flex items-start gap-2 border-t border-ink-800 bg-gold/5 px-4 py-2.5 text-[12px] text-gold-200">
+        <div className="flex items-start gap-2 border-t border-ink-800 bg-brand/5 px-4 py-2.5 text-[12px] text-brand-200">
           <Icon name="clock" size={14} className="mt-0.5" />
           Fora da janela de 24 h do {contact.channel === 'whatsapp' ? 'WhatsApp' : 'Meta'}: a plataforma só aceita mensagem de modelo aprovado até o contato responder.
         </div>
@@ -192,7 +192,7 @@ function Conversation({ contact }: { contact: Contact }) {
                   setText(interpolate(r.text, contact))
                   setShowReplies(false)
                 }}
-                className="rounded-full border border-ink-700 px-3 py-1 text-[12px] text-mute hover:border-gold-600 hover:text-bone"
+                className="rounded-full border border-ink-700 px-3 py-1 text-[12px] text-mute hover:border-brand-600 hover:text-bone"
               >
                 {r.title}
               </button>
@@ -220,7 +220,7 @@ function Conversation({ contact }: { contact: Contact }) {
             placeholder={asContact ? `Escreva como ${contact.firstName}…` : 'Responder como time… (Enter envia)'}
             aria-label="Mensagem"
           />
-          <button type="submit" disabled={!text.trim()} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center self-end rounded-xl bg-gold-300 text-ink-950 transition disabled:opacity-40">
+          <button type="submit" disabled={!text.trim()} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center self-end rounded-xl bg-brand-300 text-ink-950 transition disabled:opacity-40">
             <Icon name="send" size={16} />
           </button>
         </form>
@@ -277,12 +277,12 @@ function ContactPanel({ contact }: { contact: Contact }) {
     <div className="space-y-5 p-4">
       <div className="flex items-center justify-between">
         <span className="label !mb-0">Lead</span>
-        <Badge tone={temp === 'quente' ? 'gold' : temp === 'morno' ? 'info' : 'default'}>
+        <Badge tone={temp === 'quente' ? 'brand' : temp === 'morno' ? 'info' : 'default'}>
           {temp === 'quente' && <Icon name="fire" size={11} />} {temp} · {contact.score} pts
         </Badge>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-ink-800" role="progressbar" aria-valuenow={contact.score} aria-valuemin={0} aria-valuemax={100} aria-label="Pontuação do lead">
-        <div className="h-full rounded-full bg-gradient-to-r from-gold-600 to-gold-300" style={{ width: `${Math.min(100, contact.score)}%` }} />
+        <div className="h-full rounded-full bg-gradient-to-r from-brand-600 to-brand-300" style={{ width: `${Math.min(100, contact.score)}%` }} />
       </div>
 
       <div>
@@ -398,7 +398,7 @@ export function Inbox({ contactId }: { contactId?: string }) {
       ) : (
         <div className="hidden flex-1 place-items-center p-8 text-center md:grid">
           <div>
-            <span className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl border border-gold-600/30 bg-gold/10 text-gold-300">
+            <span className="mx-auto mb-4 grid size-12 place-items-center rounded-2xl border border-brand-600/30 bg-brand/10 text-brand-300">
               <Icon name="inbox" size={22} />
             </span>
             <p className="font-semibold">Escolha uma conversa</p>

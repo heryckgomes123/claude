@@ -64,7 +64,7 @@ export function growthLink(tool: Pick<GrowthTool, 'channel' | 'ref'>, settings: 
 export function buttonSnippet(tool: GrowthTool, settings: Settings): string {
   const href = growthLink(tool, settings)
   const label = tool.channel === 'whatsapp' ? 'Fale conosco no WhatsApp' : tool.channel === 'instagram' ? 'Fale conosco no Instagram' : 'Fale conosco'
-  return `<a href="${href}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;background:#e2ae3a;color:#070707;font:600 15px/1 system-ui,sans-serif;text-decoration:none">${label}</a>`
+  return `<a href="${href}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;background:#00cbe6;color:#051120;font:600 15px/1 system-ui,sans-serif;text-decoration:none">${label}</a>`
 }
 
 export function toCsv(contacts: Contact[]): string {
