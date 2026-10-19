@@ -67,3 +67,9 @@ src/
 
 `index.html` traz title, description, canonical, Open Graph/Twitter (`public/og-image.png`), favicon,
 manifest e dados estruturados (`ProfessionalService` + `FAQPage`) injetados no build.
+
+## Apps do ecossistema INTELRA
+
+| App | Pasta | O que é |
+| --- | --- | --- |
+| **INTELRA Fluxa** | [`apps/fluxa`](apps/fluxa) | Automação de conversas para Instagram, WhatsApp, Messenger, Telegram e site, com construtor visual de fluxos, inbox, transmissões e IA. |

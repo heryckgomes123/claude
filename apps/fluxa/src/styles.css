@@ -1,0 +1,195 @@
+@import '@fontsource-variable/geist/wght.css';
+@import '@fontsource-variable/geist-mono/wght.css';
+@import '@fontsource/anton/latin-400.css';
+@import '@xyflow/react/dist/style.css';
+@import 'tailwindcss';
+
+/* Tokens da marca INTELRA (os mesmos da landing page). */
+@theme {
+  --color-ink-950: #070707;
+  --color-ink-900: #0e0d0c;
+  --color-ink-850: #141311;
+  --color-ink-800: #1b1a17;
+  --color-ink-700: #2a2823;
+  --color-ink-600: #3a372f;
+  --color-bone: #f4f0e6;
+  --color-mute: #a39e93;
+  --color-mute-600: #6d685f;
+
+  --color-gold-100: #fff1c2;
+  --color-gold-200: #ffe08a;
+  --color-gold-300: #f7c948;
+  --color-gold: #e2ae3a;
+  --color-gold-500: #c9982e;
+  --color-gold-600: #a87a1f;
+  --color-gold-700: #7a5412;
+
+  --color-neon: #3cff8f;
+  --color-danger: #ff6b6b;
+  --color-info: #7cc4ff;
+
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+  --font-poster: 'Anton', 'Impact', 'Arial Narrow Bold', sans-serif;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--color-ink-950);
+    color-scheme: dark;
+  }
+  body {
+    background: var(--color-ink-950);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    font-size: 14px;
+  }
+  ::selection {
+    background: var(--color-gold-300);
+    color: var(--color-ink-950);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  button {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-ink-600) transparent;
+  }
+}
+
+@layer components {
+  .field {
+    width: 100%;
+    border-radius: 10px;
+    border: 1px solid var(--color-ink-700);
+    background: var(--color-ink-900);
+    padding: 8px 11px;
+    color: var(--color-bone);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .field:focus {
+    border-color: var(--color-gold-500);
+  }
+  .field::placeholder {
+    color: var(--color-mute-600);
+  }
+  textarea.field {
+    resize: vertical;
+    min-height: 72px;
+    line-height: 1.45;
+  }
+  select.field {
+    appearance: none;
+    padding-right: 28px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a39e93' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-mute);
+  }
+  .card {
+    border-radius: 16px;
+    border: 1px solid var(--color-ink-700);
+    background: linear-gradient(180deg, var(--color-ink-850), var(--color-ink-900));
+  }
+  .gold-text {
+    background: linear-gradient(100deg, var(--color-gold-200), var(--color-gold) 45%, var(--color-gold-600));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* React Flow no tema da marca. */
+.react-flow {
+  --xy-background-color: var(--color-ink-950);
+  --xy-edge-stroke: #57524a;
+  --xy-edge-stroke-selected: var(--color-gold-300);
+  --xy-edge-stroke-width: 1.6;
+  --xy-connectionline-stroke: var(--color-gold-300);
+  --xy-handle-background-color: var(--color-ink-950);
+  --xy-handle-border-color: var(--color-gold-500);
+  --xy-controls-button-background-color: var(--color-ink-850);
+  --xy-controls-button-background-color-hover: var(--color-ink-700);
+  --xy-controls-button-color: var(--color-bone);
+  --xy-controls-button-border-color: var(--color-ink-700);
+  --xy-minimap-background-color: var(--color-ink-900);
+  --xy-minimap-mask-background-color: rgba(7, 7, 7, 0.7);
+  --xy-minimap-node-background-color: var(--color-ink-600);
+  --xy-selection-background-color: rgba(247, 201, 72, 0.08);
+  --xy-selection-border: 1px dashed var(--color-gold-500);
+}
+.react-flow .react-flow__handle {
+  width: 11px;
+  height: 11px;
+  border-width: 2px;
+}
+.react-flow .react-flow__edge.traced path {
+  stroke: var(--color-neon);
+  stroke-width: 2.4;
+}
+.react-flow__attribution {
+  background: transparent !important;
+}
+.react-flow__attribution a {
+  color: var(--color-mute-600) !important;
+}
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.pop-in {
+  animation: pop-in 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(60, 255, 143, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 10px rgba(60, 255, 143, 0);
+  }
+}
+.pulse-ring {
+  animation: pulse-ring 1.4s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pop-in,
+  .pulse-ring {
+    animation: none;
+  }
+}

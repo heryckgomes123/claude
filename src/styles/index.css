@@ -3,6 +3,8 @@
 @import '@fontsource/anton/latin-400.css';
 @import '@fontsource/anton/latin-ext-400.css';
 @import 'tailwindcss';
+/* Os apps em apps/ têm build próprio: não entram no CSS da landing. */
+@source not '../../apps';
 
 @theme {
   --color-ink-950: #070707;
