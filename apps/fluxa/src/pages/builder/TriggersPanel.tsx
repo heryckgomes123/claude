@@ -16,13 +16,13 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
   return (
     <div className="space-y-3">
       {triggers.map((t) => (
-        <div key={t.id} className="space-y-3 rounded-2xl border border-ink-700 bg-ink-900 p-3">
+        <div key={t.id} className="space-y-3 rounded-2xl border border-line bg-surface p-3">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <div className="flex items-center gap-1.5 text-[13px] font-semibold text-neon">
+              <div className="flex items-center gap-1.5 text-[13px] font-semibold text-success">
                 <Icon name="bolt" size={14} /> {TRIGGER_META[t.type].label}
               </div>
-              <p className="mt-0.5 text-[11.5px] text-mute-600">{TRIGGER_META[t.type].hint}</p>
+              <p className="mt-0.5 text-[11.5px] text-faint">{TRIGGER_META[t.type].hint}</p>
             </div>
             <IconButton icon="trash" label="Remover gatilho" onClick={() => onChange(triggers.filter((x) => x.id !== t.id))} />
           </div>
@@ -36,7 +36,7 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
                 <option value="starts">Mensagem começa com a palavra</option>
                 <option value="exact">Mensagem é exatamente a palavra</option>
               </select>
-              <p className="mt-1.5 text-[11px] text-mute-600">Não diferencia maiúsculas, acentos nem pontuação.</p>
+              <p className="mt-1.5 text-[11px] text-faint">Não diferencia maiúsculas, acentos nem pontuação.</p>
             </div>
           )}
 
@@ -57,7 +57,7 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
             <div>
               <span className="label">Descreva a intenção</span>
               <textarea className="field" rows={3} placeholder="Ex.: pessoa quer saber preço, contratar ou pedir orçamento" value={t.intent ?? ''} onChange={(e) => set(t.id, { intent: e.target.value })} />
-              <p className="mt-1.5 text-[11px] text-mute-600">Roda quando nenhuma palavra-chave correspondeu. Com o Claude conectado a IA entende sinônimos e contexto; sem ele, usa similaridade de palavras.</p>
+              <p className="mt-1.5 text-[11px] text-faint">Roda quando nenhuma palavra-chave correspondeu. Com o Claude conectado a IA entende sinônimos e contexto; sem ele, usa similaridade de palavras.</p>
             </div>
           )}
 
@@ -65,7 +65,7 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
             <div>
               <span className="label">Identificador (ref)</span>
               <input className="field font-mono" value={t.ref ?? ''} onChange={(e) => set(t.id, { ref: e.target.value.trim() })} />
-              <p className="mt-1.5 text-[11px] text-mute-600">Crie o link e o QR code em Crescimento.</p>
+              <p className="mt-1.5 text-[11px] text-faint">Crie o link e o QR code em Crescimento.</p>
             </div>
           )}
 
@@ -80,20 +80,20 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
                     type="button"
                     aria-pressed={on}
                     onClick={() => set(t.id, { channels: on ? t.channels.filter((x) => x !== c) : [...t.channels, c] })}
-                    className={`rounded-full border px-2.5 py-1 text-[11.5px] transition ${on ? 'border-brand-500/60 bg-brand/10 text-brand-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
+                    className={`rounded-full border px-2.5 py-1 text-[11.5px] transition ${on ? 'border-brand/50 bg-brand/10 text-accent' : 'border-line text-muted hover:border-line-strong'}`}
                   >
                     {CHANNEL_LABEL[c]}
                   </button>
                 )
               })}
             </div>
-            <p className="mt-1.5 text-[11px] text-mute-600">{t.channels.length ? '' : 'Nenhum selecionado = todos os canais.'}</p>
+            <p className="mt-1.5 text-[11px] text-faint">{t.channels.length ? '' : 'Nenhum selecionado = todos os canais.'}</p>
           </div>
         </div>
       ))}
 
       {adding ? (
-        <div className="grid gap-1.5 rounded-2xl border border-dashed border-ink-600 p-2">
+        <div className="grid gap-1.5 rounded-2xl border border-dashed border-line-strong p-2">
           {ORDER.map((type) => (
             <button
               key={type}
@@ -102,10 +102,10 @@ export function TriggersPanel({ triggers, onChange }: { triggers: Trigger[]; onC
                 onChange([...triggers, newTrigger(type)])
                 setAdding(false)
               }}
-              className="rounded-xl px-3 py-2 text-left transition hover:bg-ink-850"
+              className="rounded-xl px-3 py-2 text-left transition hover:bg-sunken"
             >
               <span className="block text-[13px] font-medium">{TRIGGER_META[type].label}</span>
-              <span className="block text-[11.5px] text-mute-600">{TRIGGER_META[type].hint}</span>
+              <span className="block text-[11.5px] text-faint">{TRIGGER_META[type].hint}</span>
             </button>
           ))}
           <Button size="sm" variant="ghost" onClick={() => setAdding(false)}>

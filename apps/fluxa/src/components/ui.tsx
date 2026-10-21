@@ -6,11 +6,10 @@ import { Icon, type IconName } from './Icon'
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    'bg-gradient-to-b from-brand-300 to-brand-500 text-ink-950 font-semibold shadow-[0_0_0_1px_rgba(0,203,230,.35),0_8px_24px_-10px_rgba(0,203,230,.6)] hover:from-brand-200 hover:to-brand',
-  secondary: 'border border-ink-700 bg-ink-850 text-bone hover:border-ink-600 hover:bg-ink-800',
-  ghost: 'text-mute hover:bg-ink-800 hover:text-bone',
-  danger: 'border border-danger/30 bg-danger/10 text-danger hover:bg-danger/20',
+  primary: 'bg-navy text-white font-medium shadow-[0_1px_2px_rgb(8_27_46/0.2),inset_0_1px_0_rgb(255_255_255/0.08)] hover:bg-navy-700',
+  secondary: 'border border-line bg-surface text-fg font-medium shadow-xs hover:border-line-strong hover:bg-sunken',
+  ghost: 'text-muted hover:bg-subtle hover:text-fg',
+  danger: 'border border-danger/25 bg-surface text-danger font-medium shadow-xs hover:bg-danger/5',
 }
 
 export function Button({
@@ -21,14 +20,14 @@ export function Button({
   children,
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; icon?: IconName; size?: 'sm' | 'md' }) {
-  const sizing = size === 'sm' ? 'h-8 px-3 text-[13px] gap-1.5 rounded-lg' : 'h-10 px-4 text-sm gap-2 rounded-xl'
+  const sizing = size === 'sm' ? 'h-8 px-3 text-[13px] gap-1.5 rounded-lg' : 'h-9 px-3.5 text-[13.5px] gap-2 rounded-[10px]'
   return (
     <button
       type="button"
       className={`inline-flex shrink-0 items-center justify-center whitespace-nowrap transition disabled:opacity-40 ${sizing} ${VARIANTS[variant]} ${className}`}
       {...props}
     >
-      {icon && <Icon name={icon} size={size === 'sm' ? 15 : 17} />}
+      {icon && <Icon name={icon} size={size === 'sm' ? 14 : 16} />}
       {children}
     </button>
   )
@@ -40,7 +39,7 @@ export function IconButton({ icon, label, className = '', ...props }: ButtonHTML
       type="button"
       aria-label={label}
       title={label}
-      className={`grid size-8 shrink-0 place-items-center rounded-lg text-mute transition hover:bg-ink-800 hover:text-bone disabled:opacity-40 ${className}`}
+      className={`grid size-8 shrink-0 place-items-center rounded-lg text-muted transition hover:bg-subtle hover:text-fg disabled:opacity-40 ${className}`}
       {...props}
     >
       <Icon name={icon} size={16} />
@@ -48,15 +47,15 @@ export function IconButton({ icon, label, className = '', ...props }: ButtonHTML
   )
 }
 
-export function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: 'default' | 'brand' | 'neon' | 'danger' | 'info'; className?: string }) {
+export function Badge({ children, tone = 'default', className = '' }: { children: ReactNode; tone?: 'default' | 'brand' | 'success' | 'danger' | 'info'; className?: string }) {
   const tones = {
-    default: 'border-ink-700 bg-ink-800 text-mute',
-    brand: 'border-brand-600/40 bg-brand/10 text-brand-200',
-    neon: 'border-neon/30 bg-neon/10 text-neon',
-    danger: 'border-danger/30 bg-danger/10 text-danger',
-    info: 'border-info/30 bg-info/10 text-info',
+    default: 'border-line bg-sunken text-muted',
+    brand: 'border-brand/30 bg-brand-100 text-accent',
+    success: 'border-success/20 bg-success/8 text-success',
+    danger: 'border-danger/20 bg-danger/8 text-danger',
+    info: 'border-info/20 bg-info/8 text-info',
   }
-  return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium ${tones[tone]} ${className}`}>{children}</span>
+  return <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-md border px-1.5 py-0.5 text-[11px] font-medium ${tones[tone]} ${className}`}>{children}</span>
 }
 
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
@@ -71,9 +70,9 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
         e.stopPropagation()
         onChange(!checked)
       }}
-      className={`relative h-5 w-9 shrink-0 rounded-full border transition ${checked ? 'border-neon/50 bg-neon/25' : 'border-ink-600 bg-ink-800'}`}
+      className={`relative h-5 w-9 shrink-0 rounded-full border transition ${checked ? 'border-success bg-success' : 'border-line-strong bg-subtle'}`}
     >
-      <span className={`absolute top-0.5 size-3.5 rounded-full transition-all ${checked ? 'left-[18px] bg-neon' : 'left-0.5 bg-mute-600'}`} />
+      <span className={`absolute top-[2px] size-3.5 rounded-full bg-white shadow-[0_1px_2px_rgb(8_27_46/0.25)] transition-all ${checked ? 'left-[18px]' : 'left-[2px]'}`} />
     </button>
   )
 }
@@ -87,11 +86,11 @@ const CHANNEL_ICON: Record<Channel, IconName> = {
 }
 
 export const CHANNEL_COLOR: Record<Channel, string> = {
-  instagram: '#ff6bb5',
-  whatsapp: '#3cff8f',
-  messenger: '#7cc4ff',
-  telegram: '#5fb8ff',
-  web: '#00cbe6',
+  instagram: '#d6297a',
+  whatsapp: '#16a34a',
+  messenger: '#2f6feb',
+  telegram: '#1c93d1',
+  web: '#007a8d',
 }
 
 export function ChannelIcon({ channel, size = 14 }: { channel: Channel; size?: number }) {
@@ -104,7 +103,7 @@ export function ChannelIcon({ channel, size = 14 }: { channel: Channel; size?: n
 
 export function ChannelBadge({ channel }: { channel: Channel }) {
   return (
-    <span className="inline-flex items-center gap-1.5 text-[12px] text-mute">
+    <span className="inline-flex items-center gap-1.5 text-[12px] text-muted">
       <ChannelIcon channel={channel} />
       {CHANNEL_LABEL[channel]}
     </span>
@@ -121,12 +120,14 @@ export function Avatar({ name, hue, size = 36, isTest = false }: { name: string;
     .toUpperCase()
   return (
     <span
-      className="grid shrink-0 place-items-center rounded-full font-semibold text-ink-950"
+      className="grid shrink-0 place-items-center rounded-full font-semibold"
       style={{
         width: size,
         height: size,
         fontSize: size * 0.36,
-        background: isTest ? 'linear-gradient(135deg,#8ceefb,#00a8c4)' : `linear-gradient(135deg, hsl(${hue} 70% 72%), hsl(${(hue + 40) % 360} 55% 52%))`,
+        color: isTest ? '#ffffff' : `hsl(${hue} 45% 30%)`,
+        background: isTest ? 'linear-gradient(135deg,#18385a,#081b2e)' : `hsl(${hue} 70% 92%)`,
+        boxShadow: isTest ? undefined : `inset 0 0 0 1px hsl(${hue} 50% 84%)`,
       }}
     >
       {isTest ? <Icon name="bot" size={size * 0.5} /> : initials || '?'}
@@ -138,8 +139,8 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="font-poster text-[28px] leading-none sm:text-[34px]">{title}</h1>
-        {subtitle && <p className="mt-2 max-w-2xl text-[13px] text-mute">{subtitle}</p>}
+        <h1 className="font-poster text-[24px] leading-tight">{title}</h1>
+        {subtitle && <p className="mt-1 max-w-2xl text-[13.5px] text-muted">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -149,11 +150,11 @@ export function PageHeader({ title, subtitle, actions }: { title: string; subtit
 export function Empty({ icon, title, text, action }: { icon: IconName; title: string; text: string; action?: ReactNode }) {
   return (
     <div className="card flex flex-col items-center px-6 py-14 text-center">
-      <span className="mb-4 grid size-12 place-items-center rounded-2xl border border-brand-600/30 bg-brand/10 text-brand-300">
+      <span className="mb-4 grid size-12 place-items-center rounded-xl border border-line bg-sunken text-navy-600">
         <Icon name={icon} size={22} />
       </span>
       <h3 className="text-base font-semibold">{title}</h3>
-      <p className="mt-1 max-w-sm text-[13px] text-mute">{text}</p>
+      <p className="mt-1 max-w-sm text-[13px] text-muted">{text}</p>
       {action && <div className="mt-5">{action}</div>}
     </div>
   )
@@ -168,53 +169,53 @@ export function Modal({ open, onClose, title, children, footer, wide = false }: 
   }, [open, onClose])
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-6" onMouseDown={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy/40 p-0 backdrop-blur-[2px] sm:items-center sm:p-6" onMouseDown={onClose}>
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`pop-in flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-ink-700 bg-ink-900 shadow-2xl sm:rounded-2xl ${wide ? 'sm:max-w-4xl' : 'sm:max-w-lg'}`}
+        className={`pop-in flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-line bg-surface shadow-pop sm:rounded-2xl ${wide ? 'sm:max-w-4xl' : 'sm:max-w-lg'}`}
         onMouseDown={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-ink-800 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-subtle px-5 py-4">
           <h2 className="text-base font-semibold">{title}</h2>
           <IconButton icon="x" label="Fechar" onClick={onClose} />
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5">{children}</div>
-        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-ink-800 px-5 py-4">{footer}</div>}
+        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-subtle px-5 py-4">{footer}</div>}
       </div>
     </div>
   )
 }
 
-export function Stat({ label, value, hint, icon, tone = 'brand' }: { label: string; value: string; hint?: string; icon: IconName; tone?: 'brand' | 'neon' | 'info' }) {
-  const color = tone === 'neon' ? 'text-neon' : tone === 'info' ? 'text-info' : 'text-brand-300'
+export function Stat({ label, value, hint, icon, tone = 'brand' }: { label: string; value: string; hint?: string; icon: IconName; tone?: 'brand' | 'success' | 'info' }) {
+  const color = tone === 'success' ? 'bg-success/8 text-success' : tone === 'info' ? 'bg-info/8 text-info' : 'bg-brand-100 text-accent'
   return (
-    <div className="card p-4">
+    <div className="card p-5">
       <div className="flex items-center justify-between">
-        <span className="text-[12px] text-mute">{label}</span>
-        <span className={color}>
-          <Icon name={icon} size={16} />
+        <span className="text-[13px] font-medium text-muted">{label}</span>
+        <span className={`grid size-7 place-items-center rounded-lg ${color}`}>
+          <Icon name={icon} size={15} />
         </span>
       </div>
-      <div className="mt-3 font-poster text-[30px] leading-none">{value}</div>
-      {hint && <div className="mt-2 text-[12px] text-mute-600">{hint}</div>}
+      <div className="mt-3 font-poster text-[28px] leading-none">{value}</div>
+      {hint && <div className="mt-2 text-[12.5px] text-faint">{hint}</div>}
     </div>
   )
 }
 
 export function Tabs<T extends string>({ value, onChange, options }: { value: T; onChange: (v: T) => void; options: { id: T; label: string; count?: number }[] }) {
   return (
-    <div className="flex gap-1 overflow-x-auto rounded-xl border border-ink-800 bg-ink-900 p-1">
+    <div className="flex gap-0.5 overflow-x-auto rounded-[10px] bg-subtle p-[3px]">
       {options.map((o) => (
         <button
           key={o.id}
           type="button"
           onClick={() => onChange(o.id)}
-          className={`flex items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-1.5 text-[13px] transition ${value === o.id ? 'bg-ink-700 text-bone' : 'text-mute hover:text-bone'}`}
+          className={`flex items-center gap-1.5 whitespace-nowrap rounded-[8px] px-3 py-1 text-[13px] font-medium transition ${value === o.id ? 'bg-surface text-fg shadow-[0_1px_2px_rgb(8_27_46/0.08)]' : 'text-muted hover:text-fg'}`}
         >
           {o.label}
-          {o.count !== undefined && <span className="text-[11px] text-mute-600">{o.count}</span>}
+          {o.count !== undefined && <span className="text-[11px] text-faint">{o.count}</span>}
         </button>
       ))}
     </div>
@@ -238,9 +239,9 @@ export function ChipInput({ values, onChange, placeholder, suggestions = [] }: {
   return (
     <div className="field flex min-h-10 flex-wrap items-center gap-1.5 !py-1.5">
       {values.map((v) => (
-        <span key={v} className="inline-flex items-center gap-1 rounded-md bg-ink-700 py-0.5 pl-2 pr-1 text-[12px]">
+        <span key={v} className="inline-flex items-center gap-1 rounded-md border border-line bg-sunken py-0.5 pl-2 pr-1 text-[12px]">
           {v}
-          <button type="button" aria-label={`Remover ${v}`} className="rounded text-mute hover:text-bone" onClick={() => onChange(values.filter((x) => x !== v))}>
+          <button type="button" aria-label={`Remover ${v}`} className="rounded text-muted hover:text-fg" onClick={() => onChange(values.filter((x) => x !== v))}>
             <Icon name="x" size={12} />
           </button>
         </span>
@@ -257,7 +258,7 @@ export function ChipInput({ values, onChange, placeholder, suggestions = [] }: {
         }}
         onBlur={() => draft.trim() && add(draft)}
         placeholder={values.length ? '' : placeholder}
-        className="min-w-[90px] flex-1 bg-transparent py-0.5 text-[13px] outline-none placeholder:text-mute-600"
+        className="min-w-[90px] flex-1 bg-transparent py-0.5 text-[13px] outline-none placeholder:text-faint"
       />
       {suggestions.length > 0 && (
         <datalist id={listId}>
@@ -294,8 +295,8 @@ export function Toaster() {
   return (
     <div className="pointer-events-none fixed bottom-4 left-1/2 z-[60] flex w-[min(92vw,420px)] -translate-x-1/2 flex-col gap-2" aria-live="polite">
       {items.map((t) => (
-        <div key={t.id} className={`pop-in flex items-center gap-2 rounded-xl border px-4 py-3 text-[13px] shadow-xl backdrop-blur ${t.tone === 'ok' ? 'border-neon/30 bg-ink-850/95' : 'border-danger/40 bg-ink-850/95'}`}>
-          <span className={t.tone === 'ok' ? 'text-neon' : 'text-danger'}>
+        <div key={t.id} className="pop-in flex items-center gap-2.5 rounded-xl bg-navy px-4 py-3 text-[13px] text-white shadow-pop">
+          <span className={t.tone === 'ok' ? 'text-brand' : 'text-[#ff8a8a]'}>
             <Icon name={t.tone === 'ok' ? 'check' : 'alert'} size={16} />
           </span>
           {t.text}

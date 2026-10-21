@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { formatNumber } from '../lib/util'
 
-const SERIES = 'var(--color-brand)'
+const SERIES = 'var(--color-chart)'
 
 function niceMax(value: number): number {
   if (value <= 5) return 5
@@ -51,8 +51,8 @@ export function ColumnChart({ data, height = 220, unit }: { data: ColumnDatum[];
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="block" role="img" aria-label={`Gráfico de colunas: ${unit} por dia`}>
         {ticks.map((t) => (
           <g key={t}>
-            <line x1={pad.left} x2={width - pad.right} y1={y(t)} y2={y(t)} stroke="var(--color-ink-800)" strokeWidth={1} />
-            <text x={pad.left - 8} y={y(t)} dy="0.32em" textAnchor="end" fontSize={11} fill="var(--color-mute-600)">
+            <line x1={pad.left} x2={width - pad.right} y1={y(t)} y2={y(t)} stroke="var(--color-subtle)" strokeWidth={1} />
+            <text x={pad.left - 8} y={y(t)} dy="0.32em" textAnchor="end" fontSize={11} fill="var(--color-faint)">
               {compact(t)}
             </text>
           </g>
@@ -71,7 +71,7 @@ export function ColumnChart({ data, height = 220, unit }: { data: ColumnDatum[];
                 />
               )}
               {(band >= 34 || i % 2 === (data.length - 1) % 2) && (
-                <text x={pad.left + band * i + band / 2} y={height - 8} textAnchor="middle" fontSize={11} fill="var(--color-mute-600)">
+                <text x={pad.left + band * i + band / 2} y={height - 8} textAnchor="middle" fontSize={11} fill="var(--color-faint)">
                   {d.label}
                 </text>
               )}
@@ -94,11 +94,11 @@ export function ColumnChart({ data, height = 220, unit }: { data: ColumnDatum[];
       </svg>
       {hover !== null && (
         <div
-          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-ink-700 bg-ink-850 px-3 py-2 text-[12px] shadow-xl"
+          className="pointer-events-none absolute top-0 z-10 -translate-x-1/2 rounded-lg border border-line bg-surface px-3 py-2 text-[12px] shadow-pop"
           style={{ left: `${((pad.left + band * hover + band / 2) / width) * 100}%` }}
         >
-          <div className="text-mute">{data[hover].detail ?? data[hover].label}</div>
-          <div className="mt-0.5 flex items-center gap-1.5 font-semibold text-bone">
+          <div className="text-muted">{data[hover].detail ?? data[hover].label}</div>
+          <div className="mt-0.5 flex items-center gap-1.5 font-semibold text-fg">
             <span className="inline-block size-2 rounded-sm" style={{ background: SERIES }} />
             {formatNumber(data[hover].value)} {unit}
           </div>
@@ -126,10 +126,10 @@ export function BarList({ data, format = formatNumber }: { data: { label: string
     <ul className="space-y-3">
       {data.map((d) => (
         <li key={d.label} className="grid grid-cols-[minmax(84px,30%)_1fr] items-center gap-3 text-[13px]" title={d.hint}>
-          <span className="truncate text-mute">{d.label}</span>
+          <span className="truncate text-muted">{d.label}</span>
           <span className="flex items-center gap-2">
             <span className="h-3 rounded-r-[4px]" style={{ width: `${Math.max(1.5, (d.value / max) * 82)}%`, background: SERIES }} />
-            <span className="whitespace-nowrap tabular-nums text-bone">{format(d.value)}</span>
+            <span className="whitespace-nowrap tabular-nums text-fg">{format(d.value)}</span>
           </span>
         </li>
       ))}

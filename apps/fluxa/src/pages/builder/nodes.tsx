@@ -49,32 +49,32 @@ function Shell({ node, selected, children }: { node: FlowNode; selected: boolean
 
   return (
     <div
-      className={`w-[268px] rounded-2xl border bg-ink-900/95 shadow-[0_12px_40px_-18px_rgba(0,0,0,.9)] backdrop-blur transition ${active ? 'pulse-ring' : ''}`}
-      style={{ borderColor: selected ? meta.color : traced ? 'var(--color-neon)' : hasError ? 'rgba(255,107,107,.6)' : 'var(--color-ink-700)' }}
+      className={`w-[268px] rounded-xl border bg-surface shadow-card transition ${active ? 'pulse-ring' : ''}`}
+      style={{ borderColor: selected ? meta.color : traced ? 'var(--color-success)' : hasError ? 'rgb(210 59 59 / 0.55)' : 'var(--color-line)' }}
     >
       {node.type !== 'trigger' && <Handle type="target" position={Position.Left} style={{ top: 26 }} />}
-      <div className="flex items-center gap-2 border-b border-ink-800 px-3.5 py-2.5">
-        <span className="grid size-6 place-items-center rounded-lg" style={{ background: `${meta.color}22`, color: meta.color }}>
+      <div className="flex items-center gap-2 border-b border-subtle px-3.5 py-2.5">
+        <span className="grid size-6 place-items-center rounded-lg" style={{ background: `${meta.color}14`, color: meta.color }}>
           <Icon name={NODE_ICON[node.type]} size={14} />
         </span>
         <span className="text-[12.5px] font-semibold">{meta.label}</span>
         {nodeIssues.length > 0 && (
-          <span className={`ml-auto ${hasError ? 'text-danger' : 'text-brand-300'}`} title={nodeIssues.map((i) => i.text).join('\n')}>
+          <span className={`ml-auto ${hasError ? 'text-danger' : 'text-accent'}`} title={nodeIssues.map((i) => i.text).join('\n')}>
             <Icon name="alert" size={14} />
           </span>
         )}
         {showVisits && visits > 0 && (
-          <span className={`${nodeIssues.length ? '' : 'ml-auto'} rounded-full bg-ink-800 px-1.5 text-[10px] tabular-nums text-mute`} title="Contatos que passaram por este passo">
+          <span className={`${nodeIssues.length ? '' : 'ml-auto'} rounded-full bg-subtle px-1.5 text-[10px] tabular-nums text-muted`} title="Contatos que passaram por este passo">
             {formatNumber(visits)}
           </span>
         )}
       </div>
-      <div className="px-3.5 py-3 text-[12.5px] leading-relaxed text-mute">{children}</div>
+      <div className="px-3.5 py-3 text-[12.5px] leading-relaxed text-muted">{children}</div>
       {handles.length > 0 && (
-        <div className="border-t border-ink-800 py-1.5">
+        <div className="border-t border-subtle py-1.5">
           {handles.map((h) => (
             <div key={h.id} className="relative flex items-center justify-end px-3.5 py-1 text-[11.5px]">
-              <span className={h.tone === 'yes' ? 'text-neon' : h.tone === 'no' ? 'text-danger' : h.tone === 'muted' ? 'text-mute-600' : 'text-bone/80'}>{h.label}</span>
+              <span className={h.tone === 'yes' ? 'text-success' : h.tone === 'no' ? 'text-danger' : h.tone === 'muted' ? 'text-faint' : 'text-fg/80'}>{h.label}</span>
               <Handle type="source" position={Position.Right} id={h.id} style={{ right: -6, top: '50%' }} />
             </div>
           ))}
@@ -96,26 +96,26 @@ function Body({ node }: { node: FlowNode }) {
       return automation.triggers.length ? (
         <ul className="space-y-1.5">
           {automation.triggers.map((t) => (
-            <li key={t.id} className="rounded-lg bg-ink-850 px-2.5 py-1.5">
-              <span className="block text-[11px] font-semibold text-neon">{TRIGGER_META[t.type].label}</span>
-              <span className="block truncate text-[12px] text-bone/80">{describeTrigger(t)}</span>
+            <li key={t.id} className="rounded-lg bg-sunken px-2.5 py-1.5">
+              <span className="block text-[11px] font-semibold text-success">{TRIGGER_META[t.type].label}</span>
+              <span className="block truncate text-[12px] text-fg/80">{describeTrigger(t)}</span>
             </li>
           ))}
         </ul>
       ) : (
-        <span className="text-mute-600">Nenhum gatilho. Configure no painel ao lado.</span>
+        <span className="text-faint">Nenhum gatilho. Configure no painel ao lado.</span>
       )
     case 'message':
       return (
         <>
           {d.imageUrl && (
-            <span className="mb-2 flex items-center gap-1.5 text-[11px] text-mute-600">
+            <span className="mb-2 flex items-center gap-1.5 text-[11px] text-faint">
               <Icon name="image" size={12} /> imagem
             </span>
           )}
-          <p className="whitespace-pre-wrap text-bone/90">{clip(d.text) || <span className="text-mute-600">Mensagem vazia</span>}</p>
+          <p className="whitespace-pre-wrap text-fg/90">{clip(d.text) || <span className="text-faint">Mensagem vazia</span>}</p>
           {d.buttons.filter((b) => b.action !== 'next').map((b) => (
-            <span key={b.id} className="mt-2 flex items-center justify-center gap-1 rounded-lg border border-ink-700 py-1 text-[11.5px] text-info">
+            <span key={b.id} className="mt-2 flex items-center justify-center gap-1 rounded-lg border border-line py-1 text-[11.5px] text-info">
               {b.label} <Icon name={b.action === 'url' ? 'external' : 'flow'} size={11} />
             </span>
           ))}
@@ -124,9 +124,9 @@ function Body({ node }: { node: FlowNode }) {
     case 'question':
       return (
         <>
-          <p className="text-bone/90">{clip(d.prompt)}</p>
+          <p className="text-fg/90">{clip(d.prompt)}</p>
           <p className="mt-2 text-[11.5px]">
-            Salva em <code className="rounded bg-ink-800 px-1 text-brand-200">{d.field || '—'}</code> · {INPUT_LABEL[d.inputType]}
+            Salva em <code className="rounded bg-subtle px-1 text-accent">{d.field || '—'}</code> · {INPUT_LABEL[d.inputType]}
           </p>
         </>
       )
@@ -137,7 +137,7 @@ function Body({ node }: { node: FlowNode }) {
             ? 'Sem regras (sempre "Sim")'
             : d.rules.map((r, i) => (
                 <span key={r.id}>
-                  {i > 0 && <b className="text-bone"> {d.combinator === 'and' ? 'e' : 'ou'} </b>}
+                  {i > 0 && <b className="text-fg"> {d.combinator === 'and' ? 'e' : 'ou'} </b>}
                   {ruleText(r)}
                 </span>
               ))}
@@ -148,29 +148,29 @@ function Body({ node }: { node: FlowNode }) {
         <ul className="space-y-1">
           {d.actions.map((a) => (
             <li key={a.id} className="truncate">
-              <span className="text-bone/90">{ACTION_LABEL[a.kind]}</span>
+              <span className="text-fg/90">{ACTION_LABEL[a.kind]}</span>
               {a.kind === 'set_field' ? `: ${a.field} = ${a.value}` : a.kind === 'handoff' ? '' : a.kind === 'subscribe_sequence' || a.kind === 'unsubscribe_sequence' ? '' : a.value ? `: ${a.value}` : ''}
             </li>
           ))}
-          {d.actions.length === 0 && <li className="text-mute-600">Nenhuma ação</li>}
+          {d.actions.length === 0 && <li className="text-faint">Nenhuma ação</li>}
         </ul>
       )
     case 'delay':
-      return <p className="text-bone/90">Esperar {formatDelay(d.amount, d.unit)}</p>
+      return <p className="text-fg/90">Esperar {formatDelay(d.amount, d.unit)}</p>
     case 'ai':
       return d.mode === 'classify' ? (
         <p>
-          <span className="text-bone/90">Classificar intenção</span> da última mensagem em {d.intents.length} caminho(s).
+          <span className="text-fg/90">Classificar intenção</span> da última mensagem em {d.intents.length} caminho(s).
         </p>
       ) : (
         <p>
-          <span className="text-bone/90">Responder com IA:</span> {clip(d.instructions, 100)}
+          <span className="text-fg/90">Responder com IA:</span> {clip(d.instructions, 100)}
         </p>
       )
     case 'split':
       return <p>Sorteia uma variante por contato e mede o resultado de cada uma.</p>
     case 'goto':
-      return <p className="text-bone/90">{automations.find((a) => a.id === d.automationId)?.name ?? <span className="text-mute-600">Escolha a automação</span>}</p>
+      return <p className="text-fg/90">{automations.find((a) => a.id === d.automationId)?.name ?? <span className="text-faint">Escolha a automação</span>}</p>
   }
 }
 

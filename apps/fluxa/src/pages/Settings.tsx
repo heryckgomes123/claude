@@ -9,7 +9,7 @@ function Card({ title, subtitle, children }: { title: string; subtitle?: string;
   return (
     <section className="card p-5">
       <h2 className="text-[15px] font-semibold">{title}</h2>
-      {subtitle && <p className="mt-1 text-[13px] text-mute">{subtitle}</p>}
+      {subtitle && <p className="mt-1 text-[13px] text-muted">{subtitle}</p>}
       <div className="mt-4">{children}</div>
     </section>
   )
@@ -81,7 +81,7 @@ export function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               {settings.ai.apiKey ? (
-                <Badge tone="neon">
+                <Badge tone="success">
                   <Icon name="check" size={11} /> Conectado
                 </Badge>
               ) : (
@@ -122,7 +122,7 @@ export function SettingsPage() {
                 </Button>
               )}
             </div>
-            <p className="text-[11.5px] text-mute-600">
+            <p className="text-[11.5px] text-faint">
               A chave fica salva só neste navegador e vai direto para a API da Anthropic. Não é incluída em exportações. Em produção, use um backend para guardar a chave.
             </p>
           </div>
@@ -146,7 +146,7 @@ export function SettingsPage() {
               </label>
             ))}
           </div>
-          <p className="mt-3 rounded-xl border border-ink-800 bg-ink-950 p-3 text-[12px] text-mute">
+          <p className="mt-3 rounded-xl border border-subtle bg-canvas p-3 text-[12px] text-muted">
             Esta versão roda no navegador: os fluxos são testados no simulador e no inbox. Para responder clientes reais é preciso o servidor de integração com a API da Meta (Instagram, Messenger e WhatsApp Cloud API) e do Telegram — o motor de fluxos já está separado para rodar lá.
           </p>
         </Card>
@@ -154,7 +154,7 @@ export function SettingsPage() {
         <Card title="Respostas salvas" subtitle="Atalhos para o time responder rápido no inbox. Aceitam variáveis como {{first_name}}.">
           <ul className="space-y-2">
             {savedReplies.map((r) => (
-              <li key={r.id} className="grid gap-2 rounded-xl border border-ink-800 p-2.5 sm:grid-cols-[140px_1fr_auto]">
+              <li key={r.id} className="grid gap-2 rounded-xl border border-subtle p-2.5 sm:grid-cols-[140px_1fr_auto]">
                 <input className="field" value={r.title} aria-label="Título" onChange={(e) => saveReply({ ...r, title: e.target.value })} />
                 <input className="field" value={r.text} aria-label="Texto" onChange={(e) => saveReply({ ...r, text: e.target.value })} />
                 <IconButton icon="trash" label="Excluir resposta" onClick={() => deleteReply(r.id)} />
@@ -220,7 +220,7 @@ export function SettingsPage() {
           </div>
         </Card>
       </div>
-      <p className="mt-6 text-center text-[12px] text-mute-600">INTELRA Fluxa · um app do ecossistema INTELRA</p>
+      <p className="mt-6 text-center text-[12px] text-faint">INTELRA Fluxa · um app do ecossistema INTELRA</p>
     </>
   )
 }

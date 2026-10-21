@@ -104,7 +104,7 @@ function Editor({ initial, onClose }: { initial: Broadcast; onClose: () => void 
           <label className="block">
             <span className="label">Mensagem</span>
             <textarea className="field" rows={5} value={b.text} onChange={(e) => setB({ ...b, text: e.target.value })} />
-            <span className="mt-1 block text-[11.5px] text-mute-600">
+            <span className="mt-1 block text-[11.5px] text-faint">
               Use {'{{first_name}}'} e outros campos. {'{{first_name|amigo}}'} define um texto quando o campo está vazio.
             </span>
           </label>
@@ -119,7 +119,7 @@ function Editor({ initial, onClose }: { initial: Broadcast; onClose: () => void 
               {b.buttons.map((btn, i) => {
                 const set = (patch: Partial<typeof btn>) => setB({ ...b, buttons: b.buttons.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
                 return (
-                  <div key={btn.id} className="grid gap-2 rounded-xl border border-ink-800 p-2.5 sm:grid-cols-[1fr_150px_1fr_auto]">
+                  <div key={btn.id} className="grid gap-2 rounded-xl border border-subtle p-2.5 sm:grid-cols-[1fr_150px_1fr_auto]">
                     <input className="field" value={btn.label} maxLength={20} onChange={(e) => set({ label: e.target.value })} aria-label="Texto do botão" />
                     <select className="field" value={btn.action} onChange={(e) => set({ action: e.target.value as ButtonAction })} aria-label="Ação">
                       <option value="url">Abrir link</option>
@@ -143,26 +143,26 @@ function Editor({ initial, onClose }: { initial: Broadcast; onClose: () => void 
               })}
             </div>
           </div>
-          <div className="rounded-2xl border border-ink-800 p-4">
+          <div className="rounded-2xl border border-subtle p-4">
             <span className="label">Público</span>
             <SegmentEditor segment={b.segment} onChange={(segment) => setB({ ...b, segment })} tags={tags} />
           </div>
         </fieldset>
 
         <div className="space-y-3">
-          <div className="rounded-2xl border border-ink-800 p-4">
+          <div className="rounded-2xl border border-subtle p-4">
             <span className="label">Alcance agora</span>
             <div className="font-poster text-[34px] leading-none">{formatNumber(reach.eligible.length)}</div>
-            <p className="mt-1 text-[12px] text-mute">contatos recebem a mensagem</p>
+            <p className="mt-1 text-[12px] text-muted">contatos recebem a mensagem</p>
             {reach.outsideWindow.length > 0 && (
-              <p className="mt-3 flex gap-1.5 text-[12px] text-brand-200">
+              <p className="mt-3 flex gap-1.5 text-[12px] text-accent">
                 <Icon name="clock" size={14} className="mt-0.5 shrink-0" />
                 {reach.outsideWindow.length} ficam de fora: estão há mais de 24 h sem falar com você no Instagram, Messenger ou WhatsApp, onde a Meta não permite mensagem livre.
               </p>
             )}
           </div>
-          <div className="overflow-hidden rounded-[28px] border border-ink-700 bg-ink-950">
-            <div className="border-b border-ink-800 px-4 py-2 text-center text-[11px] text-mute-600">Prévia {sample ? `para ${sample.firstName}` : ''}</div>
+          <div className="overflow-hidden rounded-[28px] border border-line bg-canvas">
+            <div className="border-b border-subtle px-4 py-2 text-center text-[11px] text-faint">Prévia {sample ? `para ${sample.firstName}` : ''}</div>
             {sample || b.text ? (
               <ChatThread
                 perspective="contact"
@@ -206,29 +206,29 @@ export function Broadcasts() {
       ) : (
         <div className="grid gap-3">
           {sorted.map((b) => (
-            <article key={b.id} className="card flex cursor-pointer flex-col gap-4 p-4 transition hover:border-ink-600 md:flex-row md:items-center" onClick={() => setEditing(b)}>
+            <article key={b.id} className="card min-w-0 flex cursor-pointer flex-col gap-4 p-4 transition hover:border-line-strong md:flex-row md:items-center" onClick={() => setEditing(b)}>
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h2 className="font-semibold">{b.name}</h2>
-                  {b.status === 'sent' && <Badge tone="neon">Enviada {b.sentAt ? `há ${timeAgo(b.sentAt)}` : ''}</Badge>}
+                  {b.status === 'sent' && <Badge tone="success">Enviada {b.sentAt ? `há ${timeAgo(b.sentAt)}` : ''}</Badge>}
                   {b.status === 'scheduled' && <Badge tone="info">Agendada · {new Date(b.scheduledAt!).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}</Badge>}
                   {b.status === 'draft' && <Badge>Rascunho</Badge>}
                 </div>
-                <p className="mt-1 truncate text-[13px] text-mute">{b.text}</p>
+                <p className="mt-1 truncate text-[13px] text-muted">{b.text}</p>
               </div>
               <dl className="grid grid-cols-3 gap-4 text-[12px] md:w-[300px]">
                 <div>
-                  <dt className="text-mute-600">Enviadas</dt>
+                  <dt className="text-faint">Enviadas</dt>
                   <dd className="mt-0.5 text-[15px] font-semibold tabular-nums">{formatNumber(b.sentTo)}</dd>
                 </div>
                 <div>
-                  <dt className="text-mute-600">Fora da janela</dt>
+                  <dt className="text-faint">Fora da janela</dt>
                   <dd className="mt-0.5 text-[15px] font-semibold tabular-nums">{formatNumber(b.skipped)}</dd>
                 </div>
                 <div>
-                  <dt className="text-mute-600">Cliques</dt>
+                  <dt className="text-faint">Cliques</dt>
                   <dd className="mt-0.5 text-[15px] font-semibold tabular-nums">
-                    {formatNumber(b.clicks)} <span className="text-[11px] font-normal text-mute-600">{percent(b.clicks, b.sentTo)}</span>
+                    {formatNumber(b.clicks)} <span className="text-[11px] font-normal text-faint">{percent(b.clicks, b.sentTo)}</span>
                   </dd>
                 </div>
               </dl>

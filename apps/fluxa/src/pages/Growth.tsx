@@ -23,7 +23,7 @@ function QrImage({ value, size = 168 }: { value: string; size?: number }) {
       alive = false
     }
   }, [value, size])
-  return src ? <img src={src} alt="QR code do link" width={size} height={size} className="rounded-xl" /> : <div style={{ width: size, height: size }} className="rounded-xl bg-ink-800" />
+  return src ? <img src={src} alt="QR code do link" width={size} height={size} className="rounded-xl" /> : <div style={{ width: size, height: size }} className="rounded-xl bg-subtle" />
 }
 
 function Editor({ initial, onClose }: { initial: GrowthTool; onClose: () => void }) {
@@ -84,7 +84,7 @@ function Editor({ initial, onClose }: { initial: GrowthTool; onClose: () => void
         <label className="block">
           <span className="label">{t.channel === 'whatsapp' ? 'Mensagem pré-preenchida' : 'Identificador (ref)'}</span>
           <input className="field font-mono" value={t.ref} onChange={(e) => setT({ ...t, ref: t.channel === 'whatsapp' ? e.target.value : slugify(e.target.value) })} />
-          <span className="mt-1 block text-[11.5px] text-mute-600">
+          <span className="mt-1 block text-[11.5px] text-faint">
             {t.channel === 'whatsapp' ? 'O WhatsApp não envia a origem do clique: a pessoa chega com este texto pronto para enviar, e é ele que dispara a automação.' : 'Vai no link como ?ref=… e identifica de onde o contato veio.'}
           </span>
         </label>
@@ -147,8 +147,8 @@ export function Growth() {
         }
       />
       {settings.handles.whatsapp.replace(/\D/g, '') === '5500000000000' && (
-        <div className="mb-4 flex items-start gap-2 rounded-2xl border border-brand-600/40 bg-brand/5 px-4 py-3 text-[13px] text-brand-100">
-          <Icon name="alert" size={16} className="mt-0.5 shrink-0 text-brand-300" />
+        <div className="mb-4 flex items-start gap-2 rounded-xl border border-[#f1d58a] bg-[#fff8e5] px-4 py-3 text-[13px] text-[#6b4e00]">
+          <Icon name="alert" size={16} className="mt-0.5 shrink-0 text-[#b07d00]" />
           <span>
             Os links usam contas de exemplo. Configure seu @ do Instagram, número de WhatsApp, página do Messenger e bot do Telegram em{' '}
             <a href="#/configuracoes" className="underline">
@@ -166,21 +166,21 @@ export function Growth() {
             const link = growthLink(tool, settings)
             const automation = automations.find((a) => a.id === tool.automationId)
             return (
-              <article key={tool.id} className="card flex flex-col p-5">
+              <article key={tool.id} className="card min-w-0 flex flex-col p-5">
                 <div className="flex items-start gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="font-semibold">{tool.name}</h2>
                       <Badge tone="brand">{TYPE_LABEL[tool.type]}</Badge>
                     </div>
-                    <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-mute">
+                    <p className="mt-1 flex items-center gap-1.5 text-[12.5px] text-muted">
                       <ChannelIcon channel={tool.channel} /> {CHANNEL_LABEL[tool.channel]} → {automation ? automation.name : <span className="text-danger">automação removida</span>}
                       {automation && !automation.active && <Badge>pausada</Badge>}
                     </p>
                   </div>
                   <div className="text-right">
                     <div className="font-poster text-[26px] leading-none">{formatNumber(tool.entries)}</div>
-                    <div className="text-[11px] text-mute-600">entradas</div>
+                    <div className="text-[11px] text-faint">entradas</div>
                   </div>
                 </div>
 
@@ -191,15 +191,15 @@ export function Growth() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1 space-y-2">
-                    <div className="flex items-center gap-1.5 rounded-xl border border-ink-700 bg-ink-950 py-1 pl-3 pr-1">
-                      <code className="min-w-0 flex-1 truncate text-[12px] text-brand-200">{link}</code>
+                    <div className="flex items-center gap-1.5 rounded-xl border border-line bg-canvas py-1 pl-3 pr-1">
+                      <code className="min-w-0 flex-1 truncate text-[12px] text-accent">{link}</code>
                       <IconButton icon="copy" label="Copiar link" onClick={() => copyText(link, 'Link copiado!')} />
                     </div>
                     {tool.type === 'button' && (
-                      <div className="rounded-xl border border-ink-700 bg-ink-950 p-3">
-                        <div className="mb-2 flex items-center justify-between text-[11.5px] text-mute-600">
+                      <div className="rounded-xl border border-line bg-canvas p-3">
+                        <div className="mb-2 flex items-center justify-between text-[11.5px] text-faint">
                           HTML para colar no site
-                          <button type="button" className="text-brand-300 hover:underline" onClick={() => copyText(buttonSnippet(tool, settings), 'Código copiado!')}>
+                          <button type="button" className="text-accent hover:underline" onClick={() => copyText(buttonSnippet(tool, settings), 'Código copiado!')}>
                             Copiar
                           </button>
                         </div>

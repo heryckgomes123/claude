@@ -148,7 +148,7 @@ export function Contacts() {
 
       <div className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto]">
         <label className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-mute-600">
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">
             <Icon name="search" size={15} />
           </span>
           <input className="field !pl-9" placeholder="Buscar por nome, usuário, e-mail, tag…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Buscar contatos" />
@@ -178,7 +178,7 @@ export function Contacts() {
       </div>
 
       {ids.length > 0 && (
-        <div className="pop-in mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-brand-600/40 bg-brand/5 px-4 py-2.5 text-[13px]">
+        <div className="pop-in mb-3 flex flex-wrap items-center gap-2 rounded-2xl border border-brand/50 bg-brand/5 px-4 py-2.5 text-[13px]">
           <b>{ids.length} selecionado(s)</b>
           <input className="field !h-8 !w-40 !py-0" list="bulk-tags" placeholder="tag" value={bulkTag} onChange={(e) => setBulkTag(e.target.value)} aria-label="Tag para aplicar" />
           <datalist id="bulk-tags">
@@ -217,9 +217,9 @@ export function Contacts() {
         <div className="card overflow-x-auto">
           <table className="w-full min-w-[760px] text-[13px]">
             <thead>
-              <tr className="border-b border-ink-800 text-left text-[11px] uppercase tracking-wider text-mute-600">
+              <tr className="border-b border-subtle text-left text-[11px] uppercase tracking-wider text-faint">
                 <th className="w-10 px-4 py-3">
-                  <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Selecionar todos" className="accent-[var(--color-brand)]" />
+                  <input type="checkbox" checked={allChecked} onChange={toggleAll} aria-label="Selecionar todos" className="accent-[var(--color-navy)]" />
                 </th>
                 <th className="py-3 pr-3 font-medium">Contato</th>
                 <th className="px-3 py-3 font-medium">Canal</th>
@@ -232,7 +232,7 @@ export function Contacts() {
               {list.map((c) => {
                 const t = temperature(c.score, settings.hotLeadScore)
                 return (
-                  <tr key={c.id} className="cursor-pointer border-b border-ink-850 transition last:border-0 hover:bg-ink-850" onClick={() => navigate(`/inbox/${c.id}`)}>
+                  <tr key={c.id} className="cursor-pointer border-b border-sunken transition last:border-0 hover:bg-sunken" onClick={() => navigate(`/inbox/${c.id}`)}>
                     <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <input
                         type="checkbox"
@@ -244,7 +244,7 @@ export function Contacts() {
                           setSelected(next)
                         }}
                         aria-label={`Selecionar ${fullName(c)}`}
-                        className="accent-[var(--color-brand)]"
+                        className="accent-[var(--color-navy)]"
                       />
                     </td>
                     <td className="py-3 pr-3">
@@ -253,25 +253,25 @@ export function Contacts() {
                         <div className="min-w-0">
                           <div className="font-medium">
                             {fullName(c) || 'Sem nome'}
-                            {!c.subscribed && <span className="ml-2 text-[11px] text-mute-600">descadastrado</span>}
+                            {!c.subscribed && <span className="ml-2 text-[11px] text-faint">descadastrado</span>}
                           </div>
-                          <div className="truncate text-[12px] text-mute-600">{c.fields.email ?? c.handle}</div>
+                          <div className="truncate text-[12px] text-faint">{c.fields.email ?? c.handle}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-3 py-3">
-                      <span className="inline-flex items-center gap-1.5 text-mute">
+                      <span className="inline-flex items-center gap-1.5 text-muted">
                         <ChannelIcon channel={c.channel} /> {CHANNEL_LABEL[c.channel]}
                       </span>
                     </td>
                     <td className="px-3 py-3">
                       <div className="flex max-w-[260px] flex-wrap gap-1">
                         {c.tags.slice(0, 3).map((x) => (
-                          <span key={x} className="rounded-md bg-ink-800 px-1.5 py-0.5 text-[11.5px] text-mute">
+                          <span key={x} className="rounded-md bg-subtle px-1.5 py-0.5 text-[11.5px] text-muted">
                             {x}
                           </span>
                         ))}
-                        {c.tags.length > 3 && <span className="text-[11.5px] text-mute-600">+{c.tags.length - 3}</span>}
+                        {c.tags.length > 3 && <span className="text-[11.5px] text-faint">+{c.tags.length - 3}</span>}
                       </div>
                     </td>
                     <td className="px-3 py-3 text-right">
@@ -279,7 +279,7 @@ export function Contacts() {
                         {c.score} · {t}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-right text-mute-600">{timeAgo(c.lastActivityAt)}</td>
+                    <td className="px-4 py-3 text-right text-faint">{timeAgo(c.lastActivityAt)}</td>
                   </tr>
                 )
               })}
@@ -287,7 +287,7 @@ export function Contacts() {
           </table>
         </div>
       )}
-      <p className="mt-3 text-[12px] text-mute-600">
+      <p className="mt-3 text-[12px] text-faint">
         {list.length} de {real.length} contatos · CSV aceita as colunas nome, sobrenome, canal, usuario, tags (separadas por |), pontuacao e qualquer campo extra (email, telefone…).
       </p>
 

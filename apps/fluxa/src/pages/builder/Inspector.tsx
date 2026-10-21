@@ -49,10 +49,10 @@ const VARIABLES = ['{{first_name}}', '{{last_name}}', '{{email}}', '{{telefone}}
 
 function VariableHint({ onInsert }: { onInsert: (v: string) => void }) {
   return (
-    <div className="flex flex-wrap items-center gap-1 text-[11px] text-mute-600">
+    <div className="flex flex-wrap items-center gap-1 text-[11px] text-faint">
       Variáveis:
       {VARIABLES.map((v) => (
-        <button key={v} type="button" onClick={() => onInsert(v)} className="rounded bg-ink-800 px-1.5 py-0.5 font-mono text-brand-200 hover:bg-ink-700">
+        <button key={v} type="button" onClick={() => onInsert(v)} className="rounded bg-subtle px-1.5 py-0.5 font-mono text-accent hover:bg-line">
           {v}
         </button>
       ))}
@@ -68,7 +68,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
   let body: ReactNode = null
   switch (d.kind) {
     case 'trigger':
-      body = <p className="text-[13px] text-mute">Os gatilhos ficam na aba “Gatilhos” do painel. Clique em uma área vazia do canvas para vê-los.</p>
+      body = <p className="text-[13px] text-muted">Os gatilhos ficam na aba “Gatilhos” do painel. Clique em uma área vazia do canvas para vê-los.</p>
       break
 
     case 'message':
@@ -90,7 +90,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
             }
           >
             {d.buttons.map((b, i) => (
-              <div key={b.id} className="space-y-2 rounded-xl border border-ink-800 bg-ink-950/50 p-2.5">
+              <div key={b.id} className="space-y-2 rounded-xl border border-subtle bg-canvas/50 p-2.5">
                 <div className="flex gap-2">
                   <input
                     className="field"
@@ -141,7 +141,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                 <IconButton icon="trash" label="Remover" onClick={() => onChange({ ...d, quickReplies: d.quickReplies.filter((_, j) => j !== i) })} />
               </div>
             ))}
-            <p className="text-[11.5px] text-mute-600">Com botões “continuar” ou respostas rápidas, o fluxo espera o clique. Cada opção vira uma saída do nó.</p>
+            <p className="text-[11.5px] text-faint">Com botões “continuar” ou respostas rápidas, o fluxo espera o clique. Cada opção vira uma saída do nó.</p>
           </Section>
         </>
       )
@@ -174,7 +174,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
           )}
           <Section title="Mensagem para resposta inválida">
             <input className="field" value={d.retryText} onChange={(e) => onChange({ ...d, retryText: e.target.value })} />
-            <p className="text-[11.5px] text-mute-600">Após 3 tentativas inválidas o fluxo segue pela saída “3 respostas inválidas”.</p>
+            <p className="text-[11.5px] text-faint">Após 3 tentativas inválidas o fluxo segue pela saída “3 respostas inválidas”.</p>
           </Section>
         </>
       )
@@ -226,7 +226,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                           ['unset', 'está vazio'],
                         ]
               return (
-                <div key={r.id} className="space-y-2 rounded-xl border border-ink-800 bg-ink-950/50 p-2.5">
+                <div key={r.id} className="space-y-2 rounded-xl border border-subtle bg-canvas/50 p-2.5">
                   <div className="flex gap-2">
                     <select
                       className="field"
@@ -284,7 +284,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
           {d.actions.map((a, i) => {
             const set = (patch: Partial<FlowAction>) => onChange({ ...d, actions: d.actions.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
             return (
-              <div key={a.id} className="space-y-2 rounded-xl border border-ink-800 bg-ink-950/50 p-2.5">
+              <div key={a.id} className="space-y-2 rounded-xl border border-subtle bg-canvas/50 p-2.5">
                 <div className="flex gap-2">
                   <select className="field" value={a.kind} aria-label="Tipo de ação" onChange={(e) => set({ kind: e.target.value as ActionKind, value: '', field: undefined })}>
                     {Object.entries(ACTION_LABEL).map(([k, v]) => (
@@ -304,7 +304,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                 )}
                 {a.kind === 'add_score' && <input className="field" type="number" placeholder="pontos (use negativo para tirar)" value={a.value} onChange={(e) => set({ value: e.target.value })} />}
                 {a.kind === 'notify' && <input className="field" placeholder="Texto da notificação para o time" value={a.value} onChange={(e) => set({ value: e.target.value })} />}
-                {a.kind === 'handoff' && <p className="text-[11.5px] text-mute-600">Pausa a automação para este contato e coloca a conversa no inbox do time.</p>}
+                {a.kind === 'handoff' && <p className="text-[11.5px] text-faint">Pausa a automação para este contato e coloca a conversa no inbox do time.</p>}
                 {(a.kind === 'subscribe_sequence' || a.kind === 'unsubscribe_sequence') && (
                   <select className="field" value={a.value} onChange={(e) => set({ value: e.target.value })}>
                     <option value="">Escolha a sequência…</option>
@@ -318,7 +318,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                 {a.kind === 'webhook' && (
                   <>
                     <input className="field" placeholder="https://hooks.seu-sistema.com/…" value={a.value} onChange={(e) => set({ value: e.target.value })} />
-                    <p className="text-[11.5px] text-mute-600">Envia um POST com o contato (nome, canal, tags, campos, pontuação) para integrar CRM, planilha ou Zapier/Make.</p>
+                    <p className="text-[11.5px] text-faint">Envia um POST com o contato (nome, canal, tags, campos, pontuação) para integrar CRM, planilha ou Zapier/Make.</p>
                   </>
                 )}
               </div>
@@ -341,7 +341,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
               ))}
             </select>
           </div>
-          <p className="text-[11.5px] text-mute-600">No modo demonstração (Configurações) cada unidade vira 1 segundo, para testar rápido.</p>
+          <p className="text-[11.5px] text-faint">No modo demonstração (Configurações) cada unidade vira 1 segundo, para testar rápido.</p>
         </Section>
       )
       break
@@ -356,7 +356,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                   key={m}
                   type="button"
                   onClick={() => onChange({ ...d, mode: m })}
-                  className={`rounded-xl border px-3 py-2 text-left text-[12.5px] transition ${d.mode === m ? 'border-neon/50 bg-neon/10 text-bone' : 'border-ink-700 text-mute hover:border-ink-600'}`}
+                  className={`rounded-xl border px-3 py-2 text-left text-[12.5px] transition ${d.mode === m ? 'border-success/50 bg-success/10 text-fg' : 'border-line text-muted hover:border-line-strong'}`}
                 >
                   <span className="block font-semibold">{m === 'reply' ? 'Responder' : 'Classificar'}</span>
                   <span className="text-[11px]">{m === 'reply' ? 'IA escreve a resposta' : 'Escolhe um caminho'}</span>
@@ -386,7 +386,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                   <IconButton icon="trash" label="Remover intenção" onClick={() => onChange({ ...d, intents: d.intents.filter((_, j) => j !== i) })} />
                 </div>
               ))}
-              <p className="text-[11.5px] text-mute-600">A IA lê a última mensagem do contato. Se nenhuma intenção servir, segue por “Nenhuma”.</p>
+              <p className="text-[11.5px] text-faint">A IA lê a última mensagem do contato. Se nenhuma intenção servir, segue por “Nenhuma”.</p>
             </Section>
           )}
           <Section title="Salvar resultado no campo (opcional)">
@@ -418,7 +418,7 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
                 value={v.weight}
                 onChange={(e) => onChange({ ...d, variants: d.variants.map((x, j) => (j === i ? { ...x, weight: Math.max(0, Math.min(100, Number(e.target.value) || 0)) } : x)) })}
               />
-              <span className="text-mute-600">%</span>
+              <span className="text-faint">%</span>
               <IconButton icon="trash" label="Remover variante" disabled={d.variants.length <= 2} onClick={() => onChange({ ...d, variants: d.variants.filter((_, j) => j !== i) })} />
             </div>
           ))}
@@ -445,19 +445,19 @@ export function Inspector({ node, automation, automations, sequences, tags, fiel
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-ink-800 px-4 py-3">
+      <div className="flex items-center gap-2 border-b border-subtle px-4 py-3">
         <span className="grid size-7 place-items-center rounded-lg" style={{ background: `${meta.color}22`, color: meta.color }}>
           <Icon name={NODE_ICON[node.type]} size={15} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[13.5px] font-semibold">{meta.label}</div>
-          <div className="truncate text-[11.5px] text-mute-600">{meta.hint}</div>
+          <div className="truncate text-[11.5px] text-faint">{meta.hint}</div>
         </div>
         <IconButton icon="x" label="Fechar painel" onClick={onClose} />
       </div>
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-4 py-4">{body}</div>
       {node.type !== 'trigger' && (
-        <div className="flex gap-2 border-t border-ink-800 px-4 py-3">
+        <div className="flex gap-2 border-t border-subtle px-4 py-3">
           <Button size="sm" icon="copy" onClick={onDuplicate}>
             Duplicar
           </Button>
@@ -484,15 +484,15 @@ function SplitResults({ automation, node }: { automation: Automation; node: Flow
   if (node.data.kind !== 'split') return null
   const variants = node.data.variants
   const total = variants.reduce((s, v) => s + (automation.stats.variants[v.id] ?? 0), 0)
-  if (!total) return <p className="text-[11.5px] text-mute-600">Os resultados aparecem aqui conforme os contatos passam pelo teste.</p>
+  if (!total) return <p className="text-[11.5px] text-faint">Os resultados aparecem aqui conforme os contatos passam pelo teste.</p>
   return (
-    <div className="mt-3 space-y-2 rounded-xl border border-ink-800 p-3">
+    <div className="mt-3 space-y-2 rounded-xl border border-subtle p-3">
       <span className="label">Distribuição real</span>
       {variants.map((v) => {
         const n = automation.stats.variants[v.id] ?? 0
         return (
           <div key={v.id} className="grid grid-cols-[60px_1fr_auto] items-center gap-2 text-[12px]">
-            <span className="truncate text-mute">{v.label}</span>
+            <span className="truncate text-muted">{v.label}</span>
             <span className="h-2 rounded-r bg-brand" style={{ width: `${Math.max(2, (n / total) * 100)}%` }} />
             <span className="tabular-nums">{n}</span>
           </div>

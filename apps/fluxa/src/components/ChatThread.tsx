@@ -23,12 +23,12 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
 
   return (
     <div className="flex flex-col gap-2 px-3 py-4">
-      {messages.length === 0 && !typing && <p className="py-10 text-center text-[13px] text-mute-600">{emptyText}</p>}
+      {messages.length === 0 && !typing && <p className="py-10 text-center text-[13px] text-faint">{emptyText}</p>}
       {messages.map((m) => {
         if (m.from === 'system') {
           return (
             <div key={m.id} className="my-1 flex justify-center">
-              <span className="max-w-[90%] rounded-full border border-ink-700 bg-ink-850 px-3 py-1 text-center text-[11px] text-mute">{m.text}</span>
+              <span className="max-w-[90%] rounded-md px-3 py-1 text-center text-[11.5px] text-faint">{m.text}</span>
             </div>
           )
         }
@@ -40,14 +40,14 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
               {m.imageUrl && <img src={m.imageUrl} alt="" className="max-h-48 w-full object-cover" loading="lazy" />}
               {m.text && <p className="whitespace-pre-wrap break-words px-3.5 py-2 text-[13.5px] leading-relaxed">{m.text}</p>}
               {m.buttons && m.buttons.length > 0 && (
-                <div className="flex flex-col border-t border-white/10">
+                <div className="flex flex-col border-t border-black/[0.07]">
                   {m.buttons.map((b) => (
                     <button
                       key={b.id}
                       type="button"
                       disabled={!onButton}
                       onClick={() => onButton?.(m, b)}
-                      className="flex items-center justify-center gap-1.5 border-b border-white/10 px-3 py-2 text-[13px] font-medium text-info last:border-b-0 enabled:hover:bg-white/5 disabled:cursor-default"
+                      className="flex items-center justify-center gap-1.5 border-b border-black/[0.07] px-3 py-2 text-[13px] font-medium text-info last:border-b-0 enabled:hover:bg-black/[0.03] disabled:cursor-default"
                     >
                       {b.label || 'Botão'}
                       {b.action === 'url' && <Icon name="external" size={12} />}
@@ -56,7 +56,7 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
                 </div>
               )}
             </div>
-            <span className="mt-1 flex items-center gap-1 px-1 text-[10px] text-mute-600">
+            <span className="mt-1 flex items-center gap-1 px-1 text-[10px] text-faint">
               {m.from === 'bot' && <Icon name="bot" size={11} />}
               {m.from === 'agent' && <Icon name="user" size={11} />}
               {m.from === 'bot' ? 'Automação · ' : m.from === 'agent' ? 'Time · ' : ''}
@@ -66,9 +66,9 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
         )
       })}
       {typing && (
-        <div className="flex items-center gap-1 self-start rounded-2xl rounded-bl-md bg-ink-800 px-4 py-3" aria-label="Digitando">
+        <div className="flex items-center gap-1 self-start rounded-2xl rounded-bl-md bg-subtle px-4 py-3" aria-label="Digitando">
           {[0, 1, 2].map((i) => (
-            <span key={i} className="size-1.5 animate-bounce rounded-full bg-mute" style={{ animationDelay: `${i * 0.15}s` }} />
+            <span key={i} className="size-1.5 animate-bounce rounded-full bg-muted" style={{ animationDelay: `${i * 0.15}s` }} />
           ))}
         </div>
       )}
@@ -80,7 +80,7 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
               type="button"
               disabled={!onQuickReply}
               onClick={() => onQuickReply?.(last, q)}
-              className="rounded-full border border-brand-500/60 px-3 py-1 text-[12.5px] text-brand-200 transition enabled:hover:bg-brand/10 disabled:opacity-60"
+              className="rounded-full border border-brand/50 px-3 py-1 text-[12.5px] text-accent transition enabled:hover:bg-brand/10 disabled:opacity-60"
             >
               {q.label}
             </button>
@@ -93,7 +93,7 @@ export function ChatThread({ messages, perspective, onButton, onQuickReply, typi
 }
 
 function bubbleTone(m: ChatMessage, perspective: Props['perspective']): string {
-  if (m.from === 'contact') return perspective === 'contact' ? 'bg-gradient-to-br from-brand-300 to-brand-500 text-ink-950' : 'bg-ink-800 text-bone'
-  if (m.from === 'agent') return 'bg-info/15 text-bone border border-info/25'
-  return perspective === 'contact' ? 'bg-ink-800 text-bone' : 'bg-brand/12 text-bone border border-brand-600/30'
+  if (m.from === 'contact') return perspective === 'contact' ? 'bg-navy text-white' : 'bg-surface text-fg border border-line shadow-xs'
+  if (m.from === 'agent') return 'bg-navy text-white'
+  return perspective === 'contact' ? 'bg-surface text-fg border border-line shadow-xs' : 'bg-brand-100 text-fg border border-brand/25'
 }

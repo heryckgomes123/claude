@@ -211,7 +211,7 @@ function Canvas({ automation }: { automation: Automation }) {
       value={{ automation: live, automations, issues, tracedNodes: traced, activeNodeId: trace?.automationId === automation.id ? trace.activeNodeId : undefined, showVisits: true }}
     >
       <div className="flex h-full flex-col">
-        <header className="flex flex-wrap items-center gap-2 border-b border-ink-800 bg-ink-950 px-3 py-2.5 sm:px-4">
+        <header className="flex flex-wrap items-center gap-2 border-b border-subtle bg-canvas px-3 py-2.5 sm:px-4">
           <IconButton icon="chevronLeft" label="Voltar para automações" onClick={() => navigate('/automacoes')} />
           <input
             value={name}
@@ -219,9 +219,9 @@ function Canvas({ automation }: { automation: Automation }) {
             onBlur={() => name.trim() && name !== automation.name && updateAutomation(automation.id, { name: name.trim() })}
             onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
             aria-label="Nome da automação"
-            className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1 text-[15px] font-semibold outline-none hover:bg-ink-850 focus:bg-ink-850 sm:max-w-sm"
+            className="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1 text-[15px] font-semibold outline-none hover:bg-sunken focus:bg-sunken sm:max-w-sm"
           />
-          <span className="hidden text-[11.5px] text-mute-600 sm:inline">{saved ? 'Salvo' : 'Salvando…'}</span>
+          <span className="hidden text-[11.5px] text-faint sm:inline">{saved ? 'Salvo' : 'Salvando…'}</span>
           <div className="ml-auto flex items-center gap-2">
             {errors.length > 0 ? (
               <button type="button" onClick={() => (setTab('check'), setSelectedId(null), setPanelOpen(true))}>
@@ -230,11 +230,11 @@ function Canvas({ automation }: { automation: Automation }) {
                 </Badge>
               </button>
             ) : (
-              <Badge tone="neon">
+              <Badge tone="success">
                 <Icon name="check" size={12} /> Fluxo válido
               </Badge>
             )}
-            <label className="flex items-center gap-2 rounded-xl border border-ink-700 px-3 py-1.5 text-[12.5px]">
+            <label className="flex items-center gap-2 rounded-xl border border-line px-3 py-1.5 text-[12.5px]">
               <Toggle checked={automation.active} onChange={toggleActive} label={automation.active ? 'Pausar' : 'Ativar'} />
               {automation.active ? 'Ativa' : 'Pausada'}
             </label>
@@ -254,14 +254,14 @@ function Canvas({ automation }: { automation: Automation }) {
         </header>
 
         <div className="relative flex min-h-0 flex-1">
-          <aside className="absolute left-3 top-3 z-10 flex max-w-[calc(100%-24px)] gap-1 overflow-x-auto rounded-2xl border border-ink-700 bg-ink-900/95 p-1.5 shadow-xl backdrop-blur lg:flex-col lg:overflow-visible">
+          <aside className="absolute left-3 top-3 z-10 flex max-w-[calc(100%-24px)] gap-0.5 overflow-x-auto rounded-xl border border-line bg-surface p-1 shadow-card lg:flex-col lg:overflow-visible">
             {PALETTE.map((kind) => (
               <button
                 key={kind}
                 type="button"
                 onClick={() => addNode(kind)}
                 title={`${NODE_META[kind].label}: ${NODE_META[kind].hint}`}
-                className="group flex shrink-0 items-center gap-2 rounded-xl px-2.5 py-2 text-[12.5px] text-mute transition hover:bg-ink-800 hover:text-bone"
+                className="group flex shrink-0 items-center gap-2 rounded-xl px-2.5 py-2 text-[12.5px] text-muted transition hover:bg-subtle hover:text-fg"
               >
                 <span className="grid size-6 place-items-center rounded-lg" style={{ background: `${NODE_META[kind].color}1f`, color: NODE_META[kind].color }}>
                   <Icon name={NODE_ICON[kind]} size={14} />
@@ -285,7 +285,7 @@ function Canvas({ automation }: { automation: Automation }) {
                 setTesting(false)
               }}
               onPaneClick={() => setSelectedId(null)}
-              colorMode="dark"
+              colorMode="light"
               fitView
               fitViewOptions={{ padding: { top: 0.15, right: 0.12, bottom: 0.15, left: 0.2 }, minZoom: 0.2, maxZoom: 1 }}
               minZoom={0.2}
@@ -294,20 +294,20 @@ function Canvas({ automation }: { automation: Automation }) {
               defaultEdgeOptions={{ type: 'default' }}
               proOptions={{ hideAttribution: false }}
             >
-              <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#1a3a5c" />
+              <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#c3cdd9" />
               <Controls showInteractive={false} position="bottom-left" />
               <MiniMap pannable zoomable position="bottom-right" className="!hidden md:!block" nodeColor={(n) => NODE_META[n.type as NodeKind]?.color ?? '#555'} nodeStrokeWidth={0} />
             </ReactFlow>
           </div>
 
           {!panelOpen && (
-            <button type="button" onClick={() => setPanelOpen(true)} className="absolute right-3 top-3 z-10 rounded-xl border border-ink-700 bg-ink-900 px-3 py-2 text-[12.5px] text-mute hover:text-bone">
+            <button type="button" onClick={() => setPanelOpen(true)} className="absolute right-3 top-3 z-10 rounded-xl border border-line bg-surface px-3 py-2 text-[12.5px] text-muted hover:text-fg">
               Abrir painel
             </button>
           )}
 
           {panelOpen && (
-            <aside className="absolute inset-x-0 bottom-0 z-20 flex max-h-[62%] flex-col rounded-t-2xl border-t border-ink-700 bg-ink-900 shadow-2xl lg:static lg:max-h-none lg:w-[360px] lg:rounded-none lg:border-l lg:border-t-0 lg:shadow-none">
+            <aside className="absolute inset-x-0 bottom-0 z-20 flex max-h-[62%] flex-col rounded-t-2xl border-t border-line bg-surface shadow-pop lg:static lg:max-h-none lg:w-[360px] lg:rounded-none lg:border-l lg:border-t-0 lg:shadow-none">
               {testing ? (
                 <Simulator automation={live} flush={flush} onClose={() => setTesting(false)} />
               ) : selected ? (
@@ -326,7 +326,7 @@ function Canvas({ automation }: { automation: Automation }) {
                 />
               ) : (
                 <div className="flex min-h-0 flex-1 flex-col">
-                  <div className="flex items-center gap-2 border-b border-ink-800 px-3 py-2.5">
+                  <div className="flex items-center gap-2 border-b border-subtle px-3 py-2.5">
                     <Tabs
                       value={tab}
                       onChange={setTab}
@@ -356,9 +356,9 @@ function Canvas({ automation }: { automation: Automation }) {
                                   const n = nodes.find((x) => x.id === issue.nodeId)
                                   if (n) fitView({ nodes: [{ id: n.id }], duration: 400, maxZoom: 1.1 })
                                 }}
-                                className="flex w-full gap-2 rounded-xl border border-ink-800 p-3 text-left text-[12.5px] transition enabled:hover:border-ink-600"
+                                className="flex w-full gap-2 rounded-xl border border-subtle p-3 text-left text-[12.5px] transition enabled:hover:border-line-strong"
                               >
-                                <span className={issue.level === 'error' ? 'text-danger' : 'text-brand-300'}>
+                                <span className={issue.level === 'error' ? 'text-danger' : 'text-accent'}>
                                   <Icon name="alert" size={15} />
                                 </span>
                                 <span>{issue.text}</span>
@@ -375,13 +375,13 @@ function Canvas({ automation }: { automation: Automation }) {
                             ['Concluídas', percent(automation.stats.completed, automation.stats.runs)],
                             ['CTR', percent(automation.stats.clicks, automation.stats.runs)],
                           ].map(([l, v]) => (
-                            <div key={l} className="rounded-xl border border-ink-800 p-3">
-                              <div className="text-[11px] text-mute-600">{l}</div>
+                            <div key={l} className="rounded-xl border border-subtle p-3">
+                              <div className="text-[11px] text-faint">{l}</div>
                               <div className="mt-1 text-[17px] font-semibold tabular-nums">{v}</div>
                             </div>
                           ))}
                         </div>
-                        <p className="text-[12px] text-mute">Os números no canto de cada passo mostram quantos contatos passaram por ali — use para achar onde as pessoas desistem.</p>
+                        <p className="text-[12px] text-muted">Os números no canto de cada passo mostram quantos contatos passaram por ali — use para achar onde as pessoas desistem.</p>
                         <Button
                           size="sm"
                           variant="ghost"

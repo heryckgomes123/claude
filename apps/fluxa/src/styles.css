@@ -3,40 +3,52 @@
 @import '@xyflow/react/dist/style.css';
 @import 'tailwindcss';
 
-/* Tokens da marca INTELRA (os mesmos da landing page). */
+/*
+ * Identidade INTELRA Fluxa: fundo off-white, navy como cor principal,
+ * ciano como destaque e violeta de apoio. Menu lateral em navy, área de
+ * trabalho clara com superfícies brancas e bordas finas.
+ */
 @theme {
-  /* Azul-marinho da marca e derivados (fundo, superfícies, bordas). */
-  --color-ink-950: #051120;
-  --color-ink-900: #081b2e;
-  --color-ink-850: #0c2238;
-  --color-ink-800: #112c47;
-  --color-ink-700: #1a3a5c;
-  --color-ink-600: #2a5378;
-  --color-bone: #f5f8fc;
-  --color-mute: #9aafc4;
-  --color-mute-600: #5f7892;
+  --color-canvas: #f5f8fc;
+  --color-surface: #ffffff;
+  --color-sunken: #f1f5f9;
+  --color-subtle: #e9eef4;
+  --color-line: #e1e7ef;
+  --color-line-strong: #c9d3df;
 
-  /* Ciano da marca: ação principal, série de gráficos, destaques. */
-  --color-brand-100: #d9f9ff;
-  --color-brand-200: #8ceefb;
+  --color-fg: #081b2e;
+  --color-muted: #4b5d72;
+  --color-faint: #687a8f;
+
+  --color-navy: #081b2e;
+  --color-navy-800: #0f2a44;
+  --color-navy-700: #18385a;
+  --color-navy-600: #2b4c70;
+
+  --color-brand-100: #e0f9fd;
+  --color-brand-200: #a6f0fa;
   --color-brand-300: #33dcf2;
   --color-brand: #00cbe6;
   --color-brand-500: #00a8c4;
   --color-brand-600: #00849a;
-  --color-brand-700: #00566a;
+  --color-accent: #007a8d;
+  --color-chart: #0098b0;
 
-  /* Violeta de apoio: nós de IA e elementos secundários. */
   --color-violet: #7855f5;
-  --color-violet-300: #a896ff;
+  --color-violet-100: #efebfe;
+  --color-violet-700: #5534d1;
 
-  /* Cores de estado, reservadas para status. */
-  --color-neon: #3cff8f;
-  --color-danger: #ff6b6b;
-  --color-info: #7cc4ff;
+  --color-success: #0a8754;
+  --color-danger: #d23b3b;
+  --color-info: #2f6feb;
 
   --font-sans: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
   --font-poster: 'Geist Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --shadow-xs: 0 1px 2px rgb(8 27 46 / 0.05);
+  --shadow-card: 0 1px 2px rgb(8 27 46 / 0.04), 0 2px 8px -2px rgb(8 27 46 / 0.05);
+  --shadow-pop: 0 12px 32px -8px rgb(8 27 46 / 0.18), 0 2px 6px rgb(8 27 46 / 0.06);
 }
 
 @layer base {
@@ -48,21 +60,21 @@
   html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background: var(--color-ink-950);
-    color-scheme: dark;
+    background: var(--color-canvas);
+    color-scheme: light;
   }
   body {
-    background: var(--color-ink-950);
-    color: var(--color-bone);
+    background: var(--color-canvas);
+    color: var(--color-fg);
     font-family: var(--font-sans);
     font-size: 14px;
   }
   ::selection {
-    background: var(--color-brand-300);
-    color: var(--color-ink-950);
+    background: var(--color-brand-200);
+    color: var(--color-navy);
   }
   :focus-visible {
-    outline: 2px solid var(--color-brand-300);
+    outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -79,98 +91,111 @@
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-ink-600) transparent;
+    scrollbar-color: var(--color-line-strong) transparent;
   }
 }
 
 @layer components {
   .field {
     width: 100%;
-    border-radius: 10px;
-    border: 1px solid var(--color-ink-700);
-    background: var(--color-ink-900);
+    border-radius: 9px;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
     padding: 8px 11px;
-    color: var(--color-bone);
+    color: var(--color-fg);
     outline: none;
-    transition: border-color 0.15s;
+    box-shadow: var(--shadow-xs);
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .field:hover {
+    border-color: var(--color-line-strong);
   }
   .field:focus {
     border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 3px rgb(0 203 230 / 0.18);
   }
   .field::placeholder {
-    color: var(--color-mute-600);
+    color: var(--color-faint);
   }
   textarea.field {
     resize: vertical;
     min-height: 72px;
-    line-height: 1.45;
+    line-height: 1.5;
   }
   select.field {
     appearance: none;
     padding-right: 28px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23a39e93' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23687a8f' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
   }
   .label {
     display: block;
     margin-bottom: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-mute);
+    font-size: 12px;
+    font-weight: 550;
+    color: var(--color-muted);
   }
   .card {
-    border-radius: 16px;
-    border: 1px solid var(--color-ink-700);
-    background: linear-gradient(180deg, var(--color-ink-850), var(--color-ink-900));
+    border-radius: 14px;
+    border: 1px solid var(--color-line);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-card);
   }
   .font-poster {
-    font-weight: 800;
-    letter-spacing: -0.02em;
-  }
-  .brand-text {
-    background: linear-gradient(100deg, var(--color-brand-200), var(--color-brand) 45%, var(--color-brand-600));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    font-weight: 650;
+    letter-spacing: -0.025em;
+    font-variant-numeric: tabular-nums;
   }
 }
 
-/* React Flow no tema da marca. */
+/* React Flow no tema claro da marca. */
 .react-flow {
-  --xy-background-color: var(--color-ink-950);
-  --xy-edge-stroke: #2a5378;
-  --xy-edge-stroke-selected: var(--color-brand-300);
+  --xy-background-color: var(--color-canvas);
+  --xy-edge-stroke: #a9b6c6;
+  --xy-edge-stroke-selected: var(--color-brand-500);
   --xy-edge-stroke-width: 1.6;
-  --xy-connectionline-stroke: var(--color-brand-300);
-  --xy-handle-background-color: var(--color-ink-950);
-  --xy-handle-border-color: var(--color-brand-500);
-  --xy-controls-button-background-color: var(--color-ink-850);
-  --xy-controls-button-background-color-hover: var(--color-ink-700);
-  --xy-controls-button-color: var(--color-bone);
-  --xy-controls-button-border-color: var(--color-ink-700);
-  --xy-minimap-background-color: var(--color-ink-900);
-  --xy-minimap-mask-background-color: rgba(7, 7, 7, 0.7);
-  --xy-minimap-node-background-color: var(--color-ink-600);
-  --xy-selection-background-color: rgba(0, 203, 230, 0.08);
+  --xy-connectionline-stroke: var(--color-brand-500);
+  --xy-handle-background-color: var(--color-surface);
+  --xy-handle-border-color: var(--color-navy-600);
+  --xy-controls-button-background-color: var(--color-surface);
+  --xy-controls-button-background-color-hover: var(--color-sunken);
+  --xy-controls-button-color: var(--color-fg);
+  --xy-controls-button-border-color: var(--color-line);
+  --xy-minimap-background-color: var(--color-surface);
+  --xy-minimap-mask-background-color: rgb(241 245 249 / 0.7);
+  --xy-minimap-node-background-color: var(--color-line-strong);
+  --xy-selection-background-color: rgb(0 203 230 / 0.06);
   --xy-selection-border: 1px dashed var(--color-brand-500);
 }
 .react-flow .react-flow__handle {
-  width: 11px;
-  height: 11px;
+  width: 10px;
+  height: 10px;
   border-width: 2px;
 }
+.react-flow .react-flow__controls {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
+}
+.react-flow .react-flow__minimap {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  box-shadow: var(--shadow-card);
+}
 .react-flow .react-flow__edge.traced path {
-  stroke: var(--color-neon);
+  stroke: var(--color-success);
   stroke-width: 2.4;
 }
 .react-flow__attribution {
   background: transparent !important;
 }
 .react-flow__attribution a {
-  color: var(--color-mute-600) !important;
+  color: var(--color-faint) !important;
 }
 
 @keyframes pop-in {
@@ -188,10 +213,10 @@
 }
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(60, 255, 143, 0.45);
+    box-shadow: 0 0 0 0 rgb(10 135 84 / 0.4);
   }
   100% {
-    box-shadow: 0 0 0 10px rgba(60, 255, 143, 0);
+    box-shadow: 0 0 0 10px rgb(10 135 84 / 0);
   }
 }
 .pulse-ring {

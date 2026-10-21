@@ -63,13 +63,13 @@ function Editor({ initial, onClose }: { initial: Sequence; onClose: () => void }
             <span className="label">Nome</span>
             <input className="field" value={q.name} onChange={(e) => setQ({ ...q, name: e.target.value })} />
           </label>
-          <ol className="relative space-y-3 border-l border-ink-700 pl-5">
+          <ol className="relative space-y-3 border-l border-line pl-5">
             {q.steps.map((step, i) => {
               const set = (patch: Partial<typeof step>) => setQ({ ...q, steps: q.steps.map((x, j) => (j === i ? { ...x, ...patch } : x)) })
               return (
-                <li key={step.id} className="relative rounded-2xl border border-ink-800 bg-ink-900 p-3">
-                  <span className="absolute -left-[29px] top-4 grid size-4 place-items-center rounded-full border border-brand-500 bg-ink-950 text-[9px] font-bold text-brand-200">{i + 1}</span>
-                  <div className="mb-2 flex flex-wrap items-center gap-2 text-[12.5px] text-mute">
+                <li key={step.id} className="relative rounded-2xl border border-subtle bg-surface p-3">
+                  <span className="absolute -left-[29px] top-4 grid size-4 place-items-center rounded-full border border-brand-500 bg-canvas text-[9px] font-bold text-accent">{i + 1}</span>
+                  <div className="mb-2 flex flex-wrap items-center gap-2 text-[12.5px] text-muted">
                     <Icon name="clock" size={14} />
                     {i === 0 ? 'Depois da inscrição, esperar' : 'Depois do passo anterior, esperar'}
                     <input className="field !h-8 !w-16 !py-0" type="number" min={1} value={step.amount} onChange={(e) => set({ amount: Math.max(1, Number(e.target.value) || 1) })} aria-label="Quantidade" />
@@ -97,13 +97,13 @@ function Editor({ initial, onClose }: { initial: Sequence; onClose: () => void }
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-2xl border border-ink-800 p-4 text-[12.5px] text-mute">
+          <div className="rounded-2xl border border-subtle p-4 text-[12.5px] text-muted">
             <p>
-              Inscreva contatos pela ação <b className="text-bone">“Inscrever em sequência”</b> em qualquer automação, ou manualmente aqui.
+              Inscreva contatos pela ação <b className="text-fg">“Inscrever em sequência”</b> em qualquer automação, ou manualmente aqui.
             </p>
             <p className="mt-2">Passos fora da janela de 24 h do canal são pulados e registrados na conversa.</p>
           </div>
-          <div className="rounded-2xl border border-ink-800 p-4">
+          <div className="rounded-2xl border border-subtle p-4">
             <span className="label">Inscritos ({subscribers.length})</span>
             <div className="mb-3 flex gap-1.5">
               <select className="field !h-9 !py-0 text-[12.5px]" value={pick} onChange={(e) => setPick(e.target.value)} aria-label="Contato para inscrever">
@@ -132,14 +132,14 @@ function Editor({ initial, onClose }: { initial: Sequence; onClose: () => void }
                 return (
                   <li key={c.id} className="flex items-center gap-2">
                     <span className="min-w-0 flex-1 truncate">{fullName(c)}</span>
-                    <span className="text-mute-600">
+                    <span className="text-faint">
                       {Math.min(sub.nextStep, q.steps.length)}/{q.steps.length}
                     </span>
                     <IconButton icon="x" label="Remover da sequência" onClick={() => updateContact(c.id, (x) => ({ ...x, sequences: x.sequences.filter((s) => s.sequenceId !== q.id) }))} />
                   </li>
                 )
               })}
-              {subscribers.length === 0 && <li className="text-mute-600">Ninguém inscrito ainda.</li>}
+              {subscribers.length === 0 && <li className="text-faint">Ninguém inscrito ainda.</li>}
             </ul>
           </div>
         </div>
@@ -174,11 +174,11 @@ export function Sequences() {
             const subs = contacts.filter((c) => c.sequences.some((s) => s.sequenceId === q.id)).length
             const total = q.steps.reduce((sum, s) => sum + s.amount * { seconds: 1 / 86400, minutes: 1 / 1440, hours: 1 / 24, days: 1 }[s.unit], 0)
             return (
-              <article key={q.id} className="card cursor-pointer p-5 transition hover:border-ink-600" onClick={() => setEditing(q)}>
+              <article key={q.id} className="card min-w-0 cursor-pointer p-5 transition hover:border-line-strong" onClick={() => setEditing(q)}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="font-semibold">{q.name}</h2>
-                    <p className="mt-1 text-[12.5px] text-mute">
+                    <p className="mt-1 text-[12.5px] text-muted">
                       {q.steps.length} passo(s) · {total >= 1 ? `${Math.round(total)} dia(s)` : 'menos de 1 dia'} · {subs} inscrito(s)
                     </p>
                   </div>
@@ -197,7 +197,7 @@ export function Sequences() {
                   {q.steps.slice(0, 3).map((s, i) => (
                     <li key={s.id} className="flex gap-3 text-[12.5px]">
                       <Badge>{formatDelay(s.amount, s.unit)}</Badge>
-                      <span className="min-w-0 truncate text-mute">
+                      <span className="min-w-0 truncate text-muted">
                         {i + 1}. {s.text}
                       </span>
                     </li>

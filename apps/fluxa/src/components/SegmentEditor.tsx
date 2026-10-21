@@ -17,14 +17,14 @@ export function SegmentEditor({ segment, onChange, tags }: { segment: Segment; o
                 type="button"
                 aria-pressed={on}
                 onClick={() => onChange({ ...segment, channels: on ? segment.channels.filter((x) => x !== c) : [...segment.channels, c] })}
-                className={`rounded-full border px-2.5 py-1 text-[12px] transition ${on ? 'border-brand-500/60 bg-brand/10 text-brand-200' : 'border-ink-700 text-mute hover:border-ink-600'}`}
+                className={`rounded-full border px-2.5 py-1 text-[12px] transition ${on ? 'border-brand/50 bg-brand/10 text-accent' : 'border-line text-muted hover:border-line-strong'}`}
               >
                 {CHANNEL_LABEL[c]}
               </button>
             )
           })}
         </div>
-        {segment.channels.length === 0 && <p className="mt-1 text-[11.5px] text-mute-600">Nenhum selecionado = todos os canais.</p>}
+        {segment.channels.length === 0 && <p className="mt-1 text-[11.5px] text-faint">Nenhum selecionado = todos os canais.</p>}
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div>

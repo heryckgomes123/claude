@@ -68,19 +68,19 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center gap-2 border-b border-ink-800 px-4 py-3">
-        <span className="grid size-7 place-items-center rounded-lg bg-neon/15 text-neon">
+      <div className="flex items-center gap-2 border-b border-subtle px-4 py-3">
+        <span className="grid size-7 place-items-center rounded-lg bg-success/15 text-success">
           <Icon name="play" size={13} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-[13.5px] font-semibold">Testar ao vivo</div>
-          <div className="text-[11.5px] text-mute-600">O caminho percorrido acende em verde no canvas.</div>
+          <div className="text-[11.5px] text-faint">O caminho percorrido acende em verde no canvas.</div>
         </div>
         <IconButton icon="x" label="Fechar teste" onClick={onClose} />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-b border-ink-800 px-4 py-2.5">
-        <label className="flex items-center gap-2 text-[12px] text-mute">
+      <div className="flex flex-wrap items-center gap-2 border-b border-subtle px-4 py-2.5">
+        <label className="flex items-center gap-2 text-[12px] text-muted">
           <ChannelIcon channel={channel} />
           <select className="field !h-8 !w-auto !py-0 text-[12.5px]" value={channel} onChange={(e) => setChannel(e.target.value as Channel)} aria-label="Canal do teste">
             {CHANNELS.map((c) => (
@@ -100,7 +100,7 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,rgba(0,203,230,.06),transparent_60%)]">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-canvas">
         <ChatThread
           messages={contact?.messages ?? []}
           perspective="contact"
@@ -115,19 +115,19 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
       </div>
 
       {status && (
-        <div className="flex items-center gap-2 border-t border-ink-800 bg-neon/5 px-4 py-2 text-[12px] text-neon">
-          <span className="size-1.5 animate-pulse rounded-full bg-neon" /> {status}
+        <div className="flex items-center gap-2 border-t border-subtle bg-success/5 px-4 py-2 text-[12px] text-success">
+          <span className="size-1.5 animate-pulse rounded-full bg-success" /> {status}
         </div>
       )}
 
-      <div className="border-t border-ink-800 p-3">
+      <div className="border-t border-subtle p-3">
         <div className="mb-2 flex gap-1">
           {MODES.map((m) => (
             <button
               key={m.id}
               type="button"
               onClick={() => setMode(m.id)}
-              className={`rounded-lg px-2.5 py-1 text-[11.5px] transition ${mode === m.id ? 'bg-ink-700 text-bone' : 'text-mute-600 hover:text-mute'}`}
+              className={`rounded-lg px-2.5 py-1 text-[11.5px] transition ${mode === m.id ? 'bg-line text-fg' : 'text-faint hover:text-muted'}`}
             >
               {m.label}
             </button>
@@ -141,33 +141,33 @@ export function Simulator({ automation, flush, onClose }: { automation: Automati
           }}
         >
           <input className="field" value={text} onChange={(e) => setText(e.target.value)} placeholder={MODES.find((m) => m.id === mode)!.placeholder} aria-label="Mensagem de teste" />
-          <button type="submit" disabled={!text.trim() || busy} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center rounded-xl bg-brand-300 text-ink-950 transition disabled:opacity-40">
+          <button type="submit" disabled={!text.trim() || busy} aria-label="Enviar" className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-navy text-white transition hover:bg-navy-700 disabled:opacity-30">
             <Icon name="send" size={16} />
           </button>
         </form>
-        <div className="mt-2 flex items-center justify-between text-[11px] text-mute-600">
+        <div className="mt-2 flex items-center justify-between text-[11px] text-faint">
           <span>{aiOn ? 'IA: Claude' : 'IA: classificador local + textos alternativos'}</span>
-          <button type="button" className="hover:text-mute" onClick={() => setShowData(!showData)}>
+          <button type="button" className="hover:text-muted" onClick={() => setShowData(!showData)}>
             {showData ? 'Ocultar dados do contato' : 'Ver dados do contato'}
           </button>
         </div>
         {showData && contact && (
-          <div className="mt-2 space-y-1.5 rounded-xl border border-ink-800 bg-ink-950 p-3 text-[12px]">
+          <div className="mt-2 space-y-1.5 rounded-xl border border-subtle bg-canvas p-3 text-[12px]">
             <div>
-              <span className="text-mute-600">Pontuação:</span> {contact.score}
+              <span className="text-faint">Pontuação:</span> {contact.score}
             </div>
             <div>
-              <span className="text-mute-600">Tags:</span> {contact.tags.length ? contact.tags.join(', ') : '—'}
+              <span className="text-faint">Tags:</span> {contact.tags.length ? contact.tags.join(', ') : '—'}
             </div>
             <div className="break-all">
-              <span className="text-mute-600">Campos:</span>{' '}
+              <span className="text-faint">Campos:</span>{' '}
               {Object.keys(contact.fields).length
                 ? Object.entries(contact.fields)
                     .map(([k, v]) => `${k}=${v}`)
                     .join(' · ')
                 : '—'}
             </div>
-            {contact.botPaused && <div className="text-brand-300">Conversa transferida para o time (automação pausada).</div>}
+            {contact.botPaused && <div className="text-accent">Conversa transferida para o time (automação pausada).</div>}
           </div>
         )}
       </div>

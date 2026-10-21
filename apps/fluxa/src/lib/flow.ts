@@ -47,15 +47,15 @@ export function outputHandles(node: FlowNode): HandleDef[] {
 }
 
 export const NODE_META: Record<NodeKind, { label: string; hint: string; color: string }> = {
-  trigger: { label: 'Gatilho', hint: 'Onde o fluxo começa', color: '#3cff8f' },
-  message: { label: 'Mensagem', hint: 'Texto, imagem, botões e respostas rápidas', color: '#00cbe6' },
-  question: { label: 'Pergunta', hint: 'Coleta e valida uma resposta', color: '#7cc4ff' },
-  condition: { label: 'Condição', hint: 'Divide por tag, campo, canal ou pontuação', color: '#c79bff' },
-  action: { label: 'Ação', hint: 'Tags, campos, pontuação, time, webhook', color: '#ff9f6b' },
-  delay: { label: 'Atraso', hint: 'Espera antes de continuar', color: '#a39e93' },
-  ai: { label: 'IA', hint: 'Responde ou classifica com IA', color: '#a896ff' },
-  split: { label: 'Teste A/B', hint: 'Divide o tráfego entre variantes', color: '#ff6bb5' },
-  goto: { label: 'Ir para automação', hint: 'Continua em outra automação', color: '#a39e93' },
+  trigger: { label: 'Gatilho', hint: 'Onde o fluxo começa', color: '#0a8754' },
+  message: { label: 'Mensagem', hint: 'Texto, imagem, botões e respostas rápidas', color: '#0098b0' },
+  question: { label: 'Pergunta', hint: 'Coleta e valida uma resposta', color: '#2f6feb' },
+  condition: { label: 'Condição', hint: 'Divide por tag, campo, canal ou pontuação', color: '#a3369a' },
+  action: { label: 'Ação', hint: 'Tags, campos, pontuação, time, webhook', color: '#c46a06' },
+  delay: { label: 'Atraso', hint: 'Espera antes de continuar', color: '#687a8f' },
+  ai: { label: 'IA', hint: 'Responde ou classifica com IA', color: '#7855f5' },
+  split: { label: 'Teste A/B', hint: 'Divide o tráfego entre variantes', color: '#c2410c' },
+  goto: { label: 'Ir para automação', hint: 'Continua em outra automação', color: '#687a8f' },
 }
 
 export function createNodeData(kind: NodeKind): NodeData {
