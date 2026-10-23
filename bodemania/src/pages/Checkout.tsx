@@ -51,6 +51,8 @@ export default function Checkout() {
   const [extra, setExtra] = useState({ cpf: '', phone: '' })
   const [notes, setNotes] = useState('')
   const [processing, setProcessing] = useState(false)
+  const [accepted, setAccepted] = useState(false)
+  const [acceptError, setAcceptError] = useState(false)
   const [payError, setPayError] = useState('')
   const [summaryOpen, setSummaryOpen] = useState(false)
   const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([])
@@ -119,6 +121,10 @@ export default function Checkout() {
   const finish = async () => {
     if (!user || !ship || processing) return
     setPayError('')
+    if (!accepted) {
+      setAcceptError(true)
+      return
+    }
     if (method === 'card') {
       setCardTouched(true)
       if (Object.values(cardErrors).some(Boolean)) return
@@ -414,6 +420,35 @@ export default function Checkout() {
             <label className="mt-5 block">
               <span className="mb-1.5 block text-sm font-medium">Observações do pedido (opcional)</span>
               <textarea className="field" rows={2} maxLength={300} value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Ex.: é para presente, não enviar nota com valores." />
+            </label>
+
+            <label className="mt-5 flex items-start gap-3 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-5 w-5 shrink-0 accent-navy-900"
+                checked={accepted}
+                aria-invalid={acceptError && !accepted}
+                onChange={(e) => {
+                  setAccepted(e.target.checked)
+                  if (e.target.checked) setAcceptError(false)
+                }}
+              />
+              <span>
+                Li e aceito os{' '}
+                <Link to="/politicas/termos" target="_blank" rel="noreferrer" className="font-medium text-navy-700 underline">
+                  termos de uso e venda
+                </Link>
+                , a{' '}
+                <Link to="/politicas/privacidade" target="_blank" rel="noreferrer" className="font-medium text-navy-700 underline">
+                  política de privacidade
+                </Link>{' '}
+                e a{' '}
+                <Link to="/politicas/trocas" target="_blank" rel="noreferrer" className="font-medium text-navy-700 underline">
+                  política de trocas
+                </Link>{' '}
+                (arrependimento em até 7 dias).
+                {acceptError && !accepted && <span className="block text-xs font-medium text-err">Marque para finalizar a compra.</span>}
+              </span>
             </label>
 
             {payError && <p className="mt-4 rounded-xl bg-err-50 px-3 py-2 text-sm font-medium text-err">{payError}</p>}

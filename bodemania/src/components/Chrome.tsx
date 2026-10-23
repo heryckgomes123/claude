@@ -54,7 +54,7 @@ export function CookieBanner() {
     <div className="fixed inset-x-3 bottom-[84px] z-50 mx-auto max-w-xl rounded-2xl border border-line bg-white p-4 shadow-2xl lg:bottom-4">
       <p className="text-[13px] leading-snug text-ink sm:text-sm">
         Usamos cookies essenciais para o carrinho e a sua conta funcionarem e, com a sua permissão, cookies de medição para melhorar a loja.{' '}
-        <Link to="/politicas/privacidade" className="font-medium text-navy-700 underline">
+        <Link to="/politicas/cookies" className="font-medium text-navy-700 underline">
           Saiba mais
         </Link>
       </p>

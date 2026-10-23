@@ -28,8 +28,16 @@ function load() {
   document.head.appendChild(s)
 }
 
+function syncConsent() {
+  if (GA_ID) (window as unknown as Record<string, boolean>)[`ga-disable-${GA_ID}`] = prefsStore.get().cookies !== 'all'
+}
+
 export function initAnalytics() {
-  prefsStore.subscribe(load)
+  prefsStore.subscribe(() => {
+    syncConsent()
+    load()
+  })
+  syncConsent()
   load()
 }
 

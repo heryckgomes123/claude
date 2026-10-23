@@ -63,10 +63,12 @@ export default function Footer() {
               ['/conta', 'Minha conta'],
               ['/rastreio', 'Rastrear pedido'],
               ['/ajuda', 'Perguntas frequentes'],
+              ['/contato', 'Fale com a gente'],
               ['/politicas/trocas', 'Trocas e devoluções'],
               ['/politicas/entrega', 'Prazos e entrega'],
-              ['/politicas/privacidade', 'Privacidade (LGPD)'],
-              ['/politicas/termos', 'Termos de uso'],
+              ['/politicas/privacidade', 'Política de privacidade'],
+              ['/politicas/cookies', 'Política de cookies'],
+              ['/politicas/termos', 'Termos de uso e venda'],
               ['/sobre', 'Sobre nós'],
               ['/admin', 'Painel da loja'],
             ]}
@@ -92,7 +94,7 @@ export default function Footer() {
             </span>
           </div>
           <p>
-            © {STORE.year} {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.address}
+            © {STORE.year} {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.address} · {STORE.email}
           </p>
         </div>
       </div>

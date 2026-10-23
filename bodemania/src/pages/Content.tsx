@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useState } from 'react'
 import { useProducts } from '../data/catalog'
 import { RULES, STORE, whatsappLink } from '../config/store'
 import { isEmail } from '../lib/validate'
@@ -196,77 +196,4 @@ export function About() {
   )
 }
 
-const POLICIES: Record<string, { title: string; body: ReactNode }> = {
-  trocas: {
-    title: 'Trocas e devoluções',
-    body: (
-      <>
-        <p>
-          <b>Direito de arrependimento:</b> em compras pela internet, você pode desistir em até 7 dias corridos após o recebimento (art. 49 do Código de Defesa do Consumidor). Devolvemos o valor integral, incluindo o frete.
-        </p>
-        <p>
-          <b>Itens personalizados:</b> peças com nome, foto, gravação ou feitas a partir do seu arquivo/medidas são produzidas exclusivamente para você e, por isso, são trocadas apenas em caso de defeito de fabricação ou divergência com o pedido aprovado.
-        </p>
-        <p>
-          <b>Defeitos:</b> avise em até 90 dias pelo WhatsApp ou e-mail, com fotos. Enviamos a etiqueta de postagem reversa sem custo.
-        </p>
-        <p>
-          <b>Reembolso:</b> Pix e boleto em até 5 dias úteis após o recebimento da devolução; cartão, conforme o ciclo da operadora.
-        </p>
-      </>
-    ),
-  },
-  entrega: {
-    title: 'Prazos e entrega',
-    body: (
-      <>
-        <p>O prazo total é a soma do prazo de produção (informado em cada produto) com o prazo de transporte. A contagem começa após a confirmação do pagamento.</p>
-        <p>Enviamos pelos Correios (PAC e SEDEX) com código de rastreio, disponível na sua conta assim que o pedido é despachado. Em Dourados/MS há a opção de retirada no ateliê, com hora marcada.</p>
-        <p>Serviços digitais (modelagem 3D) são entregues na sua conta e por e-mail, sem frete.</p>
-        <p>Frete grátis no PAC para compras a partir de R$ {RULES.freeShippingFrom}.</p>
-      </>
-    ),
-  },
-  privacidade: {
-    title: 'Política de privacidade (LGPD)',
-    body: (
-      <>
-        <p>Coletamos apenas os dados necessários para processar o seu pedido: nome, CPF (nota fiscal), e-mail, telefone e endereço de entrega.</p>
-        <p>Os dados de cartão são processados diretamente pelo gateway de pagamento e nunca ficam armazenados na {STORE.name}.</p>
-        <p>Não vendemos nem compartilhamos seus dados com terceiros, exceto transportadoras e meios de pagamento, para cumprir o pedido.</p>
-        <p>
-          Você pode pedir acesso, correção, portabilidade ou exclusão dos seus dados a qualquer momento pelo e-mail <b>{STORE.email}</b>.
-        </p>
-      </>
-    ),
-  },
-  termos: {
-    title: 'Termos de uso',
-    body: (
-      <>
-        <p>
-          Ao usar a loja, você concorda com estes termos. Os preços e condições podem mudar sem aviso, mas valem sempre os do momento da compra. Imagens são ilustrativas.
-        </p>
-        <p>Arquivos enviados para impressão devem ser de sua autoria ou ter licença de uso. Não imprimimos armas, réplicas de armas ou itens que violem direitos de terceiros.</p>
-        <p>
-          {STORE.legalName} · CNPJ {STORE.cnpj} · {STORE.address} · {STORE.email}
-        </p>
-      </>
-    ),
-  },
-}
-
-export function Policy({ slug }: { slug: string }) {
-  const p = POLICIES[slug]
-  if (!p) return null
-  return (
-    <div className="wrap max-w-3xl">
-      <Breadcrumbs items={[{ label: 'Início', to: '/' }, { label: p.title }]} />
-      <h1 className="display text-3xl font-semibold md:text-5xl">{p.title}</h1>
-      <div className="mt-8 space-y-4 rounded-3xl border border-line bg-white p-6 text-[0.95rem] leading-relaxed text-ink/85 md:p-8">{p.body}</div>
-      <p className="mt-4 text-xs text-mute">Texto-base — revise com o seu contador/advogado antes de publicar.</p>
-    </div>
-  )
-}
-
-export const policyExists = (slug: string) => slug in POLICIES
+export { Policy, policyExists } from './Policies'

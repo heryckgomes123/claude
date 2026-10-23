@@ -14,11 +14,11 @@ export const STORE = {
   url: env.VITE_SITE_URL ?? 'https://bodemania.com.br',
   instagram: env.VITE_INSTAGRAM_URL ?? 'https://instagram.com/lojabodemania',
   email: 'contato@bodemania.com.br',
-  /** Troque pelos dados reais da empresa antes de publicar. */
   legalName: 'Bodemania Comércio de Artigos LTDA',
   cnpj: '06.127.667/0001-36',
   city: 'Dourados/MS',
   address: 'R. Monte Alegre, 707 - Jardim Tropical, Dourados/MS - CEP 79823-030',
+  phone: '(67) 99911-3636',
   year: 2026,
   /** Modo demonstração: sem VITE_SUPABASE_URL, pagamentos e contas são simulados no navegador. */
   demo: BACKEND === 'local',

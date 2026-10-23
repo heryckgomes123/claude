@@ -222,3 +222,9 @@ export const Instagram = (p: P) => (
     <circle cx="17.5" cy="6.5" r=".6" fill="currentColor" />
   </svg>
 )
+export const Mail = (p: P) => (
+  <svg {...base(p)}>
+    <rect x="3" y="5" width="18" height="14" rx="2.5" />
+    <path d="m4 7.5 8 6 8-6" />
+  </svg>
+)

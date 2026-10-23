@@ -14,7 +14,8 @@ import AuthPage, { ResetPasswordPage } from './pages/Auth'
 import CartPage from './pages/CartPage'
 import Catalog from './pages/Catalog'
 import Checkout from './pages/Checkout'
-import { About, Favorites, Help, Policy, Tracking, policyExists } from './pages/Content'
+import { About, Favorites, Help, Tracking } from './pages/Content'
+import { Contact, Policy, policyExists } from './pages/Policies'
 import Home from './pages/Home'
 import NotFound from './pages/NotFound'
 import OrderPage from './pages/OrderPage'
@@ -38,6 +39,7 @@ function resolve(path: string): { page: ReactNode; title?: string } {
   if (path === '/favoritos') return { page: <Favorites />, title: 'Favoritos' }
   if (path === '/orcamento-3d') return { page: <Quote3D />, title: 'Orçamento de impressão 3D' }
   if (path === '/rastreio') return { page: <Tracking />, title: 'Rastrear pedido' }
+  if (path === '/contato') return { page: <Contact />, title: 'Contato' }
   if (path === '/ajuda') return { page: <Help />, title: 'Ajuda' }
   if (path === '/sobre') return { page: <About />, title: 'Sobre' }
   if ((p = match('/politicas/:slug', path)) && policyExists(p.slug)) return { page: <Policy slug={p.slug} />, title: 'Políticas' }

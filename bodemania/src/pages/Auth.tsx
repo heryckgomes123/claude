@@ -127,7 +127,7 @@ function ForgotForm({ initialEmail, onBack }: { initialEmail: string; onBack: ()
 }
 
 function RegisterForm({ onDone }: { onDone: () => void }) {
-  const [f, setF] = useState({ name: '', email: '', cpf: '', phone: '', password: '', newsletter: true, terms: false })
+  const [f, setF] = useState({ name: '', email: '', cpf: '', phone: '', password: '', newsletter: false, terms: false })
   const [touched, setTouched] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -187,11 +187,11 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
         <input type="checkbox" className="mt-0.5 h-5 w-5 accent-navy-900" checked={f.terms} onChange={set('terms')} aria-invalid={!!show('terms')} />
         <span>
           Li e aceito os{' '}
-          <Link to="/politicas/termos" className="font-medium text-navy-700 underline">
+          <Link to="/politicas/termos" target="_blank" rel="noreferrer" className="font-medium text-navy-700 underline">
             termos de uso
           </Link>{' '}
           e a{' '}
-          <Link to="/politicas/privacidade" className="font-medium text-navy-700 underline">
+          <Link to="/politicas/privacidade" target="_blank" rel="noreferrer" className="font-medium text-navy-700 underline">
             política de privacidade
           </Link>
           .{show('terms') && <span className="block text-xs font-medium text-err">{show('terms')}</span>}

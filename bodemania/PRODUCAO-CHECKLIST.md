@@ -218,6 +218,24 @@ MP_ACCESS_TOKEN, MP_WEBHOOK_SECRET, RESEND_API_KEY, ME_TOKEN, ORIGIN_CEP ...
 
 ---
 
+## ⚖️ LEGAL E CONFORMIDADE (e-commerce no Brasil)
+
+- [x] Política de privacidade completa (LGPD: dados, bases legais, compartilhamento, direitos do titular, canal do encarregado)
+- [x] Termos de uso e venda (identificação do fornecedor, preços, pagamento, itens personalizados e impressão 3D, foro do consumidor)
+- [x] Trocas e devoluções (arrependimento de 7 dias, garantia legal, itens personalizados, reembolso) com botão de pedido por WhatsApp e e-mail
+- [x] Política de entrega (prazo, frete, retirada em Dourados, extravio e avaria)
+- [x] Política de cookies, com escolha que pode ser mudada a qualquer momento (o Google Analytics só roda com consentimento)
+- [x] Página de contato com razão social, CNPJ, endereço, e-mail e WhatsApp (Decreto 7.962/2013)
+- [x] Aceite obrigatório dos termos no checkout e no cadastro; newsletter desmarcada por padrão (consentimento LGPD)
+- [x] `robots.txt` bloqueando áreas privadas (admin, conta, checkout, pedidos)
+- [ ] **Revisão por advogado ou contador** dos textos em `src/pages/Policies.tsx` (principalmente: cancelamento de itens personalizados e prazos)
+- [ ] Confirmar que a caixa `contato@bodemania.com.br` existe e é monitorada (é o canal de privacidade e de arrependimento)
+- [ ] Definir quem é o encarregado de dados (pode ser o próprio dono) e, se quiser, informar o nome na política
+- [ ] Emissão de nota fiscal configurada (contador / emissor) para cada venda
+- [ ] Formulário "Clube Bodemania" do rodapé: hoje não guarda o e-mail; ligar a uma ferramenta de e-mail marketing ou remover
+
+---
+
 ## 🔧 TECNOLOGIAS STACK (Confirmadas)
 
 | Layer | Tech | Status |
