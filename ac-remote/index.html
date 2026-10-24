@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Ar" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>Controle do Ar</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --card: #141f33;
+      --line: #22314f;
+      --text: #e8eefb;
+      --muted: #8193b5;
+      --accent: #38bdf8;
+      --warm: #fb923c;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    main { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 16px; padding-top: 16px; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    h1 { font-size: 20px; margin: 0; font-weight: 600; }
+    .status { font-size: 13px; color: var(--muted); min-height: 1em; }
+    .icon-btn {
+      background: none; border: 1px solid var(--line); color: var(--muted);
+      border-radius: 10px; padding: 8px 10px; font: inherit; cursor: pointer;
+    }
+    .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 20px; padding: 20px;
+    }
+    .temp { text-align: center; }
+    .temp-value { font-size: 72px; font-weight: 300; line-height: 1; font-variant-numeric: tabular-nums; }
+    .temp-value span { font-size: 28px; color: var(--muted); vertical-align: top; }
+    .temp-label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+    .temp-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px; }
+    button {
+      font: inherit; color: var(--text); cursor: pointer;
+      background: #1b2a47; border: 1px solid var(--line);
+      border-radius: 14px; padding: 16px; font-size: 18px; font-weight: 600;
+      transition: transform 0.06s ease, background 0.2s ease;
+    }
+    button:active { transform: scale(0.97); }
+    button:disabled { opacity: 0.4; cursor: default; }
+    .power {
+      width: 100%; padding: 22px; font-size: 18px; border-radius: 18px;
+      background: #1b2a47;
+    }
+    .power.on { background: linear-gradient(135deg, #0ea5e9, #38bdf8); color: #04121f; border-color: transparent; }
+    .group-title { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 10px; }
+    .segmented { display: grid; gap: 8px; }
+    .segmented.modes { grid-template-columns: repeat(5, 1fr); }
+    .segmented.fans { grid-template-columns: repeat(4, 1fr); }
+    .segmented button { padding: 12px 4px; font-size: 14px; font-weight: 500; }
+    .segmented button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: #0f2a40; }
+    .segmented button[data-mode="heat"][aria-pressed="true"] { border-color: var(--warm); color: var(--warm); background: #3a2112; }
+    .hint { font-size: 12px; color: var(--muted); text-align: center; }
+    .sheet {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: none; align-items: flex-end; justify-content: center; padding: 16px;
+    }
+    .sheet.open { display: flex; }
+    .sheet .card { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+    label { font-size: 13px; color: var(--muted); display: flex; flex-direction: column; gap: 6px; }
+    input {
+      background: #0b1220; color: var(--text); border: 1px solid var(--line);
+      border-radius: 10px; padding: 12px; font: inherit; font-size: 16px;
+    }
+    .row { display: flex; gap: 10px; }
+    .row button { flex: 1; font-size: 16px; padding: 14px; }
+    .btn-primary { background: var(--accent); color: #04121f; border-color: transparent; }
+    .error { color: var(--danger); font-size: 13px; min-height: 1em; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Ar-condicionado</h1>
+      <button class="icon-btn" id="openSettings" aria-label="Configurações">Config</button>
+    </header>
+
+    <div class="status" id="status" role="status" aria-live="polite">Pronto</div>
+
+    <button class="power" id="power" aria-pressed="false">Ligar</button>
+
+    <section class="card temp">
+      <div class="temp-value"><span id="temp">24</span><span>°</span></div>
+      <div class="temp-label" id="modeLabel">Refrigerar</div>
+      <div class="temp-controls">
+        <button id="tempDown" aria-label="Diminuir temperatura">−</button>
+        <button id="tempUp" aria-label="Aumentar temperatura">+</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="group-title">Modo</p>
+      <div class="segmented modes" id="modes">
+        <button data-mode="cool" aria-pressed="false">Frio</button>
+        <button data-mode="heat" aria-pressed="false">Quente</button>
+        <button data-mode="fan" aria-pressed="false">Ventilar</button>
+        <button data-mode="dry" aria-pressed="false">Secar</button>
+        <button data-mode="auto" aria-pressed="false">Auto</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <p class="group-title">Ventilação</p>
+      <div class="segmented fans" id="fans">
+        <button data-fan="auto" aria-pressed="false">Auto</button>
+        <button data-fan="low" aria-pressed="false">Baixa</button>
+        <button data-fan="medium" aria-pressed="false">Média</button>
+        <button data-fan="high" aria-pressed="false">Alta</button>
+      </div>
+    </section>
+
+    <p class="hint">Adicione à tela inicial do celular para abrir como app.</p>
+  </main>
+
+  <div class="sheet" id="settings" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="card">
+      <h2 id="settingsTitle" style="margin:0;font-size:18px">Configurações</h2>
+      <label>
+        Endereço do servidor
+        <input id="serverUrl" type="url" inputmode="url" placeholder="http://192.168.0.10:8080" autocomplete="off" />
+      </label>
+      <label>
+        Token de acesso
+        <input id="token" type="password" placeholder="AC_TOKEN do servidor" autocomplete="off" />
+      </label>
+      <div class="error" id="settingsError"></div>
+      <div class="row">
+        <button id="closeSettings">Cancelar</button>
+        <button class="btn-primary" id="saveSettings">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ac-remote:v1";
+    const MODE_LABELS = { cool: "Refrigerar", heat: "Aquecer", fan: "Só ventilar", dry: "Desumidificar", auto: "Automático" };
+    const MIN_TEMP = 16;
+    const MAX_TEMP = 30;
+
+    const $ = (id) => document.getElementById(id);
+
+    const defaults = { power: false, mode: "cool", temp: 24, fan: "auto" };
+    let config = { serverUrl: location.origin, token: "" };
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      if (saved?.config) config = { ...config, ...saved.config };
+    } catch { /* armazenamento indisponível: segue com padrões */ }
+
+    let state = { ...defaults };
+    let sendTimer = null;
+    let inFlight = null;
+
+    function persist() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ config, state }));
+      } catch { /* ignora */ }
+    }
+
+    function setStatus(text, isError = false) {
+      const el = $("status");
+      el.textContent = text;
+      el.style.color = isError ? "var(--danger)" : "";
+    }
+
+    function render() {
+      const power = $("power");
+      power.textContent = state.power ? "Desligar" : "Ligar";
+      power.classList.toggle("on", state.power);
+      power.setAttribute("aria-pressed", String(state.power));
+
+      $("temp").textContent = state.temp;
+      $("tempDown").disabled = state.temp <= MIN_TEMP;
+      $("tempUp").disabled = state.temp >= MAX_TEMP;
+      $("modeLabel").textContent = MODE_LABELS[state.mode] ?? state.mode;
+
+      document.querySelectorAll("#modes button").forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
+      document.querySelectorAll("#fans button").forEach((b) =>
+        b.setAttribute("aria-pressed", String(b.dataset.fan === state.fan)));
+    }
+
+    // Envia o estado completo. Agrupa toques rápidos em um único envio.
+    function scheduleSend(delay = 250) {
+      clearTimeout(sendTimer);
+      setStatus("Enviando…");
+      sendTimer = setTimeout(send, delay);
+    }
+
+    async function send() {
+      persist();
+      const controller = new AbortController();
+      inFlight?.abort();
+      inFlight = controller;
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch(new URL("/api/ac", config.serverUrl), {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.token}`,
+          },
+          body: JSON.stringify(state),
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || `HTTP ${res.status}`);
+        }
+        setStatus("Enviado");
+      } catch (err) {
+        const msg = err.name === "AbortError" ? "Tempo esgotado" : err.message;
+        setStatus(`Falha: ${msg}`, true);
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    function update(patch) {
+      state = { ...state, ...patch };
+      render();
+      persist();
+      scheduleSend();
+    }
+
+    $("power").addEventListener("click", () => update({ power: !state.power }));
+    $("tempUp").addEventListener("click", () => {
+      if (state.temp < MAX_TEMP) update({ temp: state.temp + 1 });
+    });
+    $("tempDown").addEventListener("click", () => {
+      if (state.temp > MIN_TEMP) update({ temp: state.temp - 1 });
+    });
+    $("modes").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-mode]");
+      if (b) update({ mode: b.dataset.mode });
+    });
+    $("fans").addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-fan]");
+      if (b) update({ fan: b.dataset.fan });
+    });
+
+    // Configurações
+    function openSettings() {
+      $("serverUrl").value = config.serverUrl;
+      $("token").value = config.token;
+      $("settingsError").textContent = "";
+      $("settings").classList.add("open");
+    }
+    function closeSettings() { $("settings").classList.remove("open"); }
+
+    $("openSettings").addEventListener("click", openSettings);
+    $("closeSettings").addEventListener("click", closeSettings);
+    $("saveSettings").addEventListener("click", () => {
+      const url = $("serverUrl").value.trim();
+      try {
+        new URL(url);
+      } catch {
+        $("settingsError").textContent = "Endereço inválido. Ex.: http://192.168.0.10:8080";
+        return;
+      }
+      config = { serverUrl: url, token: $("token").value.trim() };
+      persist();
+      closeSettings();
+      scheduleSend(0);
+    });
+
+    render();
+    if (!config.token) setStatus("Configure o token em Config");
+  </script>
+</body>
+</html>
