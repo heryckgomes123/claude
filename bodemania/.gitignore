@@ -6,3 +6,4 @@ dist-single
 *.tsbuildinfo
 supabase/functions/.env
 supabase/.temp
+supabase/.bundles
