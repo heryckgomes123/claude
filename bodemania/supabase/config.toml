@@ -1,0 +1,32 @@
+# Bodemania · Supabase
+# Use com a CLI:  npx supabase start   (desenvolvimento local)  ·  npx supabase db push / functions deploy (produção)
+project_id = "bodemania"
+
+[api]
+enabled = true
+schemas = ["public", "storage"]
+
+[db]
+major_version = 15
+
+[auth]
+enabled = true
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/redefinir-senha", "https://bodemania.com.br/redefinir-senha"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+# Para vender: deixe false (cadastro e compra sem fricção). Se preferir confirmar o e-mail, mude para true.
+enable_confirmations = false
+double_confirm_changes = true
+
+# Todas as funções validam o usuário no próprio código (e o webhook valida a assinatura do Mercado Pago).
+[functions.create-order]
+verify_jwt = false
+[functions.admin-order]
+verify_jwt = false
+[functions.shipping-quote]
+verify_jwt = false
+[functions.mp-webhook]
+verify_jwt = false
