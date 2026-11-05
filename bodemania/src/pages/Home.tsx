@@ -1,5 +1,6 @@
 import { m } from 'framer-motion'
-import { CATEGORIES, UNIVERSES, universeOf, useCatalogStatus, useProducts, type Product } from '../data/catalog'
+import { CATEGORIES, UNIVERSES, universeOf, useCatalogStatus, useProducts, type Category, type CategoryId, type Product } from '../data/catalog'
+import { hasBundledPhotos } from '../state/photos'
 import { RULES, whatsappLink } from '../config/store'
 import { Link } from '../router'
 import { ArrowRight, Box, Card, Cube, Gift, Pix, Refresh, Shield, Sparkle, Truck, Upload, Whatsapp } from '../components/Icons'
@@ -111,6 +112,22 @@ function TrustStrip() {
   )
 }
 
+/** Produto preferido como capa de cada categoria (precisa ter foto). Sem foto ou sem produto, vale o primeiro com foto; sem nenhum, a ilustração. */
+const CATEGORY_COVERS: Partial<Record<CategoryId, string>> = {
+  paramentos: 'conjunto-comab-segundo-vigilante',
+  'joias-acessorios': 'boton-esquadro-e-compasso-redondo-azul-bt005a',
+  'presentes-maconicos': 'malhete-trabalhado',
+}
+
+function CategoryCover({ c }: { c: Category }) {
+  const products = useProducts()
+  const withPhoto = products.filter((p) => !p.href && p.category === c.id && (p.images?.length || hasBundledPhotos(p.slug)))
+  const cover = withPhoto.find((p) => p.slug === CATEGORY_COVERS[c.id]) ?? withPhoto[0]
+  const cls = 'aspect-square w-full transition duration-500 group-hover:scale-105'
+  if (cover) return <ProductImage p={cover} className={cls} label={c.name} />
+  return <ProductArt art={c.art} color={c.tone} universe={c.universe} className={cls} label={c.name} />
+}
+
 function Categories() {
   return (
     <section className="wrap mt-14 md:mt-20">
@@ -127,7 +144,7 @@ function Categories() {
         {CATEGORIES.map((c) => (
           <Link key={c.id} to={`/c/${c.id}`} className="group w-[124px] shrink-0 snap-start text-center md:w-auto">
             <span className="block overflow-hidden rounded-full ring-1 ring-line transition group-hover:ring-2 group-hover:ring-gold">
-              <ProductArt art={c.art} color={c.tone} universe={c.universe} className="aspect-square w-full transition duration-500 group-hover:scale-105" label={c.name} />
+              <CategoryCover c={c} />
             </span>
             <span className="mt-2.5 block text-[0.85rem] leading-tight font-semibold">{c.name}</span>
           </Link>
