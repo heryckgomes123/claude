@@ -64,7 +64,7 @@ function HeroGallery({ picks }: { picks: Product[] }) {
         >
           <Link
             to={`/p/${p.slug}`}
-            className="group relative block h-full w-full overflow-hidden rounded-[22px] bg-white shadow-[0_30px_60px_-30px_rgba(0,0,0,.6)] ring-1 ring-white/10 md:rounded-[28px]"
+            className="group relative block h-full w-full overflow-hidden rounded-[22px] bg-white shadow-[0_30px_60px_-34px_rgba(13,26,43,.4)] ring-1 ring-line transition duration-300 hover:-translate-y-1 md:rounded-[28px]"
           >
             <ProductImage
               p={p}
@@ -98,40 +98,35 @@ function Hero({ products }: { products: Product[] }) {
     [`R$ ${RULES.freeShippingFrom}`, 'frete grátis a partir de'],
   ]
   return (
-    <section className="relative isolate overflow-hidden bg-navy-950 text-white">
-      <div className="dots absolute inset-0 -z-10 opacity-70" />
-      <div className="absolute -top-48 -left-40 -z-10 h-[560px] w-[560px] rounded-full bg-gold/20 blur-[130px]" />
-      <div className="absolute -right-40 -bottom-56 -z-10 h-[520px] w-[520px] rounded-full bg-navy-600/50 blur-[130px]" />
+    <section className="relative isolate overflow-hidden border-b border-line bg-gradient-to-b from-white via-white to-paper text-ink">
+      <div className="dots-dark absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,black,transparent_85%)]" />
+      <div className="absolute -top-48 -left-40 -z-10 h-[560px] w-[560px] rounded-full bg-gold-100/70 blur-[130px]" />
+      <div className="absolute -right-40 -bottom-56 -z-10 h-[520px] w-[520px] rounded-full bg-navy-100/80 blur-[130px]" />
       <div className="wrap grid items-center gap-12 pt-12 pb-24 md:pt-16 md:pb-28 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pt-20 lg:pb-32">
         <m.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease: EASE }}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-gold-100 backdrop-blur">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-300" />
+          <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-1.5 text-xs font-semibold text-navy-700 shadow-sm">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold" />
             {total > 0 ? `${total} peças na coleção` : 'A loja do Maçom'}
           </span>
-          <h1 className="display mt-6 text-[2.7rem] leading-[1] font-semibold sm:text-6xl lg:text-[4.6rem]">
-            Símbolos que se usam <span className="text-gold-grad italic">com orgulho.</span>
+          <h1 className="display mt-6 text-[2.7rem] leading-[1] font-semibold text-navy-950 sm:text-6xl lg:text-[4.6rem]">
+            Símbolos que se usam <span className="text-gold-deep italic">com orgulho.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-base text-white/70 md:text-lg">
+          <p className="mt-6 max-w-lg text-base text-mute md:text-lg">
             Botons, joias de cargo, paramentos e presentes maçônicos — com acabamento de respeito e envio para todo o Brasil.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <Link to="/loja?u=maconaria" className="btn btn-gold">
+            <Link to="/loja?u=maconaria" className="btn btn-primary">
               Ver a coleção <ArrowRight size={18} />
             </Link>
-            <a
-              href={whatsappLink('Olá, Bodemania! Quero tirar uma dúvida.')}
-              target="_blank"
-              rel="noreferrer"
-              className="btn border border-white/20 text-white hover:bg-white/10"
-            >
-              <Whatsapp size={18} /> Falar no WhatsApp
+            <a href={whatsappLink('Olá, Bodemania! Quero tirar uma dúvida.')} target="_blank" rel="noreferrer" className="btn btn-ghost">
+              <Whatsapp size={18} className="text-ok" /> Falar no WhatsApp
             </a>
           </div>
-          <div className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-white/10 pt-6">
+          <div className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-6">
             {stats.map(([k, v]) => (
               <div key={v}>
-                <p className="display text-2xl font-semibold text-gold-300 md:text-3xl">{k}</p>
-                <p className="mt-1 text-xs leading-snug text-white/55">{v}</p>
+                <p className="display text-2xl font-semibold text-gold-600 md:text-3xl">{k}</p>
+                <p className="mt-1 text-xs leading-snug text-mute">{v}</p>
               </div>
             ))}
           </div>
@@ -281,28 +276,22 @@ function Showcase({ products }: { products: Product[] }) {
   if (items.length < 2) return null
   return (
     <section className="wrap mt-16 md:mt-24">
-      <div className="relative isolate grid items-center gap-10 overflow-hidden rounded-[32px] bg-navy-900 p-6 text-white md:p-12 lg:grid-cols-[1fr_1.15fr]">
-        <div className="dots absolute inset-0 -z-10 opacity-60" />
-        <div className="absolute -top-32 -right-20 -z-10 h-96 w-96 rounded-full bg-gold/20 blur-[110px]" />
+      <div className="relative isolate grid items-center gap-10 overflow-hidden rounded-[32px] bg-gold-50 p-6 ring-1 ring-gold-100 md:p-12 lg:grid-cols-[1fr_1.15fr]">
+        <div className="absolute -top-32 -right-20 -z-10 h-96 w-96 rounded-full bg-white blur-[90px]" />
         <div>
-          <p className="eyebrow text-gold-300">Coleção de paramentos</p>
-          <h2 className="display mt-3 text-4xl leading-[1.05] font-semibold md:text-5xl">
-            Para a sessão, <span className="text-gold-grad italic">o cargo e a posse.</span>
+          <p className="eyebrow text-gold-700">Coleção de paramentos</p>
+          <h2 className="display mt-3 text-4xl leading-[1.05] font-semibold text-navy-950 md:text-5xl">
+            Para a sessão, <span className="text-gold-deep italic">o cargo e a posse.</span>
           </h2>
-          <p className="mt-4 max-w-md text-white/70">
+          <p className="mt-4 max-w-md text-mute">
             Conjuntos, punhos e acessórios confeccionados com cetim, galão e bordado dourado. Peças sob encomenda conforme o rito e a Potência.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link to="/c/paramentos" className="btn btn-gold">
+            <Link to="/c/paramentos" className="btn btn-primary">
               Ver paramentos <ArrowRight size={18} />
             </Link>
-            <a
-              href={whatsappLink('Olá, Bodemania! Quero encomendar paramentos.')}
-              target="_blank"
-              rel="noreferrer"
-              className="btn border border-white/20 text-white hover:bg-white/10"
-            >
-              <Whatsapp size={18} /> Encomendar
+            <a href={whatsappLink('Olá, Bodemania! Quero encomendar paramentos.')} target="_blank" rel="noreferrer" className="btn btn-ghost">
+              <Whatsapp size={18} className="text-ok" /> Encomendar
             </a>
           </div>
         </div>
@@ -311,14 +300,14 @@ function Showcase({ products }: { products: Product[] }) {
             <Link
               key={p.id}
               to={`/p/${p.slug}`}
-              className={`group relative block overflow-hidden rounded-3xl bg-white ${i === 0 ? 'row-span-2' : 'aspect-square'}`}
+              className={`group relative block overflow-hidden rounded-3xl bg-white shadow-[0_24px_50px_-32px_rgba(13,26,43,.4)] ring-1 ring-line transition duration-300 hover:-translate-y-1 ${i === 0 ? 'row-span-2' : 'aspect-square'}`}
             >
               <ProductImage
                 p={p}
                 fit={i === 0 ? 'contain' : 'cover'}
-                className={`h-full w-full transition duration-700 ease-out group-hover:scale-[1.05] ${i === 0 ? 'p-3 pb-16' : ''}`}
+                className={`h-full w-full transition duration-700 ease-out group-hover:scale-[1.05] ${i === 0 ? 'p-4' : ''}`}
               />
-              <span className="absolute inset-x-2 bottom-2 rounded-xl bg-white/90 px-3 py-2 text-navy-950 backdrop-blur md:inset-x-3 md:bottom-3">
+              <span className="absolute inset-x-2 bottom-2 rounded-xl bg-white/90 px-3 py-2 text-navy-950 ring-1 ring-line backdrop-blur md:inset-x-3 md:bottom-3">
                 <span className="block truncate text-xs font-semibold md:text-sm">{p.name}</span>
                 <span className="block text-xs font-bold text-gold-700 tabular-nums">{money(p.price)}</span>
               </span>
