@@ -18,10 +18,10 @@
 
 @theme {
   /* Papel / superfícies */
-  --color-paper: #faf7f0;
-  --color-paper-2: #f3eee2;
-  --color-line: #e6dfcf;
-  --color-line-2: #d6cdb8;
+  --color-paper: #f7f6f2;
+  --color-paper-2: #efede6;
+  --color-line: #e5e2d9;
+  --color-line-2: #d5d0c3;
 
   /* Azul de loja (base institucional) */
   --color-navy-950: #070e18;

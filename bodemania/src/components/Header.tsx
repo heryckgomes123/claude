@@ -23,8 +23,8 @@ function PromoBar() {
     return () => window.clearInterval(t)
   }, [])
   return (
-    <div className="bg-navy-900 text-white">
-      <div className="wrap flex h-9 items-center justify-center gap-6 text-[0.78rem] font-medium">
+    <div className="bg-navy-950 text-white/85">
+      <div className="wrap flex h-9 items-center justify-center gap-6 text-[0.76rem] font-medium tracking-wide">
         <span className="md:hidden" key={i}>
           {PROMOS[i]}
         </span>
@@ -156,7 +156,7 @@ export default function Header() {
   return (
     <>
       <PromoBar />
-      <header className={`sticky top-[env(safe-area-inset-top,0px)] z-40 border-b bg-paper/92 backdrop-blur-md transition-shadow ${scrolled ? 'border-line shadow-[0_8px_30px_-18px_rgba(13,26,43,.35)]' : 'border-transparent'}`}>
+      <header className={`sticky top-[env(safe-area-inset-top,0px)] z-40 border-b bg-white/85 backdrop-blur-xl backdrop-saturate-150 transition-shadow ${scrolled ? 'border-line shadow-[0_8px_30px_-18px_rgba(13,26,43,.35)]' : 'border-line/70'}`}>
         <div className="wrap flex h-16 items-center gap-3 md:h-[72px] md:gap-6">
           <button type="button" className="-ml-2 grid h-11 w-11 place-items-center rounded-full hover:bg-paper-2 lg:hidden" onClick={() => uiStore.set({ menuOpen: true })} aria-label="Abrir menu">
             <Menu size={22} />

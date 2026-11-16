@@ -11,7 +11,10 @@ export default function ProductImage({
   view = 0,
   className = '',
   label,
+  fit = 'cover',
 }: {
+  /** `contain` mostra a foto inteira (sem cortar); `cover` preenche o espaço */
+  fit?: 'cover' | 'contain'
   p?: Product
   productId?: string
   color?: string
@@ -32,7 +35,7 @@ export default function ProductImage({
         alt={label ?? product.name}
         loading="lazy"
         decoding="async"
-        className={`object-cover ${className}`}
+        className={`${fit === 'contain' ? 'object-contain' : 'object-cover'} ${className}`}
       />
     )
   return (

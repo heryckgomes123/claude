@@ -27,7 +27,7 @@ export default function ProductCard({ p }: { p: Product }) {
 
   return (
     <article className="group relative flex flex-col">
-      <div className="relative overflow-hidden rounded-[22px] bg-paper-2">
+      <div className="relative overflow-hidden rounded-[22px] bg-white ring-1 ring-line transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_24px_50px_-28px_rgba(13,26,43,.45)]">
         <Link to={to} aria-label={p.name} className="block aspect-square">
           <ProductImage p={p} className="h-full w-full transition duration-700 ease-out group-hover:scale-[1.04]" />
         </Link>
