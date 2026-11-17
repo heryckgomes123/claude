@@ -33,12 +33,16 @@ async function callFn<T>(name: string, body: unknown): Promise<T> {
   throw new UserFacingError('Não foi possível falar com o servidor. Verifique sua conexão e tente de novo.', 'network')
 }
 
-const authMessage = (e: { code?: string; message: string }) => {
+const authMessage = (e: { code?: string; message: string; reasons?: string[] }) => {
   switch (e.code) {
     case 'invalid_credentials': return 'E-mail ou senha incorretos.'
     case 'email_not_confirmed': return 'Confirme seu e-mail antes de entrar: enviamos um link para a sua caixa de entrada.'
     case 'user_already_exists': case 'email_exists': return 'Já existe uma conta com este e-mail. Que tal entrar?'
-    case 'weak_password': return 'Senha fraca. Use pelo menos 8 caracteres, com letras e números.'
+    case 'weak_password':
+      // "pwned" = a senha aparece em vazamentos conhecidos (proteção HaveIBeenPwned do Supabase)
+      return e.reasons?.includes('pwned')
+        ? 'Esta senha já apareceu em vazamentos de dados na internet. Por segurança, escolha outra.'
+        : 'Senha fraca. Use pelo menos 8 caracteres, com letras e números.'
     case 'over_request_rate_limit': case 'over_email_send_rate_limit': return 'Muitas tentativas. Aguarde alguns minutos e tente de novo.'
     case 'same_password': return 'A nova senha precisa ser diferente da atual.'
     default: return 'Não foi possível concluir. Tente novamente.'
